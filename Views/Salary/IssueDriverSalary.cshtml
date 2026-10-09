@@ -1,0 +1,506 @@
+@model TMSWeb.Models.Entities.HR.TblPaymentSalaryDetail
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    var additionData = (List<TMSWeb.Models.Entities.HR.TblPaymentSalaryAddition>)ViewBag.Addition;
+    var dedictionData = (List<TMSWeb.Models.Entities.HR.TblPaymentSalaryDediction>)ViewBag.Dediction;
+    var attendance = (TMSWeb.Models.ViewModels.AttendanceSummaryViewModel)ViewBag.Attendance;
+    var profile = (TMSWeb.Models.ViewModels.EmployeeViewModel)ViewBag.Profile;
+}
+
+@section Styles {
+    <style>
+        .addition, .dediction {
+            padding: 0 !important;
+            margin-top: 10px;
+        }
+
+            .addition th, .dediction th {
+                font-size: 13px !important;
+                color: #5d5d5d;
+            }
+
+            .addition td, .dediction td {
+                padding-right: 0 !important;
+                padding-bottom: 7px !important;
+            }
+
+        .action {
+            width: 50px;
+            padding-top: 13px !important;
+            ;
+            text-align: center !important;
+        }
+
+        .item-value {
+            width: 110px;
+        }
+
+        .form-group {
+            margin: 0
+        }
+
+        .form-actions {
+            height: 42px;
+            border-top: 1px solid #ccc;
+            padding-top: 13px;
+        }
+
+        .profile-user, .profile-detail {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .profile-detail {
+            margin-left: 7px;
+        }
+
+        .profile-user img {
+            width: 50px;
+            border-radius: 50px !important;
+        }
+
+        .profile-detail .emp-code {
+            font-size: 13px;
+            color: #a3a3a3;
+            font-weight: bold;
+        }
+
+        .profile-detail .emp-detail {
+            font-size: 13px;
+            color: #696969;
+            font-weight: bold;
+        }
+
+        td.trip {
+            text-align: right;
+            padding-right: 7px !important;
+        }
+
+        .profile-stat-title {
+            font-size: 21px !important
+        }
+    </style>
+}
+
+<div class="col-md-12">
+    <div class="portlet light bordered">
+        @using (Html.BeginForm("IssueData", "Salary", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+        {
+            @Html.HiddenFor(m => m.PaymentCode)
+            @Html.HiddenFor(m => m.EmpCode)
+            @Html.HiddenFor(m => m.IsEnabled)
+            @Html.HiddenFor(m => m.CreateDate)
+            @Html.HiddenFor(m => m.CreateBy)
+            <div class="portlet-body">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row list-separated profile-stat" style="border:none;padding:0">
+                                <div class="col-md-4 col-sm-4 col-xs-6">
+                                    <div class="profile-user">
+                                        @if (this.IsExists(profile.emp_img))
+                                        {
+                                            <img src="~/pics/employee/avatars/@Model.EmpCodeNavigation" class="img-responsive" alt="" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/pics/employee/avatars/dfimage.jpg" class="img-responsive" alt="" />
+                                        }
+                                    </div>
+                                    <div class="profile-detail">
+                                        <div class="emp-code">@Model.EmpCodeNavigation.EmpCode</div>
+                                        <div class="emp-detail">@Model.EmpCodeNavigation.EmpFullname</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 col-sm-1 col-xs-6">
+                                    <div class="uppercase profile-stat-title"> @attendance.total_days </div>
+                                    <div class="uppercase profile-stat-text"> วันทำงาน </div>
+                                </div>
+                                <div class="col-md-2 col-sm-2 col-xs-6">
+                                    <div class="uppercase profile-stat-title"> @attendance.absent_days </div>
+                                    <div class="uppercase profile-stat-text"> ขาด </div>
+                                </div>
+                                <div class="col-md-1 col-sm-1 col-xs-6">
+                                    <div class="uppercase profile-stat-title"> @attendance.leave_days </div>
+                                    <div class="uppercase profile-stat-text"> ลา </div>
+                                </div>
+                                <div class="col-md-2 col-sm-1 col-xs-6">
+                                    <div class="uppercase profile-stat-title"> @attendance.late </div>
+                                    <div class="uppercase profile-stat-text"> เข้างานสาย </div>
+                                </div>
+                                <div class="col-md-2 col-sm-1 col-xs-6">
+                                    <div class="uppercase profile-stat-title"> @attendance.secure_balance.ToString("#,##0") </div>
+                                    <div class="uppercase profile-stat-text"> เงินประกันสะสม </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="portlet box green">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fad fa-user-plus"></i>
+                                        <span class="font-sm">รายได้ (Income)</span>
+                                    </div>
+                                    <div class="tools"></div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="scroller" style="height: 390px;" data-always-visible="1" data-rail-visible="1">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="font-sm">เงินเดือนค่าจ้าง</label>
+                                                    <span class="required"> * </span>
+                                                    @Html.TextBoxFor(m => m.IncomingSalary, new { Class = "input-sm form-control form-number", autocomplete = "Off" })
+                                                    <span class="help-block"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="font-sm">เบี้ยขยัน</label>
+                                                    <span class="required"> * </span>
+                                                    @Html.TextBoxFor(m => m.IncomingDiligence, new { Class = "input-sm form-control form-number", autocomplete = "Off" })
+                                                    <span class="help-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table class="table addition">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-center">
+                                                                <a href="javascript:;" class="font-md font-blue" id="addadditionrow">
+                                                                    <i class="far fa-plus-circle"></i>
+                                                                </a>
+                                                            </th>
+                                                            <th>รายการ</th>
+                                                            <th>ยอดเงิน</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="body-addition">
+                                                        @if (additionData.Count() > 0)
+                                                        {
+                                                            int i = 0;
+                                                            @foreach (var item in additionData)
+                                                            {
+                                                                @if (item.AdditionType == "T")
+                                                                {
+                                                                    <tr>
+                                                                        <td class="action-checkbox ">
+                                                                            <label class="mt-checkbox mt-checkbox-outline">
+                                                                                <input type="checkbox" value="@item.AllowanceCode" name="tripList" checked />
+                                                                                <span></span>
+                                                                            </label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="font-sm">@item.PaymentAdditionName</span>
+                                                                        </td>
+                                                                        <td class="item-value trip">
+                                                                            <span class="font-sm">@item.PaymentValue.ToString("#,##0.00")</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <tr>
+                                                                        <td class="action">
+                                                                            <a href="javascript:;" class="font-md font-red" onclick="remove(this)">
+                                                                                <i class="far fa-times"></i>
+                                                                            </a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-group">
+                                                                                @Html.TextBox("additionName", item.PaymentAdditionName, new { @Class = "input-sm form-control", autocomplete = "off" })
+                                                                            </div>
+                                                                        </td>
+                                                                        <td class="item-value">
+                                                                            <div class="form-group">
+                                                                                @Html.TextBox("additionValue", item.PaymentValue, new { @Class = "input-sm form-control form-number", autocomplete = "off" })
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td class="action">
+                                                                    <a href="javascript:;" class="font-md font-red" onclick="remove(this)">
+                                                                        <i class="far fa-times"></i>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="form-group">
+                                                                        @Html.TextBox("additionName", null, new { @Class = "input-sm form-control", autocomplete = "off" })
+                                                                    </div>
+                                                                </td>
+                                                                <td class="item-value">
+                                                                    <div class="form-group">
+                                                                        @Html.TextBox("additionValue", null, new { @Class = "input-sm form-control form-number", autocomplete = "off" })
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="portlet box red">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fad fa-user-minus"></i>
+                                        <span class="font-sm">รายการหัก (Dediction)</span>
+                                    </div>
+                                    <div class="tools"></div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="scroller" style="height: 390px;" data-always-visible="1" data-rail-visible="1">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="font-sm">ประกันสังคม</label>
+                                                    <span class="required"> * </span>
+                                                    @Html.TextBoxFor(m => m.DedictionSso, new { Class = "input-sm form-control form-number", autocomplete = "Off" })
+                                                    <span class="help-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="font-sm">เงินประกัน</label>
+                                                    <span class="required"> * </span>
+                                                    @Html.TextBoxFor(m => m.DedictionSecure, new { Class = "input-sm form-control form-number", autocomplete = "Off" })
+                                                    <span class="help-block"></span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label class="font-sm">ขาดงาน</label>
+                                                    <span class="required"> * </span>
+                                                    @Html.TextBoxFor(m => m.DedictionAbsent, new { Class = "input-sm form-control form-number", autocomplete = "Off" })
+                                                    <span class="help-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table class="table dediction">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-center">
+                                                                <a href="javascript:;" class="font-md font-blue" id="adddedictionrow">
+                                                                    <i class="far fa-plus-circle"></i>
+                                                                </a>
+                                                            </th>
+                                                            <th>รายการ</th>
+                                                            <th>ยอดเงิน</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="body-dediction">
+                                                        @if (dedictionData.Count() > 0)
+                                                        {
+                                                            int i = 0;
+                                                            @foreach (var item in dedictionData)
+                                                            {
+
+                                                                <tr>
+
+                                                                    <td class="action">
+                                                                        <a href="javascript:;" class="font-md font-red" onclick="remove(this)">
+                                                                            <i class="far fa-times"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="form-group">
+                                                                            @Html.TextBox("dedictionName", item.PaymentDedictionName, new { @Class = "input-sm form-control", autocomplete = "off" })
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="item-value">
+                                                                        <div class="form-group">
+                                                                            @Html.TextBox("dedictionValue", item.PaymentValue, new { @Class = "input-sm form-control form-number", autocomplete = "off" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                i++;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td class="action">
+                                                                    <a href="javascript:;" class="font-md font-red" onclick="remove(this)">
+                                                                        <i class="far fa-times"></i>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="form-group">
+                                                                        @Html.TextBox("dedictionName", null, new { @Class = "input-sm form-control", autocomplete = "off" })
+                                                                    </div>
+                                                                </td>
+                                                                <td class="item-value">
+                                                                    <div class="form-group">
+                                                                        @Html.TextBox("dedictionValue", null, new { @Class = "input-sm form-control form-number", autocomplete = "off" })
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="col-md-2 "></label>
+                                <div class="col-md-10">
+                                    <div class=" mt-radio-inline">
+                                        <label class="mt-radio">
+                                            @Html.RadioButtonFor(m => m.SalaryType, "W", new { @Class = "rdoJobType" }) รับเงินรายสัปดาห์
+                                            <span></span>
+                                        </label>
+                                        <label class="mt-radio">
+                                            @Html.RadioButtonFor(m => m.SalaryType, "M", new { @Class = "rdoJobType" }) รับเงินรายเดือน
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputEmail12" class="col-md-2 control-label font-sm">หมายเหตุ</label>
+                                <div class="col-md-10">
+                                    @Html.TextBoxFor(m => m.Remark, new { @Class = "input-sm form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <div class="row pull-right">
+                    <div class="col-md-12">
+                        <div class="tools-action">
+                            <button type="button" class="btn btn-sm red" onclick="self.close()">ยกเลิก</button>
+                            <button type="submit" class="btn btn-sm green">บันทึกข้อมูล</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@functions {
+    private bool IsExists(string img)
+    {
+        string path = "wwwroot/pics/employee/avatar/" + img;
+        return File.Exists(System.IO.Path.Combine(Directory.GetCurrentDirectory(), path));
+    }
+    private string changeMonth(string month, string year)
+    {
+        switch (month)
+        {
+            case "01":
+                month = "January";
+                break;
+            case "02":
+                month = "Febuary";
+                break;
+            case "03":
+                month = "March";
+                break;
+            case "04":
+                month = "April";
+                break;
+            case "05":
+                month = "May";
+                break;
+            case "06":
+                month = "June";
+                break;
+            case "07":
+                month = "July";
+                break;
+            case "08":
+                month = "August";
+                break;
+            case "09":
+                month = "September";
+                break;
+            case "10":
+                month = "October";
+                break;
+            case "11":
+                month = "November";
+                break;
+            case "12":
+                month = "December";
+                break;
+        }
+
+        return month + " " + year;
+    }
+}
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open("info", data.resultMessage, function(r) {
+                        window.opener.reload();
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open("error", data.resultMessage);
+                }
+            });
+
+            $('#addadditionrow').click(function() {
+                var row = '<tr><td class="action"><a href="javascript:;" class="font-md font-red" onclick="remove(this)"><i class="far fa-times"></i></a></td>';
+                row += '<td><div class="form-group"><div class="form-group"><input type="text" name="additionName" class="input-sm form-control"></div></td>';
+                row += '<td class="item-value"><div class="form-group"><div class="form-group"><input type="text" name="additionValue" class="input-sm form-control"></div></td></tr>';
+
+                $('#body-addition').prepend(row);
+            });
+
+            $('#adddedictionrow').click(function() {
+                var row = '<tr><td class="action"><a href="javascript:;" class="font-md font-red" onclick="remove(this)"><i class="far fa-times"></i></a></td>';
+                row += '<td><div class="form-group"><div class="form-group"><input type="text" name="dedictionName" class="input-sm form-control"></div></td>';
+                row += '<td class="item-value"><div class="form-group"><div class="form-group"><input type="text" name="dedictionValue" class="input-sm form-control"></div></td></tr>';
+
+                $('#body-dediction').append(row);
+            });
+        }(jQuery));
+
+        function remove(e) {
+            $(e).parent().parent().remove();
+        }
+
+        function OnValidate() {
+            overLayForm();
+            return true;
+        }
+    </script>
+}

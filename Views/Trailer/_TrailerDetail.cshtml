@@ -1,0 +1,124 @@
+﻿@{
+    ViewBag.Title = "จัดการพนักประจำรถ";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    var trx = (TMSWeb.Models.Entities.LOG.ViewTrailerListActive)ViewBag.Truck;
+    var InsuranceList = (List<TMSWeb.Models.Entities.LOG.ViewTrailerInsuranceList>)ViewBag.InsuranceList;
+}
+@section Styles {
+    <style>
+        .todo-tasklist {
+            padding-left: 20px;
+        }
+
+        .action-td {
+            text-align: center;
+            width: 150px;
+        }
+
+        .highlight {
+            border-left: none !important;
+        }
+
+        .table td {
+            font-size: 13px !important;
+        }
+
+        .table th {
+            font-size: 13px !important;
+            font-weight: bold !important;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="profile-sidebar">
+            <div class="portlet light profile-sidebar-portlet ">
+                <div class="profile-userpic">
+                    <img src="~/pics/trucks/dfimage.jpg" class="img-responsive" alt="">
+                </div>
+
+                <div class="profile-usertitle">
+                    <div class="profile-usertitle-name"> @trx.TrailerLicense</div>
+                </div>
+
+                <div class="profile-userbuttons">
+
+                    <button type="button" class="btn btn-circle red btn-sm" onclick="editinsurance('@trx.TrailerLicense')">จัดการประกันภัย</button>
+
+                </div>
+
+                <div class="profile-usermenu">
+                    <div class="todo-tasklist">
+                        <div class="todo-tasklist-item todo-tasklist-item-border-green">
+                            <div class="todo-tasklist-item-text"><strong>ทะเบียน</strong> @trx.TrailerLicense</div>
+                            <div class="todo-tasklist-item-text"><strong>ประเภทหาง</strong> @trx.TrailerTypeName</div>
+                            <div class="todo-tasklist-item-text"><strong>ประเภทพื้น</strong> @trx.TrailerFloorName</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet light bordered">
+                            <div class="portlet-title">
+                                <div class="caption font-dark">
+                                    <span class="caption-subject bold uppercase"> ข้อมูลการทำประกันภัย</span>
+                                </div>
+                                <div class="actions">
+                                    <div class="btn-group btn-group-devided" data-toggle="buttons">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="portlet-body">
+                                <table class="table table-striped table-bordered table-advance">
+                                    <thead>
+                                        <tr>
+                                            <th>บริษัท</th>
+                                            <th>ประเภท</th>
+                                            <th>ทุนประกัน</th>
+                                            <th>เบี้ยประกัน</th>
+                                            <th>หมดอายุ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in InsuranceList)
+                                        {
+                                            <tr>
+                                                <td class="highlight">
+                                                    <div class="danger"></div>&nbsp;&nbsp;
+                                                    @item.InsuranceName
+                                                </td>
+                                                <td>@item.InsuranceTypeName</td>
+                                                <td>@item.InsuranceBudget.ToString("#,###")</td>
+                                                <td>@item.InsuranceIncrease.ToString("#,###")</td>
+                                                <td>@item.ExpiredDate.ToString("dd-MM-yyyy")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm("_EditTrailerInsurance", "Trailer", FormMethod.Post, new { id = "submit_insurance" }))
+{
+    @Html.Hidden("trailer_license_insurance")
+}
+
+@section scripts {
+    <script type="text/javascript">
+        function editinsurance(license) {
+            $('#trailer_license_insurance').val(license);
+            $('#submit_insurance').submit();
+        }
+    </script>
+}

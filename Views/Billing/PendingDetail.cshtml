@@ -1,0 +1,300 @@
+﻿@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    string code = ViewBag.Code;
+    string year = ViewBag.Year;
+    string month = ViewBag.Month;
+}
+@section Styles {
+    <style>
+        .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+            overflow-y: scroll !important;
+        }
+
+        .dataTables_scrollBody {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+        }
+
+        #table-billing {
+            font-size: 9pt !important
+        }
+
+            #table-billing td, #table-billing th {
+                font-size: 9pt !important
+            }
+
+        .code-td {
+            width: 70px !important;
+            text-align: center;
+            font-size: 6pt !important
+        }
+
+        .type-td {
+            width: 75px !important;
+            text-align: center;
+            font-size: 7pt !important
+        }
+
+        .number-td {
+            width: 30px !important;
+            text-align: right;
+            font-size: 7pt !important
+        }
+
+        .currency-td {
+            width: 65px !important;
+            text-align: right;
+            font-size: 7pt !important
+        }
+
+        .date-td {
+            text-align: center;
+            width: 35px !important;
+            font-size: 7pt !important
+        }
+
+        .status-td {
+            text-align: center;
+        }
+    </style>
+}
+<div class="col-lg-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption font-dark">
+                <span class="caption-subject bold uppercase"> รายละเอียดรายการติดค้างเงินวางบิล</span>
+            </div>
+            <div class="actions">
+                <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="exp-excel"><i class="fad fa-file-spreadsheet"></i></a>
+                <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="exp-pdf"><i class="fad fa-file-pdf"></i></a>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="row">
+                <div class="col-md-12">
+                    @Html.Hidden("txtCode", code)
+                    @Html.Hidden("txtMonth", month)
+                    @Html.Hidden("txtYear", year)
+                    <div class="table-responsive" style="overflow:hidden">
+                        <table class="table table-striped table-bordered table-hover" id="table-billing">
+                            <thead>
+                                <tr>
+                                    <th><div style="width:70px">รหัส</div></th>
+                                    <th> ชื่อลูกค้า</th>
+                                    <th><div style="width:35px">วันที่</div></th>
+                                    <th><div style="width:35px">ประเภท</div></th>
+                                    <th><div style="width:30px">จำนวน</div></th>
+                                    <th><div style="width:65px">ค่าเที่ยว</div></th>
+                                    <th><div style="width:65px">สำรองจ่าย</div></th>
+                                    <th><div style="width:65px">ยอดรวม</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="5" style="padding-right:5px;text-align:right!important">รวมทั้งสิ้น</th>
+                                    <th style="text-align:right!important;padding-right:10px;"></th>
+                                    <th style="text-align:right!important;padding-right:10px;"></th>
+                                    <th style="text-align:right!important;padding-right:10px;"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var oTable = $('#table-billing').DataTable({
+                scrollY: 400,
+                scroller: true,
+                searching: false,
+                info: false,
+                "processing": true,
+                "serverSide": true,
+                "order": [[2, "desc"]],
+                "sAjaxSource": "/Billing/GetAllPendingDataList",
+                "fnRowCallback": function(row, aData, index) {
+                    var type = "";
+                    if (aData.billing_type == 'M') {
+                        type = "รวม";
+                        $('td', row).eq(3).addClass('mix');
+                    }
+                    else if (aData.billing_type == 'T') {
+                        type = "ค่าเที่ยว"
+                        $('td', row).eq(3).addClass('transport');
+                    }
+                    else if (aData.billing_type == 'A') {
+                        $('td', row).eq(3).addClass('advance');
+                        type = "สำรองจ่าย"
+                    }
+                    else if (aData.billing_type == 'O') {
+                        $('td', row).eq(3).addClass('other');
+                        type = "อื่น ๆ";
+                    }
+
+                    $('td', row).eq(3).html(type);
+                    $('td', row).eq(5).html(number_format(aData.transport_value));
+                    $('td', row).eq(6).html(number_format(aData.cashing_total));
+                    $('td', row).eq(7).html(number_format(aData.billing_total));
+                },
+                "footerCallback": function(row, data, start, end, display) {
+                    var api = this.api(), data;
+                    var intVal = function(i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    cost = api
+                        .column(5)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Total over this page
+                    cashing = api
+                        .column(6)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Total over this page
+                    net = api
+                        .column(7)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Update footer
+                    $(api.column(5).footer()).html(
+                        '<div style="width:85px">' + number_format(cost) + '</div>'
+                    );
+
+                    $(api.column(6).footer()).html(
+                        '<div style="width:85px">' + number_format(cashing) + '</div>'
+                    );
+
+                    $(api.column(7).footer()).html(
+                        '<div style="width:85px">' + number_format(net) + '</div>'
+                    );
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "month", "value": $('#txtMonth').val() });
+                    aoData.push({ "name": "year", "value": $('#txtYear').val() });
+                    aoData.push({ "name": "code", "value": $('#txtCode').val() });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10" selected>10</option>' +
+                        '<option value="20">20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "code-td", targets: 0 },
+                    { className: "name-td", targets: 1 },
+                    { className: "date-td", targets: 2 },
+                    { className: "type-td", targets: 3 },
+                    { className: "number-td", targets: 4 },
+                    { className: "currency-td", targets: 5 },
+                    { className: "currency-td", targets: 6 },
+                    { className: "currency-td", targets: 7 }
+                ],
+                "columns":
+                    [
+                        { "data": "billing_code" },
+                        { "data": "customer_name" },
+                        { "data": "billing_date" },
+                        { "data": "billing_type" },
+                        { "data": "billing_amount" },
+                        { "data": "transport_value" },
+                        { "data": "cashing_total" },
+                        { "data": "billing_total" }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('.dlListForm').change(function() {
+                $('#table-billing').dataTable()._fnAjaxUpdate();
+            });
+
+            $('#exp-excel').click(function() {
+                var month = $('#txtMonth').val();
+                var year = $('#txtYear').val();
+                var code = $('#txtCode').val();
+
+                var url = "../Export/OverdueReportExcel?filterCustomer=" + code + "&month=" + month + "&year=" + year;
+                window.open(url);
+            });
+
+            $('#exp-pdf').click(function() {
+                var month = $('#txtMonth').val();
+                var year = $('#txtYear').val();
+                var code = $('#txtCode').val();
+
+                var url = "../Export/OverdueReportPdf?filterCustomer=" + code + "&month=" + month + "&year=" + year;
+                window.open(url);
+            });
+        });
+
+        function doc_export(code, type) {
+            window.open("/app/RPTReport/GetBillingListReport?type=" + type + "&code=" + code);
+        }
+
+        function setDetail(code) {
+            var url = '/app/Billing/_Detail?code=' + code;
+            var setting = 'width=1200,height=740';
+
+            window.open(url, 'Detail Billing', setting);
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}
+
+

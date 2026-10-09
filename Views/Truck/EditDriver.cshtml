@@ -1,0 +1,234 @@
+﻿@using Newtonsoft.Json;
+@model TMSWeb.Models.Entities.LOG.TblTruck
+@{
+    ViewBag.Title = "_EditTruckDriver";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    var trx = (TMSWeb.Models.TruckModel)ViewBag.Truck;
+    var DriverList = (List<TMSWeb.Models.ViewModels.TruckViewModel>)ViewBag.DriverList;
+}
+@section Styles {
+    <style>
+        .todo-tasklist {
+            a padding-left: 20px;
+        }
+
+        .datatables_wrapper {
+            border: 1px solid red !important;
+        }
+
+            .dataTables_wrapper .dataTables_filter {
+                visibility: hidden;
+                padding: 0 !important;
+                margin: -15px;
+            }
+
+        .dataTables_scrollBody {
+            overflow-x: hidden !important;
+            overflow-y: scroll !important;
+        }
+
+        div.dataTables_wrapper {
+            margin: 10px auto;
+        }
+
+        .easy-autocomplete-container ul li,
+        .easy-autocomplete-container ul .eac-category {
+            font-size: 13px;
+        }
+
+        .action-td {
+            text-align: center;
+            width: 50px !important;
+        }
+
+        .box-select-driver {
+            float: left;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="profile-sidebar">
+            <div class="portlet light profile-sidebar-portlet ">
+                <div class="profile-userpic">
+                    @if (this.IsExists(trx.truck_img))
+                    {
+                        <img src="~/pics/trucks/@trx.truck_img" class="img-responsive" alt="" />
+                    }
+                    else
+                    {
+                        <img src="~/pics/trucks/dfimage.jpg" class="img-responsive" alt="" />
+                    }
+                </div>
+
+                <div class="profile-usertitle">
+                    <div class="profile-usertitle-name"> @trx.truck_license</div>
+                </div>
+
+                <div class="profile-userbuttons">
+                    <div class="alert alert-success">
+                        <strong>รายละเอียด</strong>
+                    </div>
+                </div>
+
+                <div class="profile-usermenu">
+                    <div class="todo-tasklist">
+                        <div class="todo-tasklist-item todo-tasklist-item-border-green">
+                            <div class="todo-tasklist-item-text"><strong>ทะเบียน</strong> @trx.truck_license</div>
+                            <div class="todo-tasklist-item-text">
+                                <strong>เลขคัสซี</strong> @trx.truck_chassis_number
+                            </div>
+                            <div class="todo-tasklist-item-text"><strong>รุ่นปี</strong> @trx.truck_year</div>
+                            <div class="todo-tasklist-item-text"><strong>ประเภท</strong> </div>
+                            <div class="todo-tasklist-item-text"><strong>ยี่ห้อ</strong> </div>
+                            <div class="todo-tasklist-item-text"><strong>เชื้อเพลิง</strong> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet light bordered">
+                            <div class="portlet-title">
+                                <div class="caption">
+                                    <i class="fad fa-pencil"></i>
+                                    <span class="caption-subject bold uppercase"> แก้ไขรายการพนักงานขับรถ</span>
+                                </div>
+                                <div class="actions">
+                                    <div class="btn-group btn-group-devided" data-toggle="buttons">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="portlet-body form">
+                                @using (Html.BeginForm("EditDriverData", "Truck", FormMethod.Post, new
+                                {
+                                    role = "form",
+                                    id = "frmEdit",
+                                    onsubmit = "return OnValidate()"
+                                }))
+                                {
+                                    @Html.HiddenFor(m => m.TruckCode)
+                                    <div class="form-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table style="width:100%;">
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-group">
+                                                                <label>พนักงานขับรถ</label>
+                                                                @Html.DropDownList("driver_code", null, new
+                                                                {
+                                                                    @Class =
+                                                            "form-control input-sm"
+                                                                })
+                                                            </div>
+                                                        </td>
+                                                        <td style="padding-top:10px;padding-left:5px;">
+                                                            <button type="button" class="btn btn-sm yellow"
+                                                                    id="btnAddDetail">
+                                                                เพิ่มรายการ
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table class="table table-striped table-hover order-column" id="driverlist">
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th>ชื่อ-นามสกุล</th>
+                                                            <th>โทรศัพท์</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="detail-body">
+                                                        @foreach (var item in DriverList)
+                                                        {
+                                                            @await Component.InvokeAsync("EntryDriver", new
+                                                            {
+                                                                driver_code
+                                                    = item.driver_code
+                                                            })
+                                                            ;
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-actions right">
+                                        <a href="/truck/truckdetail?code=@trx.truck_code">กลับหน้าหลัก</a> |
+                                        <button type="submit" class="btn blue">บันทึกข้อมูล</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@functions {
+    private bool IsExists(string img)
+    {
+        string path = "wwwroot/pics/trucks/" + img;
+        return File.Exists(System.IO.Path.Combine(Directory.GetCurrentDirectory(), path));
+    }
+}
+@section scripts {
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#driverlist').DataTable({
+                scrollY: 207,
+                info: false,
+                ordering: false,
+                paging: false
+            });
+
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.opener.reloadRow();
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#btnAddDetail').click(function() {
+                var selected = $('.driver_code').val();
+                var txtDriverCode = $('#driver_code').val();
+                if (selected != txtDriverCode) {
+                    $.post("/Truck/EntryTruckDriver", {
+                        driver_code: txtDriverCode
+                    }, function(result) {
+                        $('#detail-body').prepend(result);
+                        setdefault();
+                    });
+                }
+            });
+        }(jQuery));
+
+        function setdefault() {
+            $('#txtDriverCode').val('');
+            $('#txtDriverCodeDis').val('');
+            $('#txtDriverNameDis').val('');
+        }
+
+        function OnValidate() {
+            overLayForm();
+            return true;
+        }
+    </script>
+}

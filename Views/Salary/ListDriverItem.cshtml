@@ -1,0 +1,177 @@
+@model List<TMSWeb.Models.ViewModels.SalaryItemViewModel>
+@{
+    ViewBag.TopActive = "Allowance";
+    ViewBag.MidActive = "salary";
+    ViewBag.SubActive = "driversalary";
+    ViewBag.Title = "รายการเงินเดือนพนักงาน";
+}
+@section Styles {
+
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="/salary/driver">ข้อมูลเงินเดือนพนักงาน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/salary/listdriveritem?code=@ViewBag.Code">รายละเอียด</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการจ่ายเงินเดือนพนักงาน</span>
+                </div>
+                <div class="actions">
+                    <a href="/salary/driver" class="btn btn-circle btn-outline dark">กลับหน้าหลัก</a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right" role="form">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mt-actions">
+                            @foreach (var item in Model)
+                            {
+                                <div class="mt-action">
+                                    <div class="mt-action-img">
+                                        @if (this.IsExists(item.emp_img))
+                                        {
+                                            var img = "/pics/employee/" + item.emp_img;
+                                            <img src="@img" id="emp_img" alt="" width="40" height="40" />
+                                        }
+                                        else
+                                        {
+                                            <img src="/images/dfimage.jpg" alt="" width="40" />
+                                        }
+                                    </div>
+                                    <div class="mt-action-body">
+                                        <div class="mt-action-row">
+                                            <div class="mt-action-info" style="width:60%!important">
+                                                <div class="mt-action-icon ">
+                                                    @if (item.dept_code == "01")
+                                                    {
+                                                        <i class="fad fa-truck-container"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fad fa-computer-speaker font-red"></i>
+                                                    }
+                                                </div>
+                                                <div class="mt-action-details ">
+                                                    <span class="mt-action-author">@item.employee_name</span>
+                                                    <p class="mt-action-desc">
+                                                        @foreach (var itemDept in item.departments)
+                                                        {
+                                                            <span class="">@itemDept.DeptName</span>
+                                                        }
+                                                    </p>
+                                                    <p class="mt-action-desc">
+                                                        @item.truck_no (@item.truck_license)
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-action-datetime" style="text-align:right">
+                                                <span class="mt-action-date">@item.salary_total.ToString("#,##0.00")</span>
+                                                @if (item.status)
+                                                {
+                                                    <span class="mt-action-dot bg-green-jungle"></span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="mt-action-dot bg-red-flamingo"></span>
+                                                }
+                                            </div>
+                                            <div class="mt-action-buttons ">
+                                                <button type="button"
+                                                        onclick="detailItem('@item.payment_code','@item.employee_code')"
+                                                        class="btn btn-circle btn-icon-only blue btn-xs">
+                                                    <i class="fad fa-user-edit"></i>
+                                                </button>
+                                                <button type="button"
+                                                        onclick="printItem('@item.payment_code','@item.employee_code')"
+                                                        class="btn btn-circle btn-icon-only grey btn-xs">
+                                                    <i class="fad fa-print"></i>
+                                                </button>
+                                                <button type="button"
+                                                        onclick="removeItem('@item.payment_code','@item.employee_code')"
+                                                        class="btn btn-circle btn-icon-only red btn-xs">
+                                                    <i class="fad fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private bool IsExists(string img)
+    {
+        string path = "wwwroot/pics/employee/" + img;
+        return File.Exists(System.IO.Path.Combine(Directory.GetCurrentDirectory(), path));
+    }
+}
+
+@section scripts
+{
+    <script type="text/javascript">
+        function printItem(payment_code, emp_code) {
+            var url = '/formava/officesalaryslip?payment=' + payment_code + '&emp=' + emp_code;
+
+            window.open(url, 'print salaryslip');
+        }
+
+        function detailItem(payment_code, emp_code) {
+            var url = '/salary/issuedriversalary?payment_code=' + payment_code + '&emp_code=' + emp_code;
+            var setting = 'width=1080,height=770';
+
+            window.open(url, 'detail salary', setting);
+        }
+
+        function removeItem(payment_code, emp_code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Salary/RemoveItem",
+                        {
+                            payment_code: payment_code,
+                            emp_code: emp_code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                reload();
+                            } else {
+                                $.alert.open('error', "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function reload() {
+            window.location.reload();
+        }
+    </script>
+}

@@ -1,0 +1,81 @@
+﻿@model List<TMSWeb.Models.ViewModels.PendingBillViewModel>
+@{
+    string year = DateTime.Now.ToString("yyyy");
+    ViewBag.TopActive = "Billing";
+    ViewBag.MidActive = "pendingbill";
+    ViewBag.Title = "รายการติดค้างเงินวางบิล";
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การวางบิล</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/billing/pendingpayment">รายการติดค้างเงินวางบิล</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <span class="caption-subject bold uppercase"> รายการติดค้างเงินวางบิล</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>เลือกปี</label>
+                        @Html.DropDownList("year", null, new { @Class = "form-control dlListForm" })
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="render-data" class="loader">
+                            @*@{Html.RenderAction("_PendingData", "Billing", new { year = year }); }*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        render();
+        $('.dlListForm').change(function() {
+            $('#render-data').html('');
+            $('#render-data').addClass('loader');
+            render();
+        });
+
+        function render() {
+            var year = $('#year').val();
+            $.post("/Billing/_PendingData", { year: year }, function(data) {
+                $('#render-data').removeClass('loader');
+                $('#render-data').html(data);
+            });
+        }
+
+        function detail(supplyer, val, code, month) {
+            if (val > 0) {
+                var year = $('#year').val();
+                var url = '/billing/pendingdetail?code=' + code + '&month=' + month + '&year=' + year;
+                var setting = 'width=1024,height=700';
+
+                window.open(url, 'add customer', setting);
+            }
+        }
+    </script>
+}
+
+
+
+

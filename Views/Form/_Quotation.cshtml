@@ -1,0 +1,451 @@
+@model TMSWeb.Models.ViewModels.QuotationFormViewModel
+@{
+    Layout = null;
+    var enCulture = new System.Globalization.CultureInfo("en-US", false);
+    var first_item = Model.detail.FirstOrDefault();
+    int last = Model.detail.Count() - 1;
+    int span = last - 1;
+    int l = 14;
+}
+<link rel="stylesheet" type="text/css" href="~/css/print/printform.css" media="print">
+<style>
+    body {
+        background: #fff;
+    }
+
+    label {
+        font-size: 12px;
+    }
+
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+        width: 100%;
+    }
+
+    .header-col-1 img {
+        width: 65px;
+    }
+
+    .company-name,
+    .company-detail {
+        font-size: 11px !important;
+    }
+
+    .form-wrap {
+        padding: 7px;
+    }
+
+    .form-detail {
+        border-bottom: 1px solid #ccc;
+        font-size: 12px;
+    }
+
+    .header-col-1 {
+        width: 110px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-3 {
+        float: right;
+        text-align: center;
+        display: inline-block
+    }
+
+    .topic-name {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 14px;
+        display: inline-block !important;
+    }
+
+    .topic-date {
+        text-align: right;
+    }
+
+    .clear-float {
+        clear: both;
+    }
+
+    .form-topic {
+        float: left;
+    }
+
+    .form-detail {
+        float: left;
+        border-bottom: 1px solid #ccc;
+        font-size: 12px;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .form-time {
+        float: left;
+        border-bottom: 1px dashed #000;
+        font-size: 12px;
+        text-align: left;
+        padding-left: 10px;
+        height: 20px;
+    }
+
+    .content-header {
+        margin-top: 7px;
+    }
+
+    .content {
+        font-size: 11px;
+    }
+
+    h3 {
+        width: 100%;
+        text-align: center;
+        font-size: 13px !important;
+        margin: 0;
+    }
+
+    .cost-content {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .cost-content td {
+            font-size: 11px !important;
+            border: 1px solid #000;
+            padding: 3px 5px 3px 3px;
+        }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    table.condition {
+        width: 100%;
+        margin-left: 15px;
+    }
+
+        table.condition td {
+            font-size: 11px;
+            vertical-align: top;
+        }
+
+            table.condition td.no {
+                width: 30px !important;
+            }
+
+    td.active {
+        background-color: #f4f5ba !important;
+    }
+
+    .topic-customer-name,
+    .topic-customer-address {
+        font-size: 12px !important;
+    }
+</style>
+
+<div class="page">
+    <div class="form-content">
+        <div class="top-header">
+            @{
+                Html.RenderPartial("HeaderPdf");
+            }
+        </div>
+        <div class="clear-float"></div>
+        <div style="width:390px;margin-top:20px;display:inline-block;font-weight:bold;">
+            <div class="topic-customer-name">
+                Messrs : @Model.customer_name
+            </div>
+            <div class="topic-customer-address">
+                <div>
+                    <span>Contact No : </span>
+                    <span>@Model.contact</span>
+                </div>
+                <divp style="padding-left: 35px;">
+                    <span style="margin-left: 47px;">@Model.contact_line</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="vertical-align:top;text-align:left;float:right;margin-right:20px;">
+            <div style="text-align:left;font-size:12px;">
+                <label class="topic-date">Date : </label>
+                <span>@Model.quotation_date.ToString("dd MMMM yyyy", enCulture)</span>
+            </div>
+            <div style="text-align:left;margin-top:5px;">
+                <label class="topic-invoice">ID : </label>
+                <span>@Model.quotation_code</span>
+            </div>
+        </div>
+
+        <div class="clear-float"></div>
+        <div class="content-header">
+            <div>Dear Sir,</div>
+            <h3>Quotation for Inland transportation</h3>
+        </div>
+
+        <div class="content" style="margin-top:10px;">
+            <div>
+                We have much pleasure in quotation to you our prices, which will be in effective as from
+                @Model.start.ToString("MMM dd, yyyy")
+                until
+                @Model.expire.ToString("MMM dd, yyyy") for undertaking the subject matter under terms and condition as
+                follows:
+            </div>
+            <br />
+            <div>
+                <div style="width:150px;display:inline-block;font-weight:bold;">A ) Services :</div>
+                <div style="display:inline-block;">Transportation services</div>
+            </div>
+            <div>
+                <div style="width:150px;display:inline-block;font-weight:bold;">B ) Commodity :</div>
+                <div style="display:inline-block;">@Model.commodity</div>
+            </div>
+            <div>
+                <div style="width:150px;display:inline-block;font-weight:bold;">C ) Scope of work :</div>
+                <div style="display:inline-block;">@Model.scope</div>
+            </div>
+            <table class="cost-content" style="margin-top:10px;">
+                <tr>
+                    <td style="font-weight: bold;">Route : @Model.route</td>
+                    <td style="font-weight: bold">Price/Trip</td>
+                    <td style="text-align: center;font-weight:bold">
+                        @Model.container1
+                    </td>
+                    @if (Model.container2 != "-")
+                    {
+                        <td style="text-align: center;font-weight:bold">
+                            @Model.container2
+                        </td>
+                    }
+                    @if (Model.container3 != "-")
+                    {
+                        <td style="text-align: center;font-weight:bold">
+                            @Model.container3
+                        </td>
+                    }
+                </tr>
+                @for (int i = 0; i < Model.detail.Count(); i++)
+                {
+                    string active = Model.detail[i].IsActive == true ? "active" : "";
+                    if (i == 0)
+                    {
+                        <tr>
+                            <td class="text-right" style="border-top:none!important;">
+                                Minimum Price
+                            </td>
+                            <td class="text-center @active">@Model.detail[0].FuelRate</td>
+                            <td class="text-right @active">฿@Model.detail[0].CostValue1.ToString("#,##0.00")</td>
+                            @if (Model.container2 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[0].CostValue2.ToString("#,##0.00")</td>
+                            }
+                            @if (Model.container3 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[0].CostValue3.ToString("#,##0.00")</td>
+                            }
+                        </tr>
+                    }
+                    else if (i == last)
+                    {
+                        <tr>
+                            <td class="text-right">
+                                Maximum Price
+                            </td>
+                            <td class="text-center @active">@Model.detail[last].FuelRate</td>
+                            <td class="text-right @active">฿@Model.detail[last].CostValue1.ToString("#,##0.00")</td>
+                            @if (Model.container2 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[last].CostValue2.ToString("#,##0.00")</td>
+                            }
+                            @if (Model.container3 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[last].CostValue3.ToString("#,##0.00")</td>
+                            }
+                        </tr>
+                    }
+                    else if (i == 1)
+                    {
+                        <tr>
+                            <td rowspan="@span" class="text-right">
+                                **@Model.remark**
+                            </td>
+                            <td class="text-center @active">@Model.detail[1].FuelRate</td>
+                            <td class="text-right @active">฿@Model.detail[1].CostValue1.ToString("#,##0.00")</td>
+                            @if (Model.container2 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[1].CostValue2.ToString("#,##0.00")</td>
+                            }
+                            @if (Model.container3 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[1].CostValue3.ToString("#,##0.00")</td>
+                            }
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td class="text-center @active">@Model.detail[i].FuelRate</td>
+                            <td class="text-right @active">฿@Model.detail[i].CostValue1.ToString("#,##0.00")</td>
+                            @if (Model.container2 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[i].CostValue2.ToString("#,##0.00")</td>
+                            }
+                            @if (Model.container3 != "-")
+                            {
+                                <td class="text-right @active">฿@Model.detail[i].CostValue3.ToString("#,##0.00")</td>
+                            }
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+        <br />
+        <div class="content">
+            <div>
+                <div style="width:250px;display:inline-block;font-weight:bold;">D ) Other Terms & Conditions :</div>
+                <table class="condition">
+                    <tr>
+                        <td class="no">1 )</td>
+                        <td>W/H tax. Will be charged separately.</td>
+                    </tr>
+                    <tr>
+                        <td class="no">2 )</td>
+                        <td>
+                            Above transportation rate shall be applied if diesel price is between
+                            @Model.minimum_rate.ToString("#")-@Model.start_rate.ToString("#") THB/Liter.
+                            If diesel price increase each @Model.price_increase.ToString("#") THB/Liter, the rate shall be
+                            charge @Model.price_length.ToString("#,##0") THB/Liter.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">3 )</td>
+                        <td>
+                            Free time loading is @Model.condition_hour hours, if over, there will be additional charged at
+                            Bht
+                            @Model.condition_charged.-/hour/container/truck.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">4 )</td>
+                        <td>Cancellation booking on loading date will be charged 100% of transportation charge</td>
+                    </tr>
+                    <tr>
+                        <td class="no">5 )</td>
+                        <td>
+                            In case delivery on holiday & National holiday if any, our Inland transportation charge will
+                            be added up for
+                            30% per each container/truck.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">6 )</td>
+                        <td>Pick up container in advance will be charged Bht 1,500.-/day/container.</td>
+                    </tr>
+                    <tr>
+                        <td class="no">7 )</td>
+                        <td>
+                            In case of cut chassis at factory will be charge Bht
+                            @Model.charge_cutchassis.ToString("#,##0").-/container and in the next day
+                            return to pick up
+                            full container at factory will be charge 70% of transportation charge.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">8 )</td>
+                        <td>
+                            If any other incidental charges such as storage/demurrage/Customs Overtime/ Lift Off,
+                            On/Gate Charge/
+                            Weight Charge at cost supporting by official receipts of port authority or terminal
+                            operator.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">9 )</td>
+                        <td>
+                            Inland transportation insurance on goods during transportation is limited as below amount,
+                            exceeds the
+                            amount stated, should requested to insure your goods by own account.
+                            - Trailer : Bht @Model.insurance_rate.ToString("#,##0").-/incident/trailer/each conveyance.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">10 )</td>
+                        <td>Additional charge (If any), will be charge at actual cost.</td>
+                    </tr>
+                    <tr>
+                        <td class="no">11 )</td>
+                        <td>
+                            The requirement which does not identified in this quotation will be considered case by case.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="no">12 )</td>
+                        <td>This quotation will be applied continually unless there is the new one informed.</td>
+                    </tr>
+                    <tr>
+                        <td class="no">13 )</td>
+                        <td>Payment shall be made to us within one month after receiving our debit note.</td>
+                    </tr>
+                    @if (Model.condition.Count > 0)
+                    {
+                        foreach (var item in Model.condition)
+                        {
+                            <tr>
+                                <td>@l.ToString() )</td>
+                                <td>
+                                    @item.Condition
+                                </td>
+                            </tr>
+                            l++;
+                        }
+                    }
+                    <tr>
+                        <td></td>
+                        <td style="padding-top:15px;">
+                            We are looking forward to receiving your order and always at your service
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <br />
+
+        <div style="width:100%;text-align:right;">
+            <div style="display:inline-block;vertical-align:top;text-align:center;font-size:11px;">
+                <div>Yours faithfully,</div>
+                <div>Ava Global Logistics Co.,Ltd.</div>
+
+                <div style="margin-top:0px!important;">
+                    <div>
+                        @{
+                            Html.RenderPartial("StampChutimaPdf");
+                        }
+                    </div>
+                    <div style="display:inline-block;width:250px;">.................................................</div>
+                    <div>Chutima Judpoung</div>
+                    <div>General Manager</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="width:100%;text-align:left;margin-top:20px;">
+        <div style="display:inline-block;vertical-align:top;font-size:12px;">
+            <span>Acknowledged and Accepted By</span>
+            <span>...................................................</span>
+            <span>(Company's Authorized signature)</span>
+            <div style="font-weight: bold;margin-top:5px;">@Model.customer_name</div>
+        </div>
+    </div>
+</div>

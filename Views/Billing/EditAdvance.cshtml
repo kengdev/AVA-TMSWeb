@@ -1,0 +1,283 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblBillingMaster
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "แก้ไขรายการวางบิล";
+    var data = (List<TMSWeb.Models.ViewModels.AdvanceViewModel>)ViewBag.Data;
+    var check = (List<TMSWeb.Models.ViewModels.AdvanceViewModel>)ViewBag.Check;
+}
+@section styles {
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            visibility: hidden;
+            padding: 0 !important;
+            margin: -15px;
+        }
+
+        div.dataTables_wrapper {
+            margin: 0 auto;
+        }
+
+        .dataTables_scrollBody {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+        }
+
+        th, td {
+            white-space: nowrap;
+            font-size: 13px !important;
+        }
+
+        .col-center {
+            text-align: center !important;
+        }
+
+        .currency {
+            text-align: right;
+        }
+
+        .total {
+            color: red;
+            font-weight: bold;
+        }
+
+        .td-action {
+            text-align: center;
+            border-left: none !important;
+            width: 70px;
+        }
+
+        a {
+            text-decoration: none !important;
+        }
+
+        #list-cash th {
+            font-size: 13px;
+            text-align: left;
+        }
+
+        #list-cash td, .table td {
+            font-size: 13px;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        .table td {
+            padding: 5px !important;
+        }
+
+        .table th {
+            padding: 0px !important;
+            padding-left: 5px !important;
+            line-height: 32px !important;
+        }
+
+        .filter {
+            height: 27px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+            width: 90% !important;
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
+            border: 1px solid #ccc !important;
+        }
+
+            .filter:focus {
+                outline: none;
+            }
+    </style>
+}
+
+<div class="col-md-12">
+    <!-- BEGIN Portlet PORTLET-->
+    <div class="portlet box red">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-pencil"></i>
+                <span class="caption-subject bold uppercase font-sm"> แก้ไขรายใบแจ้งหนี้</span>
+                <span class="caption-helper font-white">[เลขที่ @Model.BillingCode]</span>
+            </div>
+            <div class="actions">
+            </div>
+        </div>
+        <div class="portlet-body form">
+            @using (Html.BeginForm("EditAdvanceData", "Billing", FormMethod.Post, new { role = "form", id = "frmCashing", onsubmit = "return OnValidate()" }))
+            {
+                @Html.HiddenFor(m => m.BillingCode)
+                @Html.HiddenFor(m => m.CustomerCode)
+                @Html.HiddenFor(m => m.TaxId)
+                @Html.HiddenFor(m => m.TaxName)
+                @Html.HiddenFor(m => m.TaxAddress)
+                @Html.HiddenFor(m => m.MissionPlaceCode)
+                @Html.HiddenFor(m => m.CreateDate)
+                @Html.HiddenFor(m => m.CreateBy)
+                @Html.HiddenFor(m => m.IsEnabled)
+                @Html.HiddenFor(m => m.IsCoversheet)
+                @Html.HiddenFor(m => m.IsClearing)
+                @Html.HiddenFor(m => m.ClearingDate)
+                @Html.HiddenFor(m => m.IsVat)
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-bordered table-hover order-column" id="list-cash">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px;"></th>
+                                        <th style="width:110px;text-align:center!important;">วันที่</th>
+                                        <th style="text-align:center!important;width:130px;"> ลูกค้า</th>
+                                        <th style="text-align:center!important;">สถานที่</th>
+                                        <th style="text-align:center!important;font-size:12px!important;">Booking</th>
+                                        <th style="text-align:center!important;">เบอร์ตู้</th>
+                                        <th style="width:110px;text-align:center!important;">ทะเบียน</th>
+                                        <th style="width:110px;text-align:center!important;">ยอดเงิน</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:40px!important;padding-left:10px!important;">
+                                            <label class="mt-checkbox mt-checkbox-outline">
+                                                <input type="checkbox" id="check-all" />
+                                                <span></span>
+                                            </label>
+                                        </th>
+                                        <th style="width:110px!important;text-align:center!important;">
+                                            @Html.TextBox("filterDate", null, new { @Class = "filter", autocomplete = "Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterCustomer", null, new { @Class = "filter", autocomplete = "Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterPlace", null, new { @Class = "filter", autocomplete = "Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterBooking", null, new { @Class = "filter", autocomplete = "Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterContainer", null, new { @Class = "filter", autocomplete = "Off" })
+                                        </th>
+                                        <th style="width:110px;text-align:center!important;">
+                                            @Html.TextBox("filterLicense", null, new { @Class = "filter", autocomplete = "Off" })
+                                        </th>
+                                        <th style="width:110px;text-align:center!important;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cashed-list">
+                                    @foreach (var item in check)
+                                    {
+                                        <tr>
+                                            <td style="padding-left:21px!important;">
+                                                <label class="mt-checkbox mt-checkbox-outline">
+                                                    <input type="checkbox" id="check-all" class="item-checkable item-checked" value="@item.job_detail_code" onclick="checkboxFunc(this)" name="listChecked[]" checked />
+                                                    <span></span>
+                                                </label>
+                                                <input type="hidden" value="@item.advance_total" class="total-val" name="listValue[]" />
+                                            </td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.job_date.ToString("yyyy-MM-dd")</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.customer_name</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.mission_name</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.booking_no</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.container_no</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.truck_license</td>
+                                            <td style="text-align:right;font-size:11px!important;">@item.advance_total.ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+
+                                    @foreach (var item in data)
+                                    {
+                                        <tr>
+                                            <td style="padding-left:21px!important;">
+                                                <label class="mt-checkbox mt-checkbox-outline">
+                                                    <input type="checkbox" id="check-all" class="item-checkable item-checked" value="@item.job_detail_code" onclick="checkboxFunc(this)" name="listChecked[]" />
+                                                    <span></span>
+                                                </label>
+                                                <input type="hidden" value="@item.advance_total" class="total-val" name="listValue[]" disabled />
+                                            </td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.job_date.ToString("yyyy-MM-dd")</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.customer_name</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.mission_name</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.booking_no</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.container_no</td>
+                                            <td style="text-align:center;font-size:11px!important;">@item.truck_license</td>
+                                            <td style="text-align:right;font-size:11px!important;">@item.advance_total.ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                        </div>
+
+                        <div class="col-md-9">
+                            <div class="row pull-right">
+                                <div class="col-md-12">
+                                    <div style="display:inline-block;font-size:13px!important;font-weight:bold;">จำนวนรายการ</div>
+                                    <div style="display:inline-block;width:150px;text-align:right;padding-right:20px;font-size:13px;color:red;font-weight:bold;">
+                                        <span id="amount-total"> @Model.BillingAmount</span>
+                                        @Html.HiddenFor(m => m.BillingAmount, new { id = "amount-total-val", autocomplete = "off" })
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row pull-right">
+                                <div class="col-md-12">
+                                    <div style="display:inline-block;font-size:13px!important;font-weight:bold;">ยอดรวม</div>
+                                    <div style="display:inline-block;width:150px;text-align:right;padding-right:20px;font-size:13px;color:red;font-weight:bold;">
+                                        <span id="net-total"> @Model.AdvanceTotal.ToString("#,##0.00")</span>
+                                        @Html.HiddenFor(m => m.AdvanceTotal, new { id = "net-total-val", autocomplete = "off" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="font-sm">วันที่</label>
+                                        @Html.TextBoxFor(m => m.BillingDate, "{0:yyyy-MM-dd}", new { @Class = "form-control input-sm datepicker", placeholder = "วันที่วางบิล", autocomplete = "off" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="font-sm">เลขอ้างอิง</label>
+                                        @Html.TextBoxFor(m => m.SpecialNo, new { @Class = "form-control input-sm", placeholder = "เลขอ้างอิง", autocomplete = "Off" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-sm">หมายเหตุ</label>
+                                        @Html.TextBoxFor(m => m.BillingRemark, new { @Class = "form-control input-sm", placeholder = "หมายเหตุ", autocomplete = "Off" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="javascript:;" onclick="window.close();">ยกเลิก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/site/app-advancescript.js" type="text/javascript"></script>
+}

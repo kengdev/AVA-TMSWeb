@@ -1,0 +1,828 @@
+﻿@{
+    ViewBag.TopActive = "Job";
+    ViewBag.MidActive = "daily";
+    ViewBag.Title = "ข้อมูลงาน";
+}
+@section Styles {
+    <style>
+        #domesticBody tr, #domesticBody td {
+            border: none !important;
+        }
+
+        #domesticBody td {
+            font-size: 13px !important;
+            text-align: left !important;
+        }
+
+        th {
+            font-size: 13px !important;
+        }
+
+            th.code, td.code {
+                width: 150px;
+            }
+
+        td.code {
+            text-align: center;
+        }
+
+        th.action {
+            width: 70px;
+        }
+
+        td.action {
+            width: 70px;
+            text-align: center !important;
+            padding-left: 25px !important;
+        }
+
+        div.action {
+            padding-top: 25px !important;
+            font-size: 16px;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลงาน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/order/">ข้อมูลงานประจำวัน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/order/add">เพิ่ม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> ทำรายการ</span>
+                </div>
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#portlet_tab1" data-toggle="tab"> งานรับตู้คืนตู้ </a>
+                    </li>
+                    <li>
+                        <a href="#portlet_tab2" data-toggle="tab"> งานวางพื้น </a>
+                    </li>
+                    <li>
+                        <a href="#portlet_tab3" data-toggle="tab"> Ocean </a>
+                    </li>
+                    <li>
+                        <a href="#portlet_tab4" data-toggle="tab"> Domestic </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="portlet-body form">
+                @Html.Hidden("job_type_handle", "cont")
+                <div class="tab-content">
+                    <div class="tab-pane active" id="portlet_tab1">
+                        @await Component.InvokeAsync("EntryContainerJob")
+                    </div>
+
+                    <div class="tab-pane" id="portlet_tab2">
+                        @await Component.InvokeAsync("EntryFloorJob")
+                    </div>
+
+                    <div class="tab-pane" id="portlet_tab3">
+                        @await Component.InvokeAsync("EntryOceanJob")
+                    </div>
+
+                    <div class="tab-pane" id="portlet_tab4">
+                        @await Component.InvokeAsync("EntryDomestic")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $('#portlet_tab1').click(function() {
+                $('#job_type_handle').val('cont');
+            });
+
+            $('#portlet_tab2').click(function() {
+                $('#job_type_handle').val('flr');
+            });
+
+            $('#portlet_tab3').click(function() {
+                $('#job_type_handle').val('ocean');
+            });
+
+            $('#portlet_tab4').click(function() {
+                $('#job_type_handle').val('dom');
+            });
+
+            $("#frmAddContainer").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $("#frmAddFloor").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $("#frmAddOcean").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $("#frmAddDomestic").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#txtCostCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/TransportRate', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setCustomerBox(code, 'cont');
+                    return item;
+                }
+            });
+
+            $('#txtStartCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/PlaceByType', { term: query, action: "S", jobtype: $('.rdoJobType:checked').val() }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    $('#valueChange').val('S');
+                    setYardPortBox(code, 'cont');
+                    return item;
+                }
+            });
+
+            $('#txtFinishCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/PlaceByType', { term: query, action: "F", jobtype: $('.rdoJobType:checked').val() }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    $('#valueChange').val('F');
+                    setYardPortBox(code, 'cont');
+                    return item;
+                }
+            });
+
+            $('#txtFloorStartCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Place', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setYardPortBox(code, 'flr');
+                    return item;
+                }
+            });
+
+            $('#txtFloorCostCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/TransportRate', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setCustomerBox(code, 'flr');
+                    return item;
+                }
+            });
+
+            $('#txtOceanCostCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/TransportRate', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setCustomerBox(code, 'ocean');
+                    return item;
+                }
+            });
+
+            $('#txtOceanStartCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/PlaceByType', { term: query, action: "S", jobtype: $('.rdoJobType:checked').val() }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    $('#valueChange').val('S');
+                    setYardPortBox(code, 'ocean');
+                    return item;
+                }
+            });
+
+            $('#txtOceanFinishCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/PlaceByType', { term: query, action: "F", jobtype: $('.rdoJobType:checked').val() }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    $('#valueChange').val('F');
+                    setYardPortBox(code, 'ocean');
+                    return item;
+                }
+            });
+
+            $('#txtDomesticCostCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/TransportRate', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    var name = map[item].name;
+                    $('#txtDomesticCustomerName').val(name);
+                    setCustomerBox(code, 'dom');
+                    return code;
+                }
+            });
+
+            $('#txtDomesticStartCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/PlaceByType', { term: query, action: "S", jobtype: $('.rdoJobType:checked').val() }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    $('#valueChange').val('S');
+                    setYardPortBox(code, 'dom');
+                    return item;
+                }
+            });
+
+            $('#container_kind').change(function() {
+                var val = $(this).val();
+                if (val == '99') {
+                    $('#txtOther').prop('disabled', false);
+                    $('#txtOther').focus();
+                }
+                else {
+                    $('#txtOther').val('');
+                    $('#txtOther').prop('disabled', true);
+                }
+            });
+
+            $('#ocean_container_kind').change(function() {
+                var val = $(this).val();
+                if (val == '99') {
+                    $('#txtOceanOther').prop('disabled', false);
+                    $('#txtOceanOther').focus();
+                }
+                else {
+                    $('#txtOceanOther').val('');
+                    $('#txtOceanOther').prop('disabled', true);
+                }
+            });
+
+            $('.rdoJobType').change(function() {
+                var x = $(this).val();
+                $('#txtStartCode').val('');
+                $('#txtDisStartName').val('');
+                $('#txtFinishCode').val('');
+                $('#txtDisFinishName').val('');
+
+                if (x == "IMPORT") {
+                    $('input:radio[name="container_type"][value="LADEN"]').prop("checked", true);
+                } else {
+                    $('input:radio[name="container_type"][value="EMPTY"]').prop("checked", true);
+                }
+            });
+        }(jQuery));
+
+        function addDomList() {
+            var code = $('#txtDomesticFinish').val();
+            var name = $('#txtDomesticDisFinishName').val();
+            var row = '<tr><td class="action"><a href="javascript:;" onclick="removeItem()"><i class="fal fa-times-circle font-red"></i></a></td>';
+            row += '<td class="code"><input type="hidden" name="domesticFinishCode[]" value="' + code + '" />' + code + '</td>';
+            row += '<td>' + name + '</td></tr>'
+
+            $('#domesticBody').append(row);
+            $('#txtDomesticFinish').val('');
+            $('#txtDomesticDisFinishName').val('');
+        }
+
+        function addDetail() {
+            var data =
+                '<tr><td style="vertical-align:middle;text-align:center;"><a href="javascript:;" class="font-red" onclick="$(this).parent().parent().remove()"><i class="fa fa-times"></i></a></td>';
+            data +=
+                '<td><input type="text" name="iBL[]" class="form-control input-sm" placeholder="B/L No" autocomplete="off" /></td>';
+            data +=
+                '<td><input type="text" name="iContainer[]" class="form-control input-sm" placeholder="เบอร์ตู้" autocomplete="off" /></td>';
+            data +=
+                '<td><input type="text" name="iQuantity[]" class="form-control input-sm" placeholder="จำนวน" autocomplete="off" /></td>';
+            data +=
+                '<td><input type="text" name="iWeight[]" class="form-control input-sm" placeholder="น้ำหนัก" autocomplete="off" /></td>';
+            data +=
+                '<td><input type="text" name="iCBM[]" class="form-control input-sm" placeholder="ปริมาตร" autocomplete="off" /></td>';
+            data +=
+                '<td><input type="text" name="iDelivery[]" class="form-control input-sm jt" placeholder="วันที่ส่งสินค้า" autocomplete="off" /></td></tr>';
+            $('#ocean-detail').append(data);
+            $('#ocean-detail').find(".jt").datetimepicker({
+                datepicker: true,
+                timepicker: true,
+                lang: 'th',
+                step: 30,
+                format: 'Y-m-d H:i',
+                inline: false
+            });
+        }
+
+        function searchYardPortFunc() {
+            var url = '';
+            var setting = 'width=900,height=550';
+            url = '/search/yardport?ev=flr';
+
+            window.open(url, 'search place', setting);
+        }
+
+        function searchDomYardPortFunc(ele) {
+            var url = '';
+            var setting = 'width=900,height=550';
+            url = '/search/yardport?ev=' + ele;
+
+            window.open(url, 'search place', setting);
+        }
+
+        function searchPlaceFunc(action) {
+            var url = '';
+            var setting = 'width=900,height=550';
+            var type = $('.rdoJobType:checked').val();
+            $('#valueChange').val(action)
+
+            if (action == 'S') {
+                if (type == "IMPORT") {
+                    url = '/search/port';
+                }
+                else if (type == "EXPORT") {
+                    url = '/search/yard';
+                }
+            }
+            else if (action == 'F') {
+                if (type == "IMPORT") {
+                    url = '/search/yard';
+                }
+                else if (type == "EXPORT") {
+                    url = '/search/port';
+                }
+            }
+            else {
+                url = '/search/place'
+            }
+
+            window.open(url, 'search place', setting);
+        }
+
+        function searchCustomerFunc(e) {
+            var url = '../search/transportrate?ev=' + e;
+            var setting = 'width=900,height=550';
+            window.open(url, 'search customer', setting);
+        }
+
+        function setYardPortBox(code, type) {
+            var event = $('#job_type_handle').val();
+            var action = $('#valueChange').val();
+            overLayForm();
+            $.post("../Order/GetYardPort",
+                {
+                    code: code
+                }, function(result) {
+                    var code = result.place_code;
+                    var name = result.place_name;
+                    var type = result.place_type;
+                    if (event == 'flr') {
+                        $('#txtFloorStartCode').val(code);
+                        $('#txtFloorDisStartName').val(name);
+                        $('#txtStartType').val(type);
+                    }
+                    else if (event == 'cont') {
+                        if (action === 'S') {
+                            $('#txtStartCode').val(code);
+                            $('#txtDisStartName').val(name);
+                        }
+                        else if (action === 'F') {
+                            $('#txtFinishCode').val(code);
+                            $('#txtDisFinishName').val(name);
+                        }
+                    }
+                    else if (event == 'dom') {
+                        if (action === 'S') {
+                            $('#txtDomesticStartCode').val(code);
+                            $('#txtDomesticStartName').val(name);
+                        }
+                        else if (action === 'F') {
+                            $('#txtFinishCode').val(code);
+                            $('#txtDisFinishName').val(name);
+                        }
+                    }
+                    else {
+                        if (action === 'S') {
+                            $('#txtOceanStartCode').val(code);
+                            $('#txtOceanDisStartName').val(name);
+                        }
+                        else if (action === 'F') {
+                            $('#txtOceanFinishCode').val(code);
+                            $('#txtOceanDisFinishName').val(name);
+                        }
+                    }
+                    killOverlayForm();
+                });
+        }
+
+        function setDomYardPortBox(code, type, ele) {
+            var event = $('#job_type_handle').val();
+            var action = $('#valueChange').val();
+            overLayForm();
+            $.post("../Order/GetYardPort",
+                {
+                    code: code
+                }, function(result) {
+                    var code = result.place_code;
+                    var name = result.place_name;
+                    var place_type = result.place_type;
+                    $('#txtDomesticFinish').val(code);
+                    $('#txtDomesticDisFinishName').val(name);
+                    killOverlayForm();
+                });
+        }
+
+        function setCustomerBox(code, event) {
+            overLayForm();
+            $.post("../Order/GetCustomerCost",
+                {
+                    code: code
+                }, function(result) {
+                    if (event == 'cont') {
+                        $('#txtCostCode').val(result.cost_code);
+                        $('#txtCustomerCode').val(result.customer_code);
+                        $('#txtCustomerName').val(result.customer_name_th);
+                        $('#txtMissionCode').val(result.mission_code);
+                        $('#txtExpressway').val(result.expressway_value);
+                        $('#txtDisMissionName').val(result.mission_name);
+                        $('#acronym').val(result.customer_acronym);
+                    }
+                    else if (event == 'flr') {
+                        $('#txtFloorCostCode').val(result.cost_code);
+                        $('#txtFloorCustomerCode').val(result.customer_code);
+                        $('#txtFloorCustomerName').val(result.customer_name_th);
+                        $('#txtFloorMissionCode').val(result.mission_code);
+                        $('#txtFloorDisMissionName').val(result.mission_name);
+                        $('#txtFloorExpressway').val(result.expressway_value);
+                        $('#txtMissionType').val(result.mission_type);
+                        $('#flooracronym').val(result.customer_acronym);
+                    }
+                    else if (event == 'dom') {
+                        $('#txtDomesticCostCode').val(result.cost_code);
+                        $('#txtDomesticCustomerCode').val(result.customer_code);
+                        $('#txtDomesticCustomerName').val(result.customer_name_th);
+                        $('#domesticacronym').val(result.customer_acronym);
+                        $('#route_code').val(result.mission_code);
+                        $('#txtDomesticRouteName').html(result.mission_name);
+                        $('#txtDomExpressway').val(result.expressway_value);
+                    }
+                    else {
+                        $('#txtOceanCostCode').val(result.cost_code);
+                        $('#txtOceanCustomerCode').val(result.customer_code);
+                        $('#txtOceanCustomerName').val(result.customer_name_th);
+                        $('#txtOceanMissionCode').val(result.mission_code);
+                        $('#txtOceanDisMissionName').val(result.mission_name);
+                        $('#txtOceanExpressway').val(result.expressway_value);
+                        $('#oceanacronym').val(result.customer_acronym);
+                    }
+
+                    killOverlayForm();
+                });
+            $('#txtSearchCustomer').val('');
+        }
+
+        function getRouteDetail(code) {
+            $.post("../Route/GetRouteDetail",
+                {
+                    code: code
+                }, function(data) {
+                    $.each(data.start, function(index, item) {
+                        $('#domesticStartBody').append('<tr><td>' + item.start_name + '</td></tr>')
+                    });
+
+                    $.each(data.mission, function(index, item) {
+                        $('#domesticMissionBody').append('<tr><td>' + item.mission_name + '</td></tr>')
+                    });
+                });
+        }
+
+        function OnValidateOcean() {
+            var fn = false;
+            fn = $('#frmAddOcean').myfunction({
+                rules: {
+                    txtOceanCostCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสลูกค้า"
+                        }
+                    },
+                    txtOceanStartCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสสถานที่รับตู้"
+                        }
+                    },
+                    JobInvoice: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Dossier/Invoice"
+                        }
+                    },
+                    change_no: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ B/L Change No."
+                        }
+                    },
+                    vessel: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อเรือ (VESSEL)"
+                        }
+                    },
+                    ocean_container_kind: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtOceanAmount: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์จำนวนตู้"
+                        }
+                    },
+                    ocean_truck_type: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    eta_date: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ หรือเลือกข้อมูล"
+                        }
+                    },
+                    pickup_date: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ หรือเลือกข้อมูล"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+
+        function OnValidateFloor() {
+            var fn = false;
+            fn = $('#frmAddFloor').myfunction({
+                rules: {
+                    txtFloorCostCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสลูกค้า"
+                        }
+                    },
+                    txtFloorStartCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสสถานที่รับตู้"
+                        }
+                    },
+                    txtFloorJobDate: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์วันที่เริ่มงาน"
+                        }
+                    },
+                    txtFloorInvoice: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Invoice/Job No"
+                        }
+                    },
+                    txtFloorAmount: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์จำนวนตู้"
+                        }
+                    },
+                    floor_truck_type: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtFloorBookingNo: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Booking"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+
+        function OnValidate() {
+            var fn = false;
+            fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtCostCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสลูกค้า"
+                        }
+                    },
+                    txtStartCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสสถานที่รับตู้"
+                        }
+                    },
+                    container_kind: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtJobDate: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์วันที่เริ่มงาน"
+                        }
+                    },
+                    txtClosing: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์วันที่ปิดรับ-ส่งสินค้า"
+                        }
+                    },
+                    txtInvoice: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Invoice/Job No"
+                        }
+                    },
+                    txtAmount: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์จำนวนตู้"
+                        }
+                    },
+                    txtBookingNo: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Booking"
+                        }
+                    },
+                    agent_no: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    truck_type: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}

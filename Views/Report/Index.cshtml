@@ -1,0 +1,100 @@
+@model TMSWeb.Models.Entities.LOG.TblReceipt
+@{
+    ViewBag.TopActive = "Report";
+    ViewBag.MidActive = "cost";
+    ViewBag.Title = "รายงานการคิดเงินลูกค้า";
+    var data = (List<TMSWeb.Models.ViewModels.CoverSheetViewModel>)ViewBag.Data;
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css"
+          href="~/css/bootstrap/bootstrap-table.min.css" />
+    <style>
+
+    </style>
+}
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-chart-line"></i>
+                    <span class="caption-subject bold uppercase">
+                        รายงานการคิดเงินลูกค้า
+                    </span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    @Html.DropDownList("month", null,
+                                    "---เลือกเดือน---", new
+                                    {
+                                        @Class =
+                                    "form-control dlListForm",
+                                        Style =
+                                    "width:150px;"
+                                    })
+                                </div>
+                                <div class="form-group">
+                                    @Html.DropDownList("year", null,
+                                    "---เลือกปี---", new
+                                    {
+                                        @Class =
+                                    "form-control dlListForm",
+                                        Style =
+                                    "width:150px;"
+                                    })
+                                </div>
+                                |
+                                <button type="button" class="btn btn-sm blue
+                                    btn-outline" onclick="getPdf()">
+                                    <i class="fad fa-download"></i> ดาวน์โหลด
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+
+        }(jQuery));
+
+        function getPdf() {
+
+            var month = $('#month').val();
+            var year = $('#year').val();
+
+            var url = '/Report/CostReportExcel?month=' + month + '&year=' + year;
+            window.open(url, 'form list');
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}

@@ -1,0 +1,19 @@
+@model TMSWeb.Models.Entities.LOG.TblTruckDriver
+@using HtmlHelpers.BeginCollectionItemCore
+@{
+    var item = (TMSWeb.Models.Entities.LOG.ViewDriverListActive)ViewBag.Driver;
+}
+<tr>
+    @using (Html.BeginCollectionItem("TblTruckDrivers"))
+    {
+        @Html.HiddenFor(m => m.DriverCode, new { @Class="driver_code" })
+        <td class="action-td">
+            <a class="font-red" href="javascript:;" onclick="$(this).parent().parent().remove()"><i
+                class="fa fa-times"></i></a>
+        </td>
+        <td>
+            @item.DriverFullname
+        </td>
+        <td>@item.DriverPhone</td>
+    }
+</tr>

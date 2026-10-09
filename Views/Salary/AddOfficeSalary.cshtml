@@ -1,0 +1,93 @@
+@model TMSWeb.Models.Entities.HR.TblPaymentSalary
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+}
+
+<div class="col-md-12 col-lg-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-money-check-edit-alt"></i>
+                <span class="caption-subject bold uppercase"> ทำรายการเงินเดือนพนักงานออฟฟิศ</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("Calculate", "Payroll", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+        {
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6">
+                            <label class="font-sm">เริ่ม</label>
+                            <span class="required"> * </span>
+                            <input type="text" class="form-control" name="PaymentStart" value="" id="filterDateRangeStart" autocomplete="off" />
+                        </div>
+
+                        <div class="col-xs-6 col-sm-6">
+                            <label class="font-sm">สิ้นสุด</label>
+                            <span class="required"> * </span>
+                            <input type="text" class="form-control" name="PaymentEnd" value="" id="filterDateRangeEnd" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <button type="button" class="btn red font-sm" onclick="self.close()">ปิด</button>
+                                <button type="submit" class="btn green font-sm">ทำรายการ</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#frmAdd").ajaxForm(function(data) {
+                if (data.result == true) {
+                    killOverlayForm();
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.opener.reloadRow();
+                        window.location.reload();
+                    });
+                } else {
+                    unoverLay();
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#filterDateRangeStart').datetimepicker({
+                format: 'Y/m/d',
+                lang: 'th',
+                onShow: function(ct) {
+                    this.setOptions({
+                        maxDate: jQuery('#filterDateRangeEnd').val() ? jQuery('#filterDateRangeEnd').val() : false
+                    })
+                },
+                timepicker: false
+            });
+
+            $('#filterDateRangeEnd').datetimepicker({
+                format: 'Y/m/d',
+                lang: 'th',
+                onShow: function(ct) {
+                    this.setOptions({
+                        minDate: jQuery('#filterDateRangeStart').val() ? jQuery('#filterDateRangeStart').val() : false
+                    })
+                },
+                timepicker: false
+            });
+        });
+
+        function OnValidate() {
+            overLayForm();
+            return true;
+        }
+    </script>
+}

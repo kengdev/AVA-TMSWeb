@@ -1,0 +1,862 @@
+@using System.Text.Json
+@{
+    ViewBag.TopActive = "Allowance";
+    ViewBag.MidActive = "salary";
+    ViewBag.SubActive = "officesalary";
+    ViewBag.Title = "รายการเงินเดือนพนักงาน";
+    var opts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/tabulator/tabulator.min.css" />
+    <style>
+        /* ===== Base ===== */
+        .meta {
+            color: #6b7280;
+            margin: 0 0 12px
+        }
+
+        /* ===== Tabulator look ===== */
+        .tabulator {
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.06)
+        }
+
+            .tabulator .tabulator-header .tabulator-col {
+                font-weight: 600
+            }
+
+            .tabulator .tabulator-cell {
+                padding: 6px;
+                font-size: 13px
+            }
+
+        /* ===== Day colors ===== */
+        .tabulator-cell.day-holiday {
+            background: #f0dcf3 !important;
+        }
+        /* วันหยุดบริษัท */
+        .tabulator-cell.day-sunday {
+            background: #ffb7af !important;
+        }
+        /* วันอาทิตย์ */
+
+        .tabulator-cell.day-cell {
+            text-align: center;
+            font-weight: 600;
+            border-left: 1px solid #e5e7eb;
+        }
+
+        /* ให้หัวตารางลอยเหนือ cell ที่ถูกแช่แข็ง/สไตล์อื่น ๆ */
+        .tabulator .tabulator-header {
+            z-index: 10;
+            position: relative;
+        }
+
+        .tabulator .tabulator-cell.is-hover {
+            background-color: #e0e0e0 !important;
+        }
+
+        /* Cells */
+        .sum-cell {
+            text-align: right;
+            font-weight: 700
+        }
+
+        .row-kind {
+            color: #ef4444;
+            font-weight: 700;
+            text-align: center
+        }
+        /* คำว่า OT ทางซ้าย */
+        .row-muted {
+            color: #6b7280
+        }
+
+        .r_2f {
+            margin-left: 7px;
+        }
+    </style>
+}
+
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="/salary/office">ข้อมูลเงินเดือนพนักงาน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/salary/listofficeitem?code=@ViewBag.Code">รายละเอียด</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-info-circle"></i>
+                    <span class="caption-subject bold uppercase"> รายละเอียดเงินเดือนพนักงานออฟฟิศ</span>
+                </div>
+                <div class="actions">
+                    <a href="/salary/office/" class="btn btn-xs bg-blue font-white">กลับหน้าหลัก</a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+    <script>
+        const payrollCode = @Html.Raw(JsonSerializer.Serialize(ViewBag.Code ?? new { }, opts));
+        /* ===================== Helpers ===================== */
+        function toYMD(val) {
+            if (!val) return "";
+            if (typeof val === "string" && val.length >= 10 && val[4] === "-" && val[7] === "-") return val.substring(0, 10);
+            const d = new Date(val);
+            if (isNaN(d)) return "";
+            const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), da = String(d.getDate()).padStart(2, "0");
+            return `${y}-${m}-${da}`;
+        }
+        function addDays(ymd, plus) { const [y, m, d] = ymd.split("-").map(Number); return toYMD(new Date(y, m - 1, d + plus)); }
+        function thaiMonthShort(n) { return ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."][n]; }
+        function titleRange(s, e) {
+            const [ys, ms, ds] = s.split("-").map(Number), [ye, me, de] = e.split("-").map(Number);
+            return `วันที่ ${ds} ${thaiMonthShort(ms - 1)} - ${de} ${thaiMonthShort(me - 1)} ${ye + 543}`;
+        }
+        function isSunday(ymd) { const [y, m, d] = ymd.split("-").map(Number); return new Date(y, m - 1, d).getDay() === 0; }
+        function validYMD(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s || ""); }
+        const moneyNF = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function fmtMoney(v) { if (v === null || v === undefined || v === "") return "0.00"; const n = Number(v); return Number.isFinite(n) ? moneyNF.format(n) : String(v); }
+
+        function normalizeHolidays(payload) {
+            const raw = payload.holiday_ymds ?? payload.holidays ?? [];
+            const days = new Set();
+            for (const h of (raw || [])) {
+                if (typeof h === "string") {
+                    const ymd = toYMD(h);
+                    if (validYMD(ymd)) days.add(ymd);
+                    continue;
+                }
+                if (h && typeof h === "object") {
+                    const s = toYMD(h.start ?? h.StartDate ?? h.start_date ?? h.from);
+                    const e = toYMD(h.end ?? h.EndDate ?? h.end_date ?? h.to);
+                    if (validYMD(s) && validYMD(e)) {
+                        for (let k = s; ;) { days.add(k); if (k === e) break; k = addDays(k, 1); }
+                    }
+                }
+            }
+            return days;
+        }
+
+        /* ===== read start/end ===== */
+        function getStartParam() {
+            let v = document.querySelector('#startYMD, #start')?.value?.trim() || new URLSearchParams(location.search).get('start') || "";
+            v = toYMD(v); return validYMD(v) ? v : "";
+        }
+        function getEndParam() {
+            let v = document.querySelector('#endYMD, #end')?.value?.trim() || new URLSearchParams(location.search).get('end') || "";
+            v = toYMD(v); return validYMD(v) ? v : "";
+        }
+
+        /* ===== collect filters from UI ===== */
+        function getFilterParams() {
+            const params = {};
+            const s = getStartParam(); const e = getEndParam();
+            if (s) params.start = s;
+            if (e) params.end = e;
+
+            const names = [
+                "company", "Company", "companyCode", "CompanyCode",
+                "payrollType", "PayrollType",
+                "round", "paymentRound", "PaymentRound",
+                "emp", "empCode", "EmpCode",
+                "search", "q"
+            ];
+            for (const n of names) {
+                const el = document.querySelector(`[name="${n}"], #${n}`);
+                const v = el?.value?.trim();
+                if (v) params[n] = v;
+            }
+            document.querySelectorAll('[data-filter]').forEach(el => {
+                const key = el.getAttribute('data-filter');
+                const v = el.value?.trim();
+                if (key && v) params[key] = v;
+            });
+            return params;
+        }
+
+        /* ===== build URL ===== */
+        function buildUrl(path, extra = {}) {
+            const sp = new URLSearchParams(); // ใช้ชุดฟิลเตอร์เป็น truth source
+            const s = getStartParam(), e = getEndParam();
+            if (s) sp.set('start', s);
+            if (e) sp.set('end', e);
+            for (const [k, v] of Object.entries(extra)) { if (v !== undefined && v !== null && v !== "") sp.set(k, v); }
+            const qs = sp.toString(); return qs ? `${path}?${qs}` : path;
+        }
+
+        /* ===================== Smart payload extractors ===================== */
+        function _walkFindArray(obj, keyCandidates = []) {
+            if (!obj || typeof obj !== "object") return null;
+            if (Array.isArray(obj)) return obj;
+            for (const k of keyCandidates) {
+                if (Array.isArray(obj[k])) return obj[k];
+            }
+            for (const k of Object.keys(obj)) {
+                const v = obj[k];
+                const found = _walkFindArray(v, keyCandidates);
+                if (Array.isArray(found)) return found;
+            }
+            return null;
+        }
+
+        function _extractHeader(payload) {
+            const h = payload.header || {};
+            const code = h.code ?? payload.code ?? payload.paymentSalaryCode ?? payload.PaymentSalaryCode ?? null;
+            const start = toYMD(h.start ?? payload.start ?? payload.paymentStart ?? payload.PaymentStart);
+            const end = toYMD(h.end ?? payload.end ?? payload.paymentEnd ?? payload.PaymentEnd);
+            return { code, start, end };
+        }
+
+        function _extractDetails(payload) {
+            const candidates = [
+                "paymentSalaryDetails", "PaymentSalaryDetails",
+                "detail", "items", "rows", "data", "list"
+            ];
+            let arr = null;
+            for (const k of candidates) {
+                if (Array.isArray(payload?.[k])) { arr = payload[k]; break; }
+            }
+            if (!arr) arr = _walkFindArray(payload, candidates);
+            if (!arr && payload && typeof payload === "object") {
+                const guess = payload.paymentSalaryDetail || payload.PaymentSalaryDetail || null;
+                if (guess && typeof guess === "object") arr = [guess];
+            }
+            return Array.isArray(arr) ? arr : [];
+        }
+
+        function _showDebugBanner(rows, dayCount) {
+            const grid = document.getElementById('grid');
+            const id = "payroll-debug-banner";
+            let el = document.getElementById(id);
+            if (!el) {
+                el = document.createElement("div");
+                el.id = id;
+                el.style.cssText = "padding:6px 10px;margin:6px 0;border-radius:8px;background:#f6f7ff;color:#273;font-size:12px;";
+                grid.parentElement?.insertBefore(el, grid);
+            }
+
+        }
+
+        /* ===================== Build 2 rows per employee ===================== */
+        function buildTwoRows(r) {
+            const workMap = {}, otMap = {};
+            let totalWorked = 0, totalOT = 0;
+
+            const atts = r.paymentSalaryAttendances
+                || r.PaymentSalaryAttendances
+                || r.empAttendances
+                || r.attendances
+                || [];
+
+            atts.forEach(a => {
+                const key = toYMD(a.WorkDate ?? a.workDate ?? a.date);
+                if (!validYMD(key)) return;
+
+                const w = Number(a.Worked ?? a.worked ?? 0);
+                const o = Number(a.Ot ?? a.OT ?? a.ot ?? 0);
+
+                const isHoliday = Boolean(a.IsHoliday ?? a.isHoliday ?? false);
+                const isSunday = Boolean(a.IsSunday ?? a.isSunday ?? false);
+
+                let leaveInfo = a.LeaveInfo ?? a.leaveInfo ?? "";
+                const note = a.Note ?? a.note ?? "";
+
+                const isAbsentRaw = (a.Absent ?? a.isAbsent ?? a.IsAbsent ?? false) || /absent|ขาด/i.test(String(note));
+                const isAbsent = !isHoliday && isAbsentRaw;
+
+                workMap[key] = { worked: w, leaveInfo, note, absent: isAbsent, isHoliday, isSunday };
+
+                if (o > 0) { otMap[key] = o; totalOT += o; }
+                totalWorked += w;
+            });
+
+            // Navigation info (optional)
+            const empNav = r.empCodeNavigation || r.EmpCodeNavigation || {};
+            const compNav = r.company;
+
+            const empName = r.emp_name;
+
+            const payrollType = r.emp_type;
+            const empCode = r.emp_code;
+
+            const salaryBase = r.salary_base ?? r.SalaryBase ?? null;
+            const salaryWage = r.salary_wage;
+            const otBase = r.ot_base ?? r.OtBase ?? null;
+            const otWage = r.ot_wage ?? r.OtWage ?? null;
+            const otHoliday = r.ot_holiday ?? r.OtHoliday ?? null;
+
+            const meal = r.meal_allowance ?? r.MealAllowance ?? null;
+            const fuel = r.fuel_allowance ?? r.FuelAllowance ?? null;
+            const dilg = r.dilg_allowance ?? r.DilgAllowance ?? null;
+            const housing = r.housing_allowance ?? r.HousingAllowance ?? null;
+            const shiftAllow = r.shift_allowance ?? null;
+            const position = r.position_allowance ?? null;
+
+            const incomeOther = r.otherIncome ?? null;
+            const totalIncome = r.totalIncome ?? null;
+
+            const sso = r.sso ?? r.Sso ?? null;
+            const slf = r.slf ?? r.Slf ?? null;
+            const loan = r.loan ?? r.Loan ?? null;
+            const vat = r.vat ?? r.Vat ?? null;
+            const deductOther = r.otherDeduct ?? null;
+            const totalDeduct = r.totalDeduct ?? null;
+            const netTotal = r.netTotal ?? null;
+
+            const rowW = {
+                _rowKey: (empCode) + ":W",
+                _kind: "W",
+                emp_name: r.emp_name,
+                emp_code: r.emp_code,
+                company: r.company,
+                payroll_type: r.emp_type,
+                rate: "",
+
+                _work: workMap,
+                _ot: otMap,
+
+                total_worked: totalWorked,
+                salary_base: salaryBase,
+                salary_wage: salaryWage,
+
+                total_ot: totalOT,
+                total_othol: otHoliday,
+
+                // รายได้
+                meal: meal,
+                fuel: fuel,
+                dilg: dilg,
+                housing: housing,
+                shift_allow: shiftAllow,
+                income_other: incomeOther,
+                position: position,
+                total_income: totalIncome,
+
+                // หักเงิน
+                sso: sso,
+                slf: slf,
+                loan: loan,
+                vat: vat,
+                deduct_other: deductOther,
+                total_deduct: totalDeduct,
+
+                // สรุป
+                net_total: netTotal
+            };
+
+            const rowOT = {
+                _rowKey: (empCode) + ":OT",
+                _kind: "OT",
+                emp_name: "",
+                nickname: "",
+                emp_code: "",
+                emp_wage: "OT",
+                ot_base: otBase,
+                ot_wage: otWage,
+
+                _work: workMap,
+                _ot: otMap,
+
+                total_worked: "",
+                total_ot: totalOT
+            };
+
+            return [rowW, rowOT];
+        }
+
+        /* ===================== Day formatter ===================== */
+        function dayFormatterFactory(ymd) {
+            return function(cell) {
+                const row = cell.getRow().getData();
+                const el = cell.getElement();
+
+                el.classList.remove("day-cell", "day-holiday", "day-sunday");
+                el.classList.add("day-cell");
+
+                const d = (row._work || {})[ymd];
+
+                const isHol = (typeof HOLIDAYS?.has === "function" && HOLIDAYS.has(ymd)) || (d?.isHoliday === true);
+                const isSun = (d?.isSunday === true) || (!isHol && isSunday(ymd));
+
+                if (isHol) {
+                    el.classList.add("day-holiday");
+                    return row._kind === "OT" ? "–" : "";
+                }
+                if (isSun) {
+                    el.classList.add("day-sunday");
+                }
+
+                if (row._kind === "OT") {
+                    const v = (row._ot && row._ot[ymd]) ?? 0;
+                    const n = Number(v);
+                    return (Number.isFinite(n) && n > 0) ? String(n).replace(/\.0$/, "") : "–";
+                }
+
+                if (d) {
+                    const w = Number(d.worked ?? 0);
+                    const leave = String(d.leaveInfo ?? "").toLowerCase();
+                    const note = String(d.note ?? "").toLowerCase();
+
+                    const isLeaveFull = leave.includes("leave full") || /ลา(เต็มวัน)?/.test(leave);
+                    const isLeaveHalf = leave.includes("leave half") || /ครึ่ง/.test(leave) || w === 0.5;
+                    const absent = d.absent === true || (!leave && w === 0 && /absent|ขาด/.test(note));
+
+                    if (isLeaveFull) return "ล";
+                    if (isLeaveHalf) return "½";
+                    if (w === 1) return "1";
+                    if (w === 0.5) return "½";
+
+                    return isSun ? "" : (absent ? "ข" : "");
+                }
+
+                return isSun ? "" : "";
+            }
+        }
+
+        let UPDATEDATA_WIN = null; // เก็บ handle ไว้ใช้ซ้ำ
+
+        function openCenteredPopup(payment_code, emp_code, w = 1080, h = 780) {
+            const url = "/salary/issueofficesalary?payroll=" + encodeURIComponent(payment_code) +
+                "&emp=" + encodeURIComponent(emp_code);
+
+            // คำนวณตำแหน่งกึ่งกลาง
+            const dualLeft = window.screenLeft ?? window.screenX ?? 0;
+            const dualTop = window.screenTop ?? window.screenY ?? 0;
+            const winW = window.innerWidth || document.documentElement.clientWidth || screen.width;
+            const winH = window.innerHeight || document.documentElement.clientHeight || screen.height;
+            const left = dualLeft + Math.max(0, (winW - w) / 2);
+            const top = dualTop + Math.max(0, (winH - h) / 2);
+            const feats = `scrollbars=yes,resizable=yes,width=${w},height=${h},top=${top},left=${left}`;
+
+            // ถ้ามีหน้าต่างเดิมและยังไม่ถูกปิด → ใช้ซ้ำ + เปลี่ยน URL
+            if (UPDATEDATA_WIN && !UPDATEDATA_WIN.closed) {
+                UPDATEDATA_WIN.location.replace(url);   // เปลี่ยนหน้าใน popup เดิม
+                try { UPDATEDATA_WIN.moveTo(left, top); UPDATEDATA_WIN.resizeTo(w, 745); } catch (e) { }
+                UPDATEDATA_WIN.focus?.();
+                return UPDATEDATA_WIN;
+            }
+
+            // ถ้ายังไม่มี/ถูกปิดไปแล้ว → เปิดใหม่ด้วยชื่อคงที่ 'updatedata'
+            const win = window.open(url, 'updatedata', feats);
+            if (!win) { // popup ถูกบล็อค → เปิดเป็นแท็บใหม่ชื่อเดิม (ยังรียูสได้)
+                window.open(url, 'updatedata');
+                return null;
+            }
+            UPDATEDATA_WIN = win;
+            win.focus?.();
+            return win;
+        }
+
+        /* ===================== Columns ===================== */
+        const infoCols = [
+            {
+                title: "รหัส",
+                field: "emp_code",
+                width: 100,
+                hozAlign: "center",
+                frozen: true,
+                formatter: function(cell) {
+                    const code = cell.getValue() || "";
+                    if (!code) return "";
+                    // สร้าง <a> แบบ DOM element (จะไม่ trigger cellClick ซ้ำ)
+                    const wrap = document.createElement("span");
+                    const edit = document.createElement("a");
+                    edit.href = "#";
+                    edit.innerHTML = "<i class='fad fa-pencil'></i>";
+                    edit.className = "font-yellow";
+                    edit.title = "แก้ไขข้อมูลพนักงาน";
+                    edit.style.textDecoration = "underline";
+                    edit.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        openCenteredPopup(payrollCode, code);
+                    });
+
+                    const print = document.createElement("a");
+                    print.href = `/formava/officesalaryslip?payment=${payrollCode}&emp=${code}`;
+                    print.innerHTML = "<i class='fad fa-print'></i>";
+                    print.target = "_blank";
+                    print.className = "r_2f font-dark";
+                    print.title = "แก้ไขข้อมูลพนักงาน";
+                    print.style.textDecoration = "underline";
+
+                    wrap.appendChild(edit);
+                    wrap.appendChild(print);
+
+                    return wrap;
+                }
+            },
+            { title: "รหัสพนักงาน", field: "emp_code", width: 100, hozAlign: "center", frozen: true },
+            { title: "ชื่อ-สกุล", field: "emp_name", width: 160, frozen: true },
+
+            {
+                title: "ค่าแรง/OT", field: "emp_wage", width: 100, hozAlign: "center", frozen: true,
+                formatter: c => c.getRow().getData()._kind === "OT" ? "<span>OT</span>" : (c.getValue() || "<span>ค่าแรง</span>")
+            },
+            {
+                title: "อัตรา", field: "salary_base", width: 100, hozAlign: "right", frozen: true,
+                formatter: c => { const row = c.getRow().getData(); const v = (row._kind === "OT") ? row.ot_base : c.getValue(); return (v === undefined || v === null || v === "") ? "" : fmtMoney(v); }
+            },
+        ];
+
+        const miscCols = [
+            {
+                title: "วัน/ชม.OT", field: "total_worked", width: 90, hozAlign: "right",
+                formatter: c => c.getRow().getData()._kind === "OT" ? String(c.getRow().getData().total_ot ?? "") : String(c.getValue() ?? "")
+            }
+        ];
+
+        const incomeGroup = {
+            title: "รายได้ (Income)",
+            headerHozAlign: "center",
+            cssClass: "hdr-income",
+            columns: [
+                {
+                    title: "ค่าแรง", field: "salary_wage", width: 90, hozAlign: "right",
+                    formatter: c => { const row = c.getRow().getData(); return fmtMoney(row._kind === "OT" ? row.ot_wage : c.getValue()); }
+                },
+                {
+                    title: "ค่าตำแหน่ง", field: "position", width: 90, hozAlign: "right",
+                    formatter: c => { const row = c.getRow().getData(); return fmtMoney(row._kind === "OT" ? "&nbsp;" : c.getValue()); }
+                },
+                {
+                    title: "เบี้ยขยัน", field: "dilg", width: 90, hozAlign: "right",
+                    formatter: c => { const row = c.getRow().getData(); return fmtMoney(row._kind === "OT" ? "&nbsp;" : c.getValue()); }
+                }
+            ]
+        };
+
+        const deductGroup = {
+            title: "หักเงิน (Deductions)",
+            headerHozAlign: "center",
+            cssClass: "hdr-deduct",
+            columns: [
+                {
+                    title: "ประกันสังคม", field: "sso", width: 90, hozAlign: "right",
+                    formatter: c => { const row = c.getRow().getData(); return fmtMoney(row._kind === "OT" ? "&nbsp;" : c.getValue()); }
+                },
+                {
+                    title: "เงินประกัน", field: "slf", width: 90, hozAlign: "right",
+                    formatter: c => { const row = c.getRow().getData(); return fmtMoney(row._kind === "OT" ? "&nbsp;" : c.getValue()); }
+                },
+                {
+                    title: "ขาดงาน", field: "loan", width: 90, hozAlign: "right",
+                    formatter: c => { const row = c.getRow().getData(); return fmtMoney(row._kind === "OT" ? "&nbsp;" : c.getValue()); }
+                }
+            ]
+        };
+
+        const summaryGroup = {
+            title: "สรุป",
+            headerHozAlign: "center",
+            columns: [
+                {
+                    title: "สุทธิ", field: "net_total", width: 110, hozAlign: "right",
+                    formatter: c => {
+                        const row = c.getRow().getData();
+                        return row._kind === "OT" ? "&nbsp;" : fmtMoney(row.net_total);
+                    }
+                }
+            ]
+        };
+
+        /* ===================== State ===================== */
+        let table;                 // Tabulator instance
+        let DAY_KEYS = [];         // วันทั้งหมด
+        let HEADER = {}, RAW = [], HOLIDAYS = new Set();
+
+        /* ===================== Columns builder ===================== */
+        function buildColumns() {
+            const metaEl = document.getElementById("meta");
+            const hasDays = DAY_KEYS.length > 0;
+            const dayCols = hasDays ? DAY_KEYS.map(k => ({
+                title: String(Number(k.slice(8, 10))),
+                field: "d_" + k,
+                width: 36,
+                headerHozAlign: "center",
+                hozAlign: "center",
+                formatter: dayFormatterFactory(k)
+            })) : [];
+            const cols = hasDays
+                ? [...infoCols, { title: titleRange(DAY_KEYS[0], DAY_KEYS[DAY_KEYS.length - 1]), columns: dayCols }, ...miscCols, incomeGroup, deductGroup, summaryGroup]
+                : [...infoCols, ...miscCols, incomeGroup, deductGroup, summaryGroup];
+
+            if (metaEl) {
+                metaEl.textContent = hasDays
+                    ? titleRange(DAY_KEYS[0], DAY_KEYS[DAY_KEYS.length - 1])
+                    : "ไม่มีช่วงวัน (เลือก Start/End แล้วกดโหลด)";
+            }
+            return cols;
+        }
+
+        function ensureDayColumns(ymdList) {
+            if (!Array.isArray(ymdList) || !ymdList.length) return;
+            let changed = false;
+            for (const ymd of ymdList) {
+                if (validYMD(ymd) && !DAY_KEYS.includes(ymd)) {
+                    DAY_KEYS.push(ymd); changed = true;
+                }
+            }
+            if (changed) {
+                DAY_KEYS.sort();
+                table.setColumns(buildColumns());
+                table.getColumns().forEach(col => {
+                    const def = col.getDefinition();
+                    if (def.columns && def.cssClass) col.getElement().classList.add(def.cssClass);
+                });
+            }
+        }
+
+        function collectDayKeysFromData(data) {
+            const set = new Set();
+            (data || []).forEach(r => {
+                const atts = r.paymentSalaryAttendances
+                    || r.PaymentSalaryAttendances
+                    || r.attendances
+                    || r.empAttendances
+                    || [];
+                atts.forEach(a => {
+                    const ymd = toYMD(a.WorkDate ?? a.workDate ?? a.date);
+                    if (validYMD(ymd)) set.add(ymd);
+                });
+            });
+            return Array.from(set).sort();
+        }
+
+        function flattenRows(data) {
+            const rows = [];
+            (data || []).forEach((r, i) => { const pair = buildTwoRows(r, i); rows.push(...pair); });
+            return rows;
+        }
+
+        function toggleRowHover(id, on) {
+            document.querySelectorAll(
+                `.tabulator-row[data-row-index="${CSS.escape(id)}"] .tabulator-cell:not(.day-holiday):not(.day-sunday)`
+            ).forEach(el => el.classList.toggle("is-hover", on));
+        }
+
+        /* ===================== Load / Reload ===================== */
+        async function loadAll() {  // first time
+            const grid = document.getElementById('grid');
+            if (typeof Tabulator === 'undefined') {
+                grid.innerHTML = `<div style="padding:12px;background:#fee;color:#900;border-radius:8px">
+                              ไม่พบไลบรารี Tabulator (ตรวจ script CDN/ลำดับโหลด)
+                            </div>`;
+                throw new Error('Tabulator not loaded');
+            }
+
+            grid.innerHTML = `<div style="padding:8px;color:#555">กำลังโหลด...</div>`;
+
+            const url = buildUrl('/Payroll/GetPayrollDetailData', { code: payrollCode });
+            const res = await fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" });
+            if (!res.ok) {
+                grid.innerHTML = `<div style="padding:12px;background:#fee;color:#900;border-radius:8px">
+                              โหลดข้อมูลล้มเหลว: HTTP ${res.status}
+                            </div>`;
+                throw new Error(`HTTP ${res.status}`);
+            }
+            const payload = await res.json();
+            console.log("[PAYROLL] raw payload =", payload);
+
+            HEADER = _extractHeader(payload);
+            RAW = _extractDetails(payload);
+            HOLIDAYS = normalizeHolidays(payload);
+
+            let s = getStartParam() || HEADER.start;
+            let e = getEndParam() || HEADER.end;
+            if (!validYMD(s) || !validYMD(e)) {
+                const keys = collectDayKeysFromData(RAW);
+                if (keys.length) { s = keys[0]; e = keys[keys.length - 1]; }
+            }
+            DAY_KEYS = [];
+            if (validYMD(s) && validYMD(e)) { for (let k = s; ;) { DAY_KEYS.push(k); if (k === e) break; k = addDays(k, 1); } }
+
+            const ROWS = flattenRows(Array.isArray(RAW) ? RAW : (RAW ? [RAW] : []));
+            console.log('[PAYROLL] header=', HEADER, 'rows=', ROWS.length, 'dayCols=', DAY_KEYS.length);
+            _showDebugBanner(ROWS.length, DAY_KEYS.length);
+
+            grid.innerHTML = "";
+            if (!table) {
+                table = new Tabulator("#grid", {
+                    data: ROWS,
+                    columns: buildColumns(),
+                    index: "_rowKey",
+                    layout: "fitDataFill",
+                    height: "65vh",
+                    placeholder: "ไม่มีข้อมูลให้แสดง",
+                    columnDefaults: { headerSort: false },
+                    rowMouseEnter(row) { toggleRowHover(row.getIndex(), true); },
+                    rowMouseLeave(row) { toggleRowHover(row.getIndex(), false); }
+                });
+                table.on("tableBuilt", () => {
+                    table.getColumns().forEach(col => {
+                        const def = col.getDefinition();
+                        if (def.columns && def.cssClass) col.getElement().classList.add(def.cssClass);
+                    });
+                });
+            } else {
+                table.setColumns(buildColumns());
+                await table.setData(ROWS);
+                try { table.redraw(true); } catch (e) { }
+                table.getColumns().forEach(col => {
+                    const def = col.getDefinition();
+                    if (def.columns && def.cssClass) col.getElement().classList.add(def.cssClass);
+                });
+            }
+
+            const $s = document.querySelector('#startYMD, #start');
+            const $e = document.querySelector('#endYMD, #end');
+            if ($s && !$s.value && validYMD(HEADER.start)) $s.value = HEADER.start;
+            if ($e && !$e.value && validYMD(HEADER.end)) $e.value = HEADER.end;
+
+            window.table = table;
+        }
+
+        async function reloadAll() {
+            if (!table) return loadAll();
+
+            const url = buildUrl('/Payroll/GetPayrollDetailData', { code: payrollCode });
+            const res = await fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const payload = await res.json();
+
+            console.log("[PAYROLL] reload payload =", payload);
+
+            HEADER = _extractHeader(payload);
+            RAW = _extractDetails(payload);
+            HOLIDAYS = normalizeHolidays(payload);
+
+            let s = getStartParam() || HEADER.start;
+            let e = getEndParam() || HEADER.end;
+            if (!validYMD(s) || !validYMD(e)) {
+                const keys = collectDayKeysFromData(RAW);
+                if (keys.length) { s = keys[0]; e = keys[keys.length - 1]; }
+            }
+
+            const newKeys = [];
+            if (validYMD(s) && validYMD(e)) {
+                for (let k = s; ;) { newKeys.push(k); if (k === e) break; k = addDays(k, 1); }
+            }
+
+            const changed =
+                (newKeys.length !== DAY_KEYS.length) ||
+                newKeys.some((v, i) => v !== DAY_KEYS[i]);
+
+            if (changed) {
+                DAY_KEYS = newKeys.slice();
+                table.setColumns(buildColumns());
+                table.getColumns().forEach(col => {
+                    const def = col.getDefinition();
+                    if (def.columns && def.cssClass) col.getElement().classList.add(def.cssClass);
+                });
+            } else {
+                const metaEl = document.getElementById("meta");
+                if (metaEl) {
+                    metaEl.textContent = DAY_KEYS.length
+                        ? titleRange(DAY_KEYS[0], DAY_KEYS[DAY_KEYS.length - 1])
+                        : "ไม่มีช่วงวัน (เลือก Start/End แล้วกดโหลด)";
+                }
+            }
+
+            const rows = flattenRows(Array.isArray(RAW) ? RAW : (RAW ? [RAW] : []));
+            console.log('[PAYROLL] reload rows=', rows.length, 'dayCols=', DAY_KEYS.length);
+
+            await table.setData(rows);
+            try { table.redraw(true); } catch (e) { }
+
+            table.getColumns().forEach(col => {
+                const def = col.getDefinition();
+                if (def.columns && def.cssClass) col.getElement().classList.add(def.cssClass);
+            });
+
+            _showDebugBanner(rows.length, DAY_KEYS.length);
+        }
+
+        async function reloadRow(empOrRowId) {
+            if (!table) { alert("ยังไม่ได้โหลดตาราง"); return; }
+            const empCode = String(empOrRowId || "").includes(":") ? String(empOrRowId).split(":")[0] : String(empOrRowId);
+            const url = buildUrl('/payroll/row', { ...getFilterParams(), code: HEADER?.code || "", emp: empCode, _ts: Date.now() });
+            const res = await fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" });
+            if (!res.ok) throw new Error(`Reload row HTTP ${res.status}`);
+            const rec = await res.json();
+            const data = Array.isArray(rec) ? rec[0] : rec;
+
+            const [rowW, rowOT] = buildTwoRows(data);
+            const ymds = Array.from(new Set([...Object.keys(rowW._work || {}), ...Object.keys(rowW._ot || {})]));
+            ensureDayColumns(ymds);
+
+            await upsertRow(rowW);
+            await upsertRow(rowOT, rowW._rowKey);
+        }
+
+        async function upsertRow(rowData, afterRowId) {
+            const id = rowData._rowKey;
+            const r = table.getRow(id);
+            if (r) { await r.update(rowData); }
+            else {
+                const target = afterRowId ? (table.getRow(afterRowId) || undefined) : undefined;
+                await table.addRow(rowData, false, target);
+            }
+            const el = table.getRow(id)?.getElement();
+            if (el) { el.classList.add('updated-flash'); setTimeout(() => el.classList.remove('updated-flash'), 700); }
+        }
+
+        /* ===================== Single button: load then reload ===================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            const meta = document.getElementById('meta'); if (meta) meta.textContent = "ยังไม่โหลดข้อมูล";
+            const btn = document.getElementById('btnGo');
+            if (!btn) return;
+
+            btn.addEventListener('click', async () => {
+                const wasLoaded = !!table;
+                btn.disabled = true;
+                const prev = btn.textContent;
+                btn.textContent = wasLoaded ? 'กำลังรีโหลด...' : 'กำลังโหลด...';
+
+                try {
+                    if (!wasLoaded) { await loadAll(); } else { await reloadAll(); }
+                    btn.textContent = 'รีโหลด';
+                } catch (err) {
+                    console.error(err);
+                    alert((wasLoaded ? 'รีโหลด' : 'โหลด') + 'ไม่สำเร็จ: ' + (err?.message || err));
+                    btn.textContent = prev;
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await reloadAll();              // ดึง JSON จาก Controller แล้ววางเข้า Tabulator
+            } catch (err) {
+                console.error(err);
+                alert('โหลดข้อมูลไม่สำเร็จ: ' + (err?.message || err));
+            }
+        });
+
+        // expose to console
+        window.reloadRow = reloadRow;
+        window.reloadAll = reloadAll;
+    </script>
+}

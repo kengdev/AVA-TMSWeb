@@ -1,0 +1,171 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblTrailer
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลรถ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/trailer/">หาง</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/trailer/add">เพิ่ม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> เพิ่มรายการ</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("AddTrailer", "Trailer", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+            {
+                <div class="portlet-body form" id="kjs_portlet">
+                    <div class="form-body">
+                        <div class="scroller" style="height:350px" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    ทะเบียนรถ
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.TrailerLicense, new { id = "txtLicense", Class = "form-control form-license" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    ทะเบียนหัวลาก
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.DropDownList("TruckCode", null, "-----เลือก-----", new { @Class = "form-control dlList" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    หมายเลขหาง
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.TrailerNo, new { id = "txtTrailerNo", Class = "form-control" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    ประเภทหางลาก
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.DropDownList("TrailerTypeCode", null, "-----เลือก-----", new { @Class = "form-control dlList" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    ประเภทพื้น
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.DropDownList("TrailerFloorCode", null, "-----เลือก-----", new { @Class = "form-control dlList" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12 ">
+                                <a href="/trailer/">กลับหน้าหลัก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#frmAdd").ajaxForm(function(data) {
+                overLay();
+                if (data.result == true) {
+                    unoverLay();
+                    $.alert.open('info', "บันทึกข้อมูลเรียบร้อยแล้ว", function(r) {
+                        window.opener.reloadRow();
+                        window.location.reload();
+                    });
+                } else {
+                    unoverLay();
+                    $.alert.open('error', "<div>เกิดข้อผิดลพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                }
+            });
+        });
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtLicense: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ทะเบียนรถ"
+                        }
+                    },
+                    txtTrailerNo: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์หมายเลขรถ"
+                        }
+                    },
+                    truck_code: {
+                        require: {
+                            value: true,
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    trailer_type_code: {
+                        require: {
+                            value: true,
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    trailer_floor_code: {
+                        require: {
+                            value: true,
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    }
+                }
+            })
+
+            return fn;
+        }
+    </script>
+}
+
+

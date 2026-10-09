@@ -1,0 +1,319 @@
+@model TMSWeb.Models.ViewModels.BudgetViewModel
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+}
+<style>
+    .card-balance span {
+        font-size: 61px;
+        font-weight: bold;
+    }
+
+    .card-balance {
+        border: 2px solid #F3C200;
+        border-radius: 7px !important;
+        padding: 50px;
+        width: 400px;
+        height: 250px;
+        box-shadow: 3px 3px 5px #ccd;
+    }
+
+    .topic-label label {
+        font-weight: bold;
+    }
+
+    .card-action {
+        margin-top: 20px;
+    }
+
+        .card-action button {
+            background: #fce8a2;
+            border-radius: 3px !important;
+            font-weight: bold;
+            width: 150px;
+        }
+
+    .table td {
+        vertical-align: middle !important;
+    }
+
+    .transaction-table {
+        margin-top: 20px;
+        display: inline-block;
+        width: 70%;
+        height: 280px;
+    }
+
+    .transaction-icon {
+        display: inline-block;
+        background: #fdf1c8;
+        width: 30px;
+        height: 30px;
+        border-radius: 50% !important;
+        padding-top: 5px;
+    }
+
+    .transaction-text {
+        display: inline-block;
+        margin-left: 10px !important;
+    }
+
+        .transaction-text div, .transaction-text label, .transaction-text span {
+            padding: 0 !important;
+            margin: 0 !important;
+            text-align: left;
+        }
+
+        .transaction-text label {
+            font-weight: bold;
+            color: #6d6d6d;
+        }
+
+        .transaction-text span {
+            color: #a5a6a5;
+        }
+
+    .transaction-card {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+    }
+
+    .form-content {
+        padding-top: 20px;
+        padding-left: 20px;
+        padding-right: 15px;
+        padding-bottom: 20px;
+    }
+
+    .form-group {
+        text-align: left;
+    }
+
+        .form-group label {
+            margin: 0;
+            font-size: 13px;
+            color: #000;
+        }
+
+    .font-sm-11 {
+        font-size: 11px;
+    }
+
+    .budget-wrapper {
+        border: 1px solid #ccc;
+        margin: 10px;
+        padding: 20px;
+    }
+</style>
+<div div class="budget-wrapper">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <div style="display: inline-block;">
+                <div class="card-balance">
+                    <div class="font-grey-gallery topic-label">
+                        <label>ยอดเงินคงเหลือ</label>
+                    </div>
+                    <span class="font-yellow-gold">@Model.balance.ToString("฿#,##0.00")</span>
+                </div>
+            </div>
+            <div class="card-action">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button class="btn font-yellow-gold font-sm" id="add-balance">รับยอดเข้า</button>
+                        <button class="btn red-intense font-sm" id="add-payment">จ่ายออก</button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="transaction-table">
+                            <table class="table">
+                                <tbody>
+                                    @foreach (var item in Model.general_transactions)
+                                    {
+                                        @if (item.payment_type == "ADD")
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="transaction-card">
+                                                        <div class="transaction-icon">
+                                                            <i class="fad fa-file-invoice font-yellow-gold"></i>
+                                                        </div>
+                                                        <div class="transaction-text">
+                                                            <div>
+                                                                <label>รับเงินเข้า</label>
+                                                            </div>
+                                                            <div>
+                                                                <span>&nbsp;</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">
+                                                    <div class="font-green-jungle bold">+ @item.amount.ToString("฿#,##0.00")</div>
+                                                    <div class="font-grey-silver font-sm-11">
+                                                        <span>@item.create_date.ToString("dd-MM-yyyy HH:mm")</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (item.payment_type == "MIN")
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="transaction-card">
+                                                        <div class="transaction-icon">
+                                                            <i class="fad fa-file-invoice font-yellow-gold"></i>
+                                                        </div>
+                                                        <div class="transaction-text">
+                                                            <div>
+                                                                <label>จ่ายเงินสำรอง @item.dailypayment_code</label>
+                                                            </div>
+                                                            <div>
+                                                                @if (item.transaction_by != null)
+                                                                {
+                                                                    <span>
+                                                                        ผู้ขออนุมัติ : @item.transaction_by
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">
+                                                    <div class="font-red bold">- @item.amount.ToString("฿#,##0.00")</div>
+                                                    <div class="font-grey-silver font-sm-11">
+                                                        <span>@item.create_date.ToString("dd-MM-yyyy HH:mm")</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                        else if (item.payment_type == "UPDATE")
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="transaction-card">
+                                                        <div class="transaction-icon">
+                                                            <i class="fad fa-file-invoice font-yellow-gold"></i>
+                                                        </div>
+                                                        <div class="transaction-text">
+                                                            <div>
+                                                                <label>แก้ไขรายการสำรองจ่าย @item.dailypayment_code</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-right">
+                                                    @if (item.amount_diff > 0)
+                                                    {
+                                                        <div class="font-green-jungle bold">+ @item.amount_diff.ToString("฿#,##0.00")</div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="font-red bold">- @Math.Abs(item.amount_diff).ToString("฿#,##0.00")</div>
+                                                    }
+                                                    <div class="font-grey-silver font-sm-11">
+                                                        <span>@item.create_date.ToString("dd-MM-yyyy HH:mm")</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form-content" style="display: none;">
+    <div id="form-content">
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $('#add-balance').click(function() {
+                $.post("/Budget/_AddBalance", {
+                }, function(result) {
+                    $('#form-content').html(result)
+                    $('#modal-form-content').modal();
+                });
+            });
+
+            $('#add-payment').click(function() {
+                $.post("/Budget/_AddPayment", {
+                }, function(result) {
+                    $('#form-content').html(result)
+                    $('#modal-form-content').modal();
+                });
+            });
+        }(jQuery));
+
+        function setUpdate() {
+            $('#wrapper-action-modal').hide();
+            $('#spin-item').show();
+            overLayDiv('.form-content');
+
+            var amount = $('#amount').val();
+            var budget_date = $('#budget_date').val();
+            var remark = $('#remark').val();
+
+            $.post("/Budget/SetGeneralBalanceData", {
+                amount: amount,
+                budget_date: budget_date,
+                remark: remark
+            }, function(data) {
+                killOverlayDiv()
+                $('#wrapper-action-modal').show();
+                $('#spin-item').hide();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        closeModal();
+                        window.location.reload();
+                    });
+                } else {
+                    jAlert('ผลการทำงาน', data.resultMessage);
+                }
+            });
+        }
+
+        function setPayment() {
+            $('#wrapper-action-modal').hide();
+            $('#spin-item').show();
+            overLayDiv('.form-content');
+
+            var amount = $('#payment_amount').val();
+            var budget_date = $('#payment_budget_date').val();
+            var remark = $('#payment_remark').val();
+
+            $.post("/Budget/AddGeneralPaymentData", {
+                amount: amount,
+                budget_date: budget_date,
+                remark: remark
+            }, function(data) {
+                killOverlayDiv()
+                $('#wrapper-action-modal').show();
+                $('#spin-item').hide();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        closeModal();
+                        window.location.reload();
+                    });
+                } else {
+                    jAlert('ผลการทำงาน', data.resultMessage);
+                }
+            });
+        }
+
+        function closeModal() {
+            $.modal.close();
+        }
+    </script>
+}

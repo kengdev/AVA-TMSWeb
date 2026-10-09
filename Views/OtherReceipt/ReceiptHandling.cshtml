@@ -1,0 +1,280 @@
+@{
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "receipthandling";
+    ViewBag.Title = "ข้อมูลเอกสารใบเสร็จรับเงิน (Container Handling";
+}
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .cancelItem {
+            text-decoration: line-through;
+            text-decoration-color: red;
+            color: #b4b4b4;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลเอกสารอื่น ๆ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/OtherReceipt/ReceiptHandling">ใบเสร็จรับเงิน (Container Handling)</a>
+            <i class="fa fa-circle"></i>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการใบเสร็จรับเงิน (Container Handling)</span>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn default blue-stripe" onclick="getReceiptPdf()">
+                        ดาวน์โหลดใบเสร็จ
+                    </button>
+                    <button type="button" class="btn default yellow-stripe" onclick="getListPdf()">
+                        ดาวน์โหลดรายการ
+                    </button>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <div class="form-group">
+                                @Html.DropDownList("month", null, new
+                                {
+                                    @Class = "form-control dlListForm",
+                                    Style =
+                                         "width:120px;"
+                                })
+                            </div>
+                            <div class="form-group">
+                                @Html.DropDownList("year", null, new
+                                {
+                                    @Class = "form-control dlListForm",
+                                    Style =
+                                         "width:90px;"
+                                })
+                            </div>
+                            |
+                            <button type="button" class="btn btn-sm red" onclick="setAdd()">ทำรายการ</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover table-checkable order-column"
+                       id="table-receipt">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>เลขที่</th>
+                            <th>วันที่</th>
+                            <th>Container No</th>
+                            <th>ผู้รับใบเสร็จ</th>
+                            <th>ยอดเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter"></th>
+                            <th class="filter"></th>
+                            <th class="filter"></th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterContainer" />
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterNameTH" />
+                            </th>
+                            <th class="filter"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#table-receipt').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [[1, "desc"]],
+                "sAjaxSource": "/OtherReceipt/GetReceiptHandlingDataList",
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "month", "value": $("#month").val() });
+                    aoData.push({ "name": "year", "value": $("#year").val() });
+                    aoData.push({ "name": "filterContainerNo", "value": $("#filterContainer").val() });
+                    aoData.push({ "name": "filterNameTH", "value": $("#filterNameTH").val() });
+                },
+                "fnRowCallback": function(row, aData, index) {
+                    $('td', row).eq(5).html(number_format(aData.net_total));
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "action-3-td text-center", targets: 0 },
+                    { className: "code-td", targets: 1 },
+                    { className: "date-td", targets: 2 },
+                    { className: "container-td", targets: 3 },
+                    { className: "name-td", targets: 4 },
+                    { className: "currency-td", targets: 5 }
+                ],
+                "columns":
+                    [
+                        {
+                            "data": "code", "orderable": false, "render": function(data, type, row) {
+                                var modify =
+                                    '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' +
+                                    data + '")><i class="fad fa-pencil-alt"></i></a>';
+                                var remove =
+                                    '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' +
+                                    data + '")><i class="fad fa-trash-alt"></i></a>';
+                                var print =
+                                    '<a class="btn btn-xs grey" href="javascript:;" data-title="พิมพ์เอกสาร"  data-toggle="tooltip" data-trigger="hover" onclick=setPrint("' +
+                                    data + '")><i class="fad fa-print"></i></a>';
+
+                                return remove + modify + print;
+                            }
+                        },
+                        { "data": "code" },
+                        { "data": "receipt_date" },
+                        { "data": "container_no" },
+                        { "data": "customer_name" },
+                        { "data": "net_total" }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-receipt tfoot tr').appendTo('#table-receipt thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-receipt').dataTable()._fnAjaxUpdate();
+            });
+
+            $('.dlListForm').change(function() {
+                $('#table-receipt').dataTable()._fnAjaxUpdate();
+            });
+        }(jQuery));
+
+        function reloadRow() {
+            $("#table-receipt").DataTable().ajax.reload();
+        }
+
+        function setAdd(code) {
+            var url = '/otherreceipt/addreceipthandling';
+            window.location = url;
+        }
+
+        function setEdit(code) {
+            var url = '/otherreceipt/editreceipthandling?code=' + code;
+            window.location = url;
+        }
+
+        function setPrint(code) {
+            var url = '/formAVA/ReceiptContainerHandling?code=' + code;
+            window.open(url, 'Print Station');
+        }
+
+        function getReceiptPdf() {
+            var month = $('#month').val();
+            var year = $('#year').val();
+
+            var url = '/FormAVA/ReceiptContainerHandlingList?month=' + month + '&year=' + year;
+            window.open(url, 'form list');
+        }
+
+        function getListPdf() {
+            var month = $('#month').val();
+            var year = $('#year').val();
+
+            var url = '/Export/ReceiptHandlingExcel?month=' + month + '&year=' + year;
+            window.open(url, 'form list');
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function setDisabled(code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/OtherReceipt/RemoveReceiptHandling", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-receipt').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

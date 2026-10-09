@@ -1,0 +1,305 @@
+@model TMSWeb.Models.Entities.LOG.TblDailypayment
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "รายการใบสำคัญจ่ายเงิน (รายวัน)";
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/datetime/1.1.2/css/dataTables.dateTime.min.css" />
+    <style>
+        .bordered {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            visibility: hidden;
+        }
+
+        div.dataTables_wrapper {
+            margin: 0 auto;
+        }
+
+        .code {
+            text-align: center;
+            width: 150px;
+            font-size: 13px !important;
+        }
+
+        .date {
+            text-align: center;
+            width: 110px;
+            font-size: 13px !important;
+        }
+
+        .currency {
+            text-align: right;
+            width: 110px;
+            font-size: 13px !important;
+        }
+
+        .name {
+            font-size: 13px !important;
+        }
+
+        table.wrapper {
+            width: 100% !important;
+        }
+
+        .scrolltable {
+            height: 375px;
+            overflow-y: scroll;
+            overflow-x: scroll;
+            border-left: 1px solid #ccc;
+        }
+
+        th,
+        td {
+            font-size: 13px !important;
+        }
+
+        .table {
+            border-top: none !important;
+        }
+
+        .form-body {
+            padding-top: 0 !important;
+        }
+
+        .form-actions {
+            padding: 15px 0 0 0 !important;
+            margin: 0;
+        }
+    </style>
+}
+<div class="col-md-12 col-lg-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <span class="caption-subject bold uppercase">แก้ไขรายการใบสำคัญจ่ายเงิน (รายวัน)</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("EditDailyPayment", "Payment", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+        {
+            @Html.HiddenFor(m => m.DailypaymentCode)
+            @Html.HiddenFor(m => m.PaymentMethod)
+            @Html.HiddenFor(m => m.IsEnabled)
+            @Html.HiddenFor(m => m.CreateDate)
+            @Html.HiddenFor(m => m.CreateBy)
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label font-sm">วันที่</label>
+                                @Html.TextBoxFor(m => m.PaymentDate, new { @Class = "form-control input-sm datepicker", Autocomplete = "Off" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="mt-radio-inline">
+                                    <label class="mt-radio">
+                                        @Html.RadioButtonFor(m => m.IsPaid, true) ชำระแล้ว
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-radio">
+                                        @Html.RadioButtonFor(m => m.IsPaid, false) ยังไม่ชำระ
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-hover" id="selected">
+                                <thead>
+                                    <tr>
+                                        <th style="width:20px;"></th>
+                                        <th style="width:150px;">วันที่จ่าย</th>
+                                        <th> รายการ</th>
+                                        <th style="width:120px;"> จำนวนหน่วย</th>
+                                        <th style="width:120px;"> ยอดเงิน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-body">
+                                    @await Component.InvokeAsync("EntryDailyPayment", new { action_type = "default" })
+
+                                    @foreach (var item in Model.TblDailypaymentDetails)
+                                    {
+                                        @await Component.InvokeAsync("EntryDailyPayment", new { action_type = "edit", id = item.Id })
+                                    }
+                                </tbody>
+                            </table>
+                            <table style="width:100%">
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight:bold;text-align:right;border:none!important;">
+                                            ยอดเงินทั้งสิ้น
+                                        </td>
+                                        <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;border:none;">
+                                            <span id="total-display">@Model.NetTotal.ToString("#,##0.00")</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group" style="margin:0!important;padding:0!important;">
+                                <label class="control-label font-sm">หมายเหตุ</label>
+                                @Html.TextBoxFor(m => m.Remark, new { @Class = "form-control input-sm", autocomplete = "Off" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="/order/">กลับหน้าหลัก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.2/js/dataTables.dateTime.min.js"></script>
+    <script type="text/javascript">
+        (function($) {
+            $('.mydatepicker').dtDateTime({
+                locale: "th",
+                i18n: {
+                    months: [
+                        'มกราคม',
+                        'กุมภาพันธ์',
+                        'มีนาคม',
+                        'เมษายน',
+                        'พฤษภาคม',
+                        'มิถุนายน',
+                        'กรกฎาคม',
+                        'สิงหาคม',
+                        'กันยายน',
+                        'ตุลาคม',
+                        'พฤศจิกายน',
+                        'ธันวาคม'
+                    ],
+                    weekdays: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
+                }
+            });
+
+            var sTable = $('#selected').DataTable({
+                scrollY: 360,
+                scrollCollapse: 0,
+                sorting: 0,
+                searching: false,
+                info: false,
+                "ordering": false,
+                "paging": false
+            });
+
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.opener.reloadRow();
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('.amount').on('keyup', function() {
+                setTotal();
+            });
+        }(jQuery));
+
+        function removeFunc() {
+            setTotal();
+        }
+
+        function addItem() {
+            $.post("/Payment/_EntryDailyPayment", {
+                action_type: "add"
+            }, function(result) {
+                $('#detail-body').append(result);
+                $('.amount').on('keyup', function() {
+                    setTotal();
+                });
+                $('.mydatepicker').dtDateTime({
+                    locale: "th",
+                    i18n: {
+                        months: [
+                            'มกราคม',
+                            'กุมภาพันธ์',
+                            'มีนาคม',
+                            'เมษายน',
+                            'พฤษภาคม',
+                            'มิถุนายน',
+                            'กรกฎาคม',
+                            'สิงหาคม',
+                            'กันยายน',
+                            'ตุลาคม',
+                            'พฤศจิกายน',
+                            'ธันวาคม'
+                        ],
+                        weekdays: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
+                    }
+                });
+                setTotal();
+            });
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function setTotal() {
+            var sum = 0;
+            $('.amount').each(function() {
+                var x = this.value;
+                if (x != '') {
+                    sum += parseFloat(x);
+                }
+            });
+
+            $('#total-display').html(number_format(sum));
+        }
+
+        function OnValidate() {
+            var total = parseFloat($('#total-val').val());
+            if (total <= 0) {
+                $.alert.open('error', "<div>กรุณาเลือกอย่างน้อย 1 รายการ</div>");
+                return false;
+            } else {
+                overLayForm();
+                return true;
+            }
+        }
+    </script>
+}

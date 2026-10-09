@@ -1,0 +1,258 @@
+@model TMSWeb.Models.Entities.LOG.ViewJobListActive
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    var billing = (TMSWeb.Models.ViewModels.BillingViewModel)ViewBag.Billing;
+}
+<style>
+    .table-detail {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td {
+        margin: 0;
+        padding: 0 3px 0 3px;
+        vertical-align: middle !important;
+        height: 23px !important;
+        border: 1px solid #ccc;
+    }
+
+        td.main-topic {
+            background-color: #c7c3c0;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        td.sub-topic {
+            background-color: #f7f2ee;
+            font-size: 12px;
+            font-weight: 300;
+            width: 160px;
+        }
+
+    .font-sm {
+        font-size: 11px !important;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table-detail">
+            <tr>
+                <td class="main-topic" colspan="4">Container</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Number :</td>
+                <td class="font-sm" colspan="3">@Model.ContainerNo</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Seal : </td>
+                <td class="font-sm">@Model.SealNo</td>
+                <td class="sub-topic">ISO/Size/Type/Height :</td>
+                <td class="font-sm">@Model.ContainerSizeName / @Model.ContainerType</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Category :</td>
+                <td class="font-sm">@Model.JobType</td>
+                <td class="sub-topic">Status : </td>
+                <td class="font-sm">@Model.TrackingStatus</td>
+            </tr>
+            @if (Model.JobType == "EXPORT")
+            {
+                <tr>
+                    <td class="main-topic" colspan="4">Export</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Booking :</td>
+                    <td class="font-sm" colspan="3">@Model.BookingNo</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Customer :</td>
+                    <td class="font-sm" colspan="3">@Model.CustomerAcronym</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Supplier :</td>
+                    <td class="font-sm" colspan="3">@Model.SupplierName</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Driver :</td>
+                    @if (Model.SupplierCode == "SP18001")
+                    {
+                        <td class="font-sm">@Model.DriverFullname (@Model.DriverPhone)</td>
+                    }
+                    else
+                    {
+                        <td class="font-sm">-</td>
+                    }
+                    <td class="sub-topic">Truck :</td>
+                    @if (Model.SupplierCode == "SP18001")
+                    {
+                        <td class="font-sm">@Model.TruckLicense [@Model.TruckNo]</td>
+                    }
+                    else
+                    {
+                        <td class="font-sm">-</td>
+                    }
+                </tr>
+                <tr>
+                    <td class="sub-topic">Yard:</td>
+                    <td class="font-sm">@Model.StartName</td>
+                    <td class="sub-topic">Port:</td>
+                    <td class="font-sm">@Model.FinishName</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Distination :</td>
+                    <td class="font-sm" colspan="3">@Model.MissionName</td>
+                </tr>
+            }
+            else if (Model.JobType == "IMPORT")
+            {
+                <tr>
+                    <td class="main-topic" colspan="4">Import</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Booking :</td>
+                    <td class="font-sm" colspan="3">@Model.BookingNo</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Customer :</td>
+                    <td class="font-sm" colspan="3">@Model.CustomerAcronym</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Supplier :</td>
+                    <td class="font-sm" colspan="3">@Model.SupplierName</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Driver :</td>
+                    @if (Model.SupplierCode == "SP18001")
+                    {
+                        <td class="font-sm">@Model.DriverFullname (@Model.DriverPhone)</td>
+                    }
+                    else
+                    {
+                        <td class="font-sm">-</td>
+                    }
+                    <td class="sub-topic">Truck :</td>
+                    @if (Model.SupplierCode == "SP18001")
+                    {
+                        <td class="font-sm">@Model.TruckLicense [@Model.TruckNo]</td>
+                    }
+                    else
+                    {
+                        <td class="font-sm">-</td>
+                    }
+                </tr>
+                <tr>
+                    <td class="sub-topic">Port:</td>
+                    <td class="font-sm">@Model.StartName</td>
+                    <td class="sub-topic">Yard:</td>
+                    <td class="font-sm">@Model.FinishName</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Distination :</td>
+                    <td class="font-sm" colspan="3">@Model.MissionName</td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td class="main-topic" colspan="4">Floor</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Booking :</td>
+                    <td class="font-sm" colspan="3">@Model.BookingNo</td>
+                </tr>
+
+                <tr>
+                    <td class="sub-topic">Customer :</td>
+                    <td class="font-sm" colspan="3">@Model.CustomerAcronym</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Supplier :</td>
+                    <td class="font-sm" colspan="3">@Model.SupplierName</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Driver :</td>
+                    @if (Model.SupplierCode == "SP18001")
+                    {
+                        <td class="font-sm">@Model.DriverFullname (@Model.DriverPhone)</td>
+                    }
+                    else
+                    {
+                        <td class="font-sm">-</td>
+                    }
+                    <td class="sub-topic">Truck :</td>
+                    @if (Model.SupplierCode == "SP18001")
+                    {
+                        <td class="font-sm">@Model.TruckLicense [@Model.TruckNo]</td>
+                    }
+                    else
+                    {
+                        <td class="font-sm">-</td>
+                    }
+                </tr>
+                <tr>
+                    <td class="sub-topic">Port:</td>
+                    <td class="font-sm">@Model.StartName</td>
+                    <td class="sub-topic">Yard:</td>
+                    <td class="font-sm">@Model.FinishName</td>
+                </tr>
+                <tr>
+                    <td class="sub-topic">Distination :</td>
+                    <td class="font-sm" colspan="3">@Model.MissionName</td>
+                </tr>
+            }
+            <tr>
+                <td class="main-topic" colspan="4">Detail</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Job : </td>
+                <td class="font-sm" colspan="3">@Model.JobDetailCode</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Agent :</td>
+                <td class="font-sm">@Model.AgentCode</td>
+                <td class="sub-topic">Invoice :</td>
+                <td class="font-sm">@Model.JobInvoice</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Date :</td>
+                <td class="font-sm">@Model.JobDate.ToString("dd-MM-yyyy")</td>
+                <td class="sub-topic">Closing Date :</td>
+                <td class="font-sm">@Model.ClosingTime</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Tare Weight : </td>
+                <td class="font-sm" colspan="3">@Model.TareWeight kg.</td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Approve : </td>
+                <td class="font-sm">
+                    @if (Model.IsApprove == true)
+                    {
+                        <span style="color:green;">Success </span>
+                    }
+                    else
+                    {
+                        <span style="color:darkred">Pending</span>
+                    }
+                </td>
+                <td class="sub-topic">Billing : </td>
+                <td class="font-sm">
+                    @if (Model.IsBilling == true)
+                    {
+                        <span style="color:green">Success [@billing.billing_code]</span><br />
+                        <span>@billing.billing_date</span>
+                    }
+                    else
+                    {
+                        <span style="color:darkred">Pending</span>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="sub-topic">Remark : </td>
+                <td class="font-sm" colspan="3">@Model.JobRemark</td>
+            </tr>
+        </table>
+    </div>
+</div>

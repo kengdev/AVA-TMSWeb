@@ -1,0 +1,96 @@
+﻿<style>
+    .data {
+        text-align: center;
+    }
+
+        .data a {
+            background: none;
+        }
+
+    a.pending {
+        color: red;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .completed {
+        text-decoration: none !important;
+        color: #808080;
+        cursor: context-menu !important;
+    }
+</style>
+<table class="table table-striped table-bordered table-advance table-hover">
+    <thead>
+        <tr>
+            <th></th>
+            <th>ม.ค.</th>
+            <th>ก.พ.</th>
+            <th>มี.ค.</th>
+            <th>เม.ย.</th>
+            <th>พ.ค.</th>
+            <th>มิ.ย.</th>
+            <th>ก.ค.</th>
+            <th>ส.ค.</th>
+            <th>ก.ย.</th>
+            <th>ต.ค.</th>
+            <th>พ.ย.</th>
+            <th>ธ.ค.</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var cls_01 = (item.month_01 > 0 ? "pending" : "completed");
+            var cls_02 = (item.month_02 > 0 ? "pending" : "completed");
+            var cls_03 = (item.month_03 > 0 ? "pending" : "completed");
+            var cls_04 = (item.month_04 > 0 ? "pending" : "completed");
+            var cls_05 = (item.month_05 > 0 ? "pending" : "completed");
+            var cls_06 = (item.month_06 > 0 ? "pending" : "completed");
+            var cls_07 = (item.month_07 > 0 ? "pending" : "completed");
+            var cls_08 = (item.month_08 > 0 ? "pending" : "completed");
+            var cls_09 = (item.month_09 > 0 ? "pending" : "completed");
+            var cls_10 = (item.month_10 > 0 ? "pending" : "completed");
+            var cls_11 = (item.month_11 > 0 ? "pending" : "completed");
+            var cls_12 = (item.month_12 > 0 ? "pending" : "completed");
+            <tr>
+                <td style="border-left:none!important">@item.customer_name</td>
+                <td class="data">
+                    <a class="@cls_01" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_01', '@item.customer_code', '01')">@item.month_01</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_02" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_02', '@item.customer_code', '02')">@item.month_02</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_03" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_03', '@item.customer_code', '03')">@item.month_03</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_04" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_04', '@item.customer_code', '04')">@item.month_04</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_05" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_05', '@item.customer_code', '05')">@item.month_05</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_06" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_06', '@item.customer_code', '06')">@item.month_06</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_07" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_07', '@item.customer_code', '07')">@item.month_07</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_08" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_08', '@item.customer_code', '08')">@item.month_08</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_09" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_09', '@item.customer_code', '09')">@item.month_09</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_10" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_10', '@item.customer_code', '10')">@item.month_10</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_11" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_11', '@item.customer_code', '11')">@item.month_11</a>
+                </td>
+                <td class="data">
+                    <a class="@cls_12" href="javascript:;" onclick="detail('@item.supplyer_code','@item.month_12', '@item.customer_code', '12')">@item.month_12</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

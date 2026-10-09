@@ -1,0 +1,782 @@
+﻿@{
+    ViewBag.TopActive = "Job";
+    ViewBag.MidActive = "invoice";
+    ViewBag.Title = "ข้อมูลงาน";
+    bool isAdmin = User.IsInRole("Administrator");
+}
+@section Styles{
+<style>
+    .dataTables_filter {
+        display: none;
+    }
+
+    .dataTables_length {
+        /*display: none;*/
+    }
+
+    table.dataTable td,
+    table.dataTable th {
+        font-size: 11px !important;
+    }
+
+    .form-control {
+        height: 30px !important;
+        padding: 5px;
+        font-size: 13px !important;
+        font-weight: normal;
+    }
+
+    .action-3-td {
+        width: 110px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+    }
+
+    .form-content {
+        padding-top: 20px;
+        padding-left: 20px;
+        padding-right: 15px;
+        padding-bottom: 20px;
+    }
+
+    .form-group {
+        text-align: left;
+    }
+
+    .form-group label {
+        margin: 0;
+        font-size: 13px;
+        color: #000;
+    }
+</style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลงาน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/่job/">ข้อมูลงานรอเอกสาร</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการงานรอเอกสาร </span>
+                </div>
+                <div class="actions">
+                    <div class="clearfix">
+                        <div class="btn-group btn-group-circle">
+                            <button type="button" class="btn btn-outline blue btn-sm" onclick="setBalance()">
+                                <i class="fad fa-money-check-alt"></i> รับยอด-จ่ายออก
+                            </button>
+                            <div class="btn-group">
+                                <button type="button"
+                                    class="btn btn-outline blue btn-circle-right dropdown-toggle btn-sm"
+                                    data-toggle="dropdown">
+                                    <i class="fad fa-download"></i> ดาวน์โหลด
+                                    <i class="fa fa-angle-down"></i>
+                                </button>
+                                <ul class="dropdown-menu pull-right">
+                                    <li>
+                                        <a href="javascript:;" data-action="0" class="tool-action font-sm" onclick="setExcel()">
+                                            <i class="fad fa-person-dolly font-lg"></i> รายการงานรอเอกสาร
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:;" data-action="0" class="tool-action font-sm" onclick="setPaymentExcel()">
+                                            <i class="fad fa-money-check-edit-alt font-lg"></i> รายการจ่ายเงิน
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <input type="text" class="form-control"
+                                value="@DateTime.Now.AddDays(-3).ToString(" yyyy/MM/dd")" id="filterDateRangeStart" />
+                            <span style="display:inline-block;" class="daterange-to-text">to</span>
+
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" value="@DateTime.Now.ToString("yyyy/MM/dd")"
+                                    id="filterDateRangeEnd">
+                                <span class="input-group-btn">
+                                    <button class="btn green" id="btnSearch" type="button">ค้นหา</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table table-striped table-bordered table-hover table-checkable order-column"
+                        id="table-station">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center!important;"></th>
+                                <th style="text-align:center!important;"></th>
+                                <th>วันที่</th>
+                                <th>ลูกค้า</th>
+                                <th> สถานที่</th>
+                                <th style="font-size:12px!important;"> Booking</th>
+                                <th style="font-size:12px!important;"> Container</th>
+                                <th> ทะเบียน</th>
+                                <th>สังกัด</th>
+                                <th>สถานะ</th>
+                                <th>จ่ายเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr role="row" class="heading">
+                                <th class="filter"></th>
+                                <th class="filter"></th>
+                                <th class="filter"></th>
+                                <th class="filter"><input type="text" class="form-control filterText"
+                                        id="filterCustomer" /></th>
+                                <th class="filter"><input type="text" class="form-control filterText"
+                                        id="filterMission" /></th>
+                                <th class="filter"><input type="text" class="form-control filterText"
+                                        id="filterBookingNo" /></th>
+                                <th class="filter"><input type="text" class="form-control filterText"
+                                        id="filterContainerNo" /></th>
+                                <th class="filter"><input type="text" class="form-control filterText"
+                                        id="filterLicense" /></th>
+                                <th class="filter"><input type="text" class="form-control filterText"
+                                        id="filterSupplyer" /></th>
+                                <th class="filter">
+                                    <select class="form-control">
+                                        <option>--เลือก--</option>
+                                        <option value="PN">รอ</option>
+                                        <option value="ST">รับงาน</option>
+                                        <option value="WP">รอรับตู้</option>
+                                        <option value="AR">รอเปิด/บรรจุ</option>
+                                        <option value="FN">เปิด/บรรจุเรียบร้อย</option>
+                                        <option value="DO">เสร็จสิ้น</option>
+                                        <option value="BO">คืนตู้</option>
+                                    </select>
+                                </th>
+                                <th class="filter"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form-content" style="display: none;">
+    <div id="form-content"></div>
+</div>
+@section scripts
+{
+<script type="text/javascript">
+    (function ($) {
+        var role = @Html.Raw(Json.Serialize(isAdmin));
+        var oTable = $('#table-station').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "iDisplayLength": 20,
+            "scrollCollapse": false,
+            "searching": true,
+            "order": [
+                [2, "desc"]
+            ],
+            "sAjaxSource": "/Job/GetJobDataList",
+            "fnServerParams": function (aoData) {
+                aoData.push({
+                    "name": "filterDateRangeStart",
+                    "value": $("#filterDateRangeStart").val()
+                });
+                aoData.push({
+                    "name": "filterDateRangeEnd",
+                    "value": $("#filterDateRangeEnd").val()
+                });
+                aoData.push({
+                    "name": "filterCustomer",
+                    "value": $("#filterCustomer").val()
+                });
+                aoData.push({
+                    "name": "filterMission",
+                    "value": $("#filterMission").val()
+                });
+                aoData.push({
+                    "name": "filterContainerSize",
+                    "value": $("#container option:selected").text()
+                });
+                aoData.push({
+                    "name": "filterBookingNo",
+                    "value": $("#filterBookingNo").val()
+                });
+                aoData.push({
+                    "name": "filterContainerNo",
+                    "value": $("#filterContainerNo").val()
+                });
+                aoData.push({
+                    "name": "filterSupplier",
+                    "value": $("#filterSupplyer").val()
+                });
+                aoData.push({
+                    "name": "filterLicense",
+                    "value": $("#filterLicense").val()
+                });
+            },
+            "fnRowCallback": function (row, aData, index) {
+                var status = aData.tracking_status;
+
+                if (status == 'PN') {
+                    $('td', row).eq(9).addClass('PN');
+                    $('td', row).eq(9).html('รอ');
+                } else if (status == 'ST') {
+                    $('td', row).eq(9).addClass('ST');
+                    $('td', row).eq(9).html('รับงาน');
+                } else if (status == 'WP') {
+                    $('td', row).eq(9).addClass('WP');
+                    $('td', row).eq(9).html('รอรับตู้');
+                } else if (status == 'PU') {
+                    $('td', row).eq(9).addClass('PU');
+                    $('td', row).eq(9).html('รับตู้แล้ว');
+                } else if (status == 'AR') {
+                    var msg = aData.job_type == 'IMPORT' ? 'รอเปิด' : 'รอบรรจุ';
+                    $('td', row).eq(9).addClass('AR');
+                    $('td', row).eq(9).html(msg);
+                } else if (status == 'FN') {
+                    var msg = aData.job_type == 'IMPORT' || aData.job_type == 'OCEAN' ? 'เปิดตู้เรียบร้อย' : 'บรรจุเรียบร้อย';
+                    $('td', row).eq(9).addClass('FN');
+                    $('td', row).eq(9).html(msg);
+                } else if (status == 'DO') {
+                    $('td', row).eq(9).addClass('DO');
+                    $('td', row).eq(9).html('เสร็จสิ้น');
+                } else if (status == 'BO') {
+                    $('td', row).eq(9).addClass('BO');
+                    $('td', row).eq(9).html('คืนตู้');
+                }
+
+                if (aData.is_advance_paid) {
+                    $('td', row).eq(10).html('<span class="label label-sm label-danger"> Paid </span>');
+                }
+                else {
+                    $('td', row).eq(10).html('<span class="label label-sm label-warning"> Pending </span>');
+                }
+            },
+            "oLanguage": {
+                "sSearch": "คำค้น: ",
+                "sInfoFiltered": " ",
+                "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                    '<option value="10">10</option>' +
+                    '<option value="20" selected>20</option>' +
+                    '<option value="30">30</option>' +
+                    '<option value="40">40</option>' +
+                    '<option value="50">50</option>' +
+                    '<option value="100">100</option>' +
+                    '</select> รายการ'
+            },
+            "columnDefs": [{
+                className: "action-4-td text-center",
+                targets: 0
+            },
+            {
+                className: "dropdown-td text-left",
+                targets: 1
+            },
+            {
+                className: "datetime-td",
+                targets: 2,
+                "orderable": false
+            },
+            {
+                className: "customer-td",
+                targets: 3
+            },
+            {
+                className: "name-td",
+                targets: 4
+            },
+            {
+                className: "booking-td",
+                targets: 5
+            },
+            {
+                className: "container-td",
+                targets: 6
+            },
+            {
+                className: "license-td",
+                targets: 7
+            },
+            {
+                className: "status-td",
+                targets: 8
+            },
+            {
+                className: "status-td",
+                "orderable": false,
+                targets: 9
+            },
+            {
+                className: "status-td",
+                "orderable": false,
+                targets: 10
+            }
+            ],
+            "columns": [{
+                "data": "job_detail_code",
+                "orderable": false,
+                "render": function (data, type, row) {
+                    if (row.is_weeklypayment) {
+                        var finish = '';
+                        var advance = '';
+                        if (row.is_advance_prove) {
+                            finish =
+                                '<a href="javascript:;" class="btn btn-xs blue-steel" data-title="รับเอกสาร"  data-toggle="tooltip" data-trigger="hover" onclick=getDocument("' +
+                                data + '")><i class="fad fa-copy"></i></a>';
+                            advance =
+                                '<a href="javascript:;" data-title="จ่ายเงินสำรอง"  data-toggle="tooltip" class="btn btn-xs grey" data-trigger="hover"><i class="fad fa-exchange-alt"></i></a>';
+                        }
+                        else {
+                            finish =
+                                '<a href="javascript:;" class="btn btn-xs grey" data-title="รับเอกสาร"  data-toggle="tooltip" data-trigger="hover"><i class="fad fa-copy"></i></a>';
+                            advance =
+                                '<a href="javascript:;" data-title="จ่ายเงินสำรอง"  data-toggle="tooltip" class="btn btn-xs purple" data-trigger="hover" onclick=getAdvance("' +
+                                data + '")><i class="fad fa-exchange-alt"></i></a>';
+                        }
+
+                        var update =
+                            '<a href="javascript:;" data-title="ปรับปรุงข้อมูล"  data-toggle="tooltip" class="btn btn-xs green-meadow" data-trigger="hover" onclick=getUpdate("' +
+                            data + '")><i class="fad fa-sync"></i></a>';
+                        var edit =
+                            '<a href="javascript:;" data-title="จัดรถใหม่"  data-toggle="tooltip" class="btn btn-xs grey disabled" data-trigger="hover"><i class="fad fa-pencil"></i></a>';
+
+                        return edit + update + advance + finish;
+                    }
+                    else {
+                        var finish = '';
+                        var advance = '';
+                        if (row.is_advance_prove) {
+                            finish =
+                                '<a href="javascript:;" class="btn btn-xs blue-steel" data-title="รับเอกสาร"  data-toggle="tooltip" data-trigger="hover" onclick=getDocument("' +
+                                data + '")><i class="fad fa-copy"></i></a>';
+                            advance =
+                                '<a href="javascript:;" data-title="จ่ายเงินสำรอง"  data-toggle="tooltip" class="btn btn-xs grey" data-trigger="hover"><i class="fad fa-exchange-alt"></i></a>';
+                        }
+                        else {
+                            finish =
+                                '<a href="javascript:;" class="btn btn-xs grey" data-title="รับเอกสาร"  data-toggle="tooltip" data-trigger="hover"><i class="fad fa-copy"></i></a>';
+                            advance =
+                                '<a href="javascript:;" data-title="จ่ายเงินสำรอง"  data-toggle="tooltip" class="btn btn-xs purple" data-trigger="hover" onclick=getAdvance("' +
+                                data + '")><i class="fad fa-exchange-alt"></i></a>';
+                        }
+
+                        var update =
+                            '<a href="javascript:;" data-title="ปรับปรุงข้อมูล"  data-toggle="tooltip" class="btn btn-xs green-meadow" data-trigger="hover" onclick=getUpdate("' +
+                            data + '")><i class="fad fa-sync"></i></a>';
+                        var edit =
+                            '<a href="javascript:;" data-title="จัดรถใหม่"  data-toggle="tooltip" class="btn btn-xs yellow" data-trigger="hover" onclick=getEdit("' +
+                            data + '")><i class="fad fa-pencil"></i></a>';
+
+                        return edit + update + advance + finish;
+                    }
+                }
+            },
+            {
+                "data": "job_detail_code",
+                "orderable": false,
+                "render": function (data, type, row) {
+                    var action = '<div class="btn-group dropup">';
+                    action +=
+                        '<button class="btn blue btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> เครื่องมือ ';
+                    action += '<i class="fa fa-angle-down"></i>';
+                    action += '</button>';
+                    action += '<ul class="dropdown-menu pull-right" role="menu">';
+
+
+                    action += '<li><a href="javascript:;" onclick=getStatus("' + data +
+                        '")><i class="fad fa-map-signs"></i> สถานะการส่งสินค้า </a></li>';
+                    action += '<li><a href="javascript:;" onclick=getDetail("' + data +
+                        '")><i class="fad fa-clipboard-list"></i> รายละเอียด </a></li>';
+                    action += '<li class="divider"> </li>';
+
+                    action += '<li class="dropdown-submenu">';
+                    action +=
+                        '<a href="javascript:;"><i class="fad fa-print"></i> พิมพ์เอกสาร </a><ul class="dropdown-menu">';
+
+                    if (row.job_type == 'OCEAN')
+                    {
+                        action += '<li><a href="javascript:;" onclick=printJobOrder("' + data +
+                        '")><i class="fad fa-barcode-read"></i> &nbsp;ใบสั่งงาน </a></li>';
+
+                        action += '<li class="divider"> </li>';
+                        
+                        action += '<li><a href="javascript:;" onclick=printBooking("' + data + '")> HDMC </a></li>';
+                        action += '<li><a href="javascript:;" onclick=printTriumph("' + data + '")> TRIUMPH </a></li>';
+                    }
+                    else if(row.job_type == 'DOMESTIC'){
+                        action += '<li><a href="javascript:;" onclick=printDomesticBooking("' + data +
+                            '")><i class="fad fa-file-invoice"></i> &nbsp;ใบสั่งงาน </a></li>';
+                    }
+                    else{
+                        action += '<li><a href="javascript:;" onclick=printJobOrder("' + data +
+                        '")><i class="fad fa-barcode-read"></i> &nbsp;ใบสั่งงาน </a></li>';
+                    }
+
+                    
+
+                    action += '</ul>';
+
+                    if(role){
+                    action += '<li class="divider"> </li>';
+                    action += '<li class="dropdown-submenu">';
+                    action += '<a href="javascript:;"> อื่น ๆ </a><ul class="dropdown-menu">';
+                    action += '<li><a href="javascript:;" onclick=setDriver("' + data +'")><i class="fad fa-users"></i> เปลี่ยนพนักงานขับรถ </a></li>';
+                    action += '<li><a href="javascript:;" onclick=setCancel("' + data +'")><i class="fa fa-times"></i> ยกเลิกงาน </a></li>';
+                    action += '<li><a href="javascript:;" onclick=setRemove("' + data +'")><i class="fad fa-trash"></i> ลบ </a></li>';
+                    action += '</ul></li>';
+                    }
+                    action += '</ul></div>';
+                    return action;
+                }
+            },
+            {
+                "data": "job_date"
+            },
+            {
+                "data": "customer_name"
+            },
+            {
+                "data": "mission_name"
+            },
+            {
+                "data": "booking_no"
+            },
+            {
+                "data": "container_no"
+            },
+            {
+                "data": "truck_license"
+            },
+            {
+                "data": "supplier_name"
+            },
+            {
+                "data": "job_detail_code"
+            },
+            {
+                "data": "job_detail_code"
+            }
+            ],
+            "createdRow": function (row, data, dataIndex) {
+
+                $(row).find('[data-toggle="tooltip"]').tooltip();
+            }
+        });
+
+        $('#filterDateRangeStart').datetimepicker({
+            format: 'Y/m/d',
+
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#filterDateRangeEnd').val() ? jQuery('#filterDateRangeEnd').val() : false
+                })
+            },
+            timepicker: false
+        });
+
+        $('#filterDateRangeEnd').datetimepicker({
+            format: 'Y/m/d',
+
+            onShow: function (ct) {
+                this.setOptions({
+                    minDate: jQuery('#filterDateRangeStart').val() ? jQuery('#filterDateRangeStart').val() : false
+                })
+            },
+            timepicker: false
+        });
+
+        $('#table-station tfoot tr').appendTo('#table-station thead');
+
+        $('.filterText').keyup(function () {
+            $('#table-station').dataTable()._fnAjaxUpdate();
+        });
+
+        $('.filterDropdown').change(function () {
+            $('#table-station').dataTable()._fnAjaxUpdate();
+        });
+
+        $('.dlListForm').change(function () {
+            $('#table-station').dataTable()._fnAjaxUpdate();
+        });
+
+        $('#btnSearch').click(function () {
+            $('#table-station').dataTable()._fnAjaxUpdate();
+        });
+    }(jQuery));
+
+    function setBalance() {
+        var url = '/budget/settrbalance';
+        var setting = 'width=1100,height=672';
+
+        window.open(url, 'Status Station', setting);
+    }
+
+    function setExcel() {
+        var filterDateRangeStart = $("#filterDateRangeStart").val();
+        var filterDateRangeEnd = $("#filterDateRangeEnd").val();
+        var filterCustomer = $("#filterCustomer").val();
+        var filterMission = $("#filterMission").val();
+        var filterContainerSize = $("#container option:selected").text();
+        var filterBookingNo = $("#filterBookingNo").val();
+        var filterContainerNo = $("#filterContainerNo").val();
+        var filterLicense = $("#filterLicense").val();
+        var filter = "filterDateRangeStart=" + filterDateRangeStart + "&filterDateRangeEnd=" + filterDateRangeEnd;
+        filter += "&filterCustomer=" + filterCustomer + "&filterMission=" + filterMission;
+        filter += "&filterContainerSize=" + filterContainerSize + "&filterBookingNo=" + filterBookingNo +
+            "&filterContainerNo=" + filterContainerNo;
+        filter += "&filterLicense=" + filterLicense;
+
+        var url = "../Export/TrackingReportExcel?" + filter;
+        window.open(url);
+    }
+
+    function setPaymentExcel() {
+        var filterDateRangeStart = $("#filterDateRangeStart").val();
+        var filterDateRangeEnd = $("#filterDateRangeEnd").val();
+
+        var filter = "filterDateRangeStart=" + filterDateRangeStart + "&filterDateRangeEnd=" + filterDateRangeEnd;
+
+        var url = "../Export/PaymentReportExcel?" + filter;
+        window.open(url);
+    }
+
+    function setPdf() {
+        var month = $("#month").val();
+        var year = $("#year").val();
+        var filterDateRangeStart = $("#filterDateRangeStart").val();
+        var filterDateRangeEnd = $("#filterDateRangeEnd").val();
+        var filterCustomer = $("#filterCustomer").val();
+        var filterMission = $("#filterMission").val();
+        var filterContainerSize = $("#container option:selected").text();
+        var filterBookingNo = $("#filterBookingNo").val();
+        var filterContainerNo = $("#filterContainerNo").val();
+        var filterLicense = $("#filterLicense").val();
+        var filter = "filterDateRangeStart=" + filterDateRangeStart + "&filterDateRangeEnd=" + filterDateRangeEnd;
+        filter += "&filterCustomer=" + filterCustomer + "&filterMission=" + filterMission;
+        filter += "&filterContainerSize=" + filterContainerSize + "&filterBookingNo=" + filterBookingNo +
+            "&filterContainerNo=" + filterContainerNo;
+        filter += "&filterLicense=" + filterLicense;
+
+        var url = "../Export/TrackingReportPdf?" + filter;
+        window.open(url);
+    }
+
+    function getStatus(code) {
+        var url = '/job/statusupdate?code=' + code;
+        var setting = 'width=1100,height=665';
+
+        window.open(url, 'Status Station', setting);
+    }
+
+    function getUpdate(code) {
+        $.post("/Job/Update", {
+            job_detail_code: code
+        }, function (result) {
+            $('#form-content').html(result)
+            $('#modal-form-content').modal();
+        });
+    }
+
+    function getAdvance(code) {
+        var url = '/job/updateadvance?code=' + code;
+        var setting = 'width=1100,height=650';
+
+        window.open(url, 'UpdateAdvance Job', setting);
+    }
+
+    function setUpdate() {
+        $('#wrapper-action-modal').hide();
+        $('#spin-item').show();
+        overLayDiv('.form-content');
+
+        var code = $('#job_detail_code').val();
+        var container_no = $('#container_no').val();
+        var trailer_license = $('#trailer_license').val();
+        var seal_no = $('#seal_no').val();
+        var tare_weight = $('#tare_weight').val();
+        var fuel_fillup = $('#fuel_fillup').val();
+        var finish_code = $('#finish_code').val();
+        var job_date = $('#job_date').val();
+        var container_size = $('#container_size').val();
+        var job_type = $('#job_type').val();
+        var supplyer_code = $('#supplyer_code').val();
+
+        $.post("/Job/UpdateData", {
+            job_date: job_date,
+            job_detail_code: code,
+            container_no: container_no,
+            seal_no: seal_no,
+            tare_weight: tare_weight,
+            fuel_fillup: fuel_fillup,
+            trailer_license: trailer_license,
+            finish_place_code: finish_code,
+            container_size_code: container_size,
+            job_type: job_type,
+            supplyer_code: supplyer_code
+        }, function (data) {
+            killOverlayDiv();
+            $('#wrapper-action-modal').show();
+            $('#spin-item').hide();
+            if (data.result == true) {
+                $.alert.open('info', data.resultMessage, function (r) {
+                    closeModal();
+                    reloadRow();
+                });
+            } else {
+                jAlert('ผลการทำงาน', data.resultMessage);
+            }
+        });
+    }
+
+    function setDriver(code) {
+        var url = '/job/changedriver?code=' + code;
+        var setting = 'width=1150,height=648';
+
+        window.open(url, 'Edit Station', setting);
+    }
+
+    function setRemove(code) {
+        $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function (r) {
+            if (r) {
+                overLayPage();
+                $.post("/Job/RemoveJob", {
+                    job_detail_code: code
+                }, function (data) {
+                    killOverlayPage();
+                    if (data.result == true) {
+                        $.alert.open('info', data.resultMessage, function (r) {
+                            $('#table-station').dataTable()._fnAjaxUpdate();
+                        });
+                    } else {
+                        jAlert('ผลการทำงาน', data.resultMessage);
+                    }
+                });
+            }
+        });
+    }
+
+    function getEdit(code) {
+        var url = '/job/edit?code=' + code;
+        var setting = 'width=1180,height=612';
+
+        window.open(url, 'Edit Station', setting);
+    }
+
+    function getDocument(code) {
+        var url = '/job/finish?code=' + code;
+        var setting = 'width=1100,height=640';
+
+        window.open(url, 'Finished Job', setting);
+    }
+
+    function getDetail(code) {
+        var url = '/job/detail?code=' + code;
+        var setting = 'width=1100,height=675';
+
+        window.open(url, 'Detail Station', setting);
+    }
+
+    function printJobOrder(code) {
+        var url = '/form/OrderAssignment?code=' + code;
+
+        window.open(url, 'Print Station');
+    }
+
+    function printBooking(code) {
+        var url = '/form/CevaAssignment?code=' + code;
+
+        window.open(url, 'Print Station');
+    }
+
+    function printTriumph(code) {
+        var url = "/form/triumph?code=" + code;
+        window.open(url, 'Print Station');
+    }
+
+    function printDomesticBooking(code) {
+        var url = '/form/DomesticAssignment?code=' + code;
+
+        window.open(url, 'Print Station');
+    }
+
+    function setCancel(code) {
+        var url = '/job/canceljob?code=' + code;
+        var setting = 'width=1000,height=648';
+
+        window.open(url, 'Cancel Station', setting);
+    }
+
+    function reloadRow() {
+        $("#table-station").DataTable().ajax.reload();
+    }
+
+    function closeModal() {
+        $.modal.close();
+    }
+
+    function searchPlaceFunc(action) {
+        var url = '';
+        var setting = 'width=900,height=550';
+        var type = $('#job_type').val();
+
+        if (type == "IMPORT" || type == "OCEAN") {
+            url = '../search/yard';
+        } else if (type == "EXPORT") {
+            url = '../search/port';
+        }
+
+        window.open(url, 'search place', setting);
+    }
+
+    function setYardPortBox(code) {
+        $.post("../Job/GetYardPort", {
+            code: code
+        }, function (result) {
+            var code = result.place_code;
+            var name = result.place_name;
+            var address = result.place_address;
+            var type = result.place_type;
+
+            $('#finish_code').val(code);
+            $('#txtDisFinishName').val(name);
+        });
+    }
+</script>
+}

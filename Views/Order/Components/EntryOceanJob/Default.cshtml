@@ -1,0 +1,492 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblJobMaster
+@using (Html.BeginForm("AddOcean", "Order", FormMethod.Post, new { id = "frmAddOcean", onsubmit = "return OnValidateOcean()" }))
+{
+    @Html.HiddenFor(m => m.JobCode)
+    @Html.HiddenFor(m => m.CustomerCode, new { id = "txtOceanCustomerCode" })
+    @Html.Hidden("oceanacronym")
+    <div class="form-body">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>
+                                ค้นหาลูกค้า
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="input-group input-group-sm">
+                                @Html.TextBoxFor(m => m.CostCode, new
+                                {
+                                    @Class = "form-control customer-cost",
+                                    id =
+                                "txtOceanCostCode",
+                                    autocomplete = "off"
+                                })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button"
+                                            onclick="searchCustomerFunc('ocean')">
+                                        ค้นหา
+                                    </button>
+                                </span>
+                            </div>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label>ชื่อลูกค้า</label>
+                        @Html.TextBox("txtOceanCustomerName", null, new
+                        {
+                            @Class = "form-control input-sm",
+                            disabled =
+                        "Disabled"
+                        })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>รหัสสถานที่รับตู้</label>
+                            <span class="required"> * </span>
+                            <div class="input-group input-group-sm">
+                                @Html.TextBox("txtOceanStartCode", null, new
+                                {
+                                    @Class = "form-control",
+                                    autocomplete = "off"
+                                })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button" onclick="searchPlaceFunc('S')">ค้นหา</button>
+                                </span>
+                            </div>
+                            <span class="help-block help-group"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label>ชื่อสถานที่รับตู้</label>
+                        @Html.TextBox("txtOceanDisStartName", null, new
+                        {
+                            @Class = "form-control input-sm",
+                            disabled =
+                        "Disabled"
+                        })
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label> </label>
+                            <div class="mt-checkbox-list" style="padding-bottom:0!important;">
+                                <label class="mt-checkbox mt-checkbox-outline font-sm">
+                                    ค่าผ่านลาน/ท่า
+                                    <input type="checkbox" value="TRUE" name="chkStartPortYard" checked />
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>สถานที่คืนตู้</label>
+                            <div class="input-group input-group-sm">
+                                @Html.TextBox("txtOceanFinishCode", null, new
+                                {
+                                    @Class = "form-control",
+                                    autocomplete =
+                                "off"
+                                })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button" onclick="searchPlaceFunc('F')">ค้นหา</button>
+                                </span>
+                            </div>
+                            <span class="help-block help-group"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label>ชื่อสถานที่คืนตู้</label>
+                        @Html.TextBox("txtOceanDisFinishName", null, new
+                        {
+                            @Class = "form-control input-sm",
+                            disabled =
+                        "Disabled"
+                        })
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label> </label>
+                            <div class="mt-checkbox-list">
+                                <label class="mt-checkbox mt-checkbox-outline" style="font-size:13px!important">
+                                    ค่าผ่านลาน/ท่า
+                                    <input type="checkbox" value="TRUE" name="chkFinishPortYard" checked />
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9">
+                        <label>ชื่อสถานที่เปิด/บรรจุ/ลงท่า</label>
+                        @Html.Hidden("txtOceanMissionCode", null, new { @Class = "form-control", autocomplete = "off" })
+                        @Html.TextBox("txtOceanDisMissionName", null, new
+                        {
+                            @Class = "form-control input-sm",
+                            disabled =
+                        "Disabled"
+                        })
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label>
+                                Place
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBox("place_code", null, new { @Class = "input-sm form-control", id = "place", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label>
+                                    Consignee Name
+                                    <span class="required"> * </span>
+                                </label>
+                                <br />
+                                @Html.DropDownList("consignee_name", null, "-----เลือก-----", new
+                                {
+                                    @Class = "form-control input-sm",
+                                    id = "consignee_name"
+                                })
+                                <span class="help-block help-filter"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label>
+                                    เลขที่ใบขน
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.TextBox("goods_declaration", null, new { @Class = "form-control input-sm", autocomplete = "off" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label>
+                                    Shipper Name
+                                    <span class="required"> * </span>
+                                </label>
+                                <br />
+                                @Html.DropDownList("shipper_name", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "shipper_name" })
+                                <span class="help-block help-filter"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label>
+                                    Shipping Contact
+                                    <span class="required"> * </span>
+                                </label>
+                                <br />
+                                @Html.DropDownList("shipping_name", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "shipping_name" })
+                                <span class="help-block help-filter"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label>
+                                    Request By
+                                    <span class="required"> * </span>
+                                </label>
+                                <br />
+                                @Html.DropDownList("request_name", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "request_name" })
+                                <span class="help-block help-filter"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Incoterm
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.JobIncoterm, new { @Class = "form-control input-sm", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Dossier/Invoice
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.JobInvoice, new
+                            {
+                                @Class = "form-control input-sm",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Description
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBox("description", null, new { @Class = "input-sm form-control", id = "description", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                B/L Change No.
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBox("change_no", null, new { @Class = "form-control input-sm", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                VESSEL
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBox("vessel", null, new { @Class = "form-control input-sm", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ETA (วันเรือเข้า)
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBox("eta_date", null, new
+                            {
+                                @Class = "form-control input-sm datepicker",
+                                autocomplete
+                            = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Pick Up Date
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBox("pickup_date", null, new
+                            {
+                                @Class = "datetimepicker input-sm form-control",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ขนาดตู้
+                                <span class="required"> * </span>
+                            </label>
+                            <br />
+                            @Html.DropDownList("ContainerSizeCode", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "ocean_container_kind" })
+                            <span class="help-block help-filter"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>อื่น ๆ ระบุ</label>
+                                @Html.TextBox("txtOther", null, new
+                                {
+                                    @Class = "form-control input-sm",
+                                    id =
+                                "txtOceanOther",
+                                    Disabled =
+                                "Disabled",
+                                    autocomplete = "off"
+                                })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                จำนวนรถ
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.ContainerAmount, new
+                            {
+                                @Class = "form-control input-sm form-number",
+                                id
+                            = "txtOceanAmount",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ประเภทรถ
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.DropDownList("TruckTypegroupCode", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "ocean_truck_type" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ค่าทางด่วน
+                            </label>
+                            @Html.TextBox("expressway", null, new
+                            {
+                                @Class = "form-control input-sm",
+                                id =
+                            "txtOceanExpressway",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class=" col-md-12">
+                <table class="table">
+                    <tbody id="ocean-detail">
+                        <tr>
+                            <td style="vertical-align:middle;text-align:center;">
+                                <a href="javascript:;" class="font-blue" onclick="addDetail()">
+                                    <i class="fal fa-plus-circle"></i>
+                                </a>
+                            </td>
+                            <td>
+                                @Html.TextBox("iBL[]", null, new
+                                {
+                                    @Class = "form-control input-sm",
+                                    Placeholder = "B/L No",
+                                    autocomplete = "off"
+                                })
+                            </td>
+                            <td>
+                                @Html.TextBox("iContainer[]", null, new
+                                {
+                                    @Class = "form-control input-sm",
+                                    Placeholder = "เบอร์ตู้",
+                                    autocomplete = "off"
+                                })
+                            </td>
+                            <td>
+                                @Html.TextBox("iQuantity[]", null, new
+                                {
+                                    @Class = "form-control input-sm",
+                                    Placeholder = "จำนวน",
+                                    autocomplete = "off"
+                                })
+                            </td>
+                            <td>
+                                @Html.TextBox("iWeight[]", null, new
+                                {
+                                    @Class = "form-control input-sm",
+                                    Placeholder = "น้ำหนัก",
+                                    autocomplete = "off"
+                                })
+                            </td>
+                            <td>
+                                @Html.TextBox("iCBM[]", null, new
+                                {
+                                    @Class = "form-control input-sm",
+                                    Placeholder = "ปริมาตร",
+                                    autocomplete = "off"
+                                })
+                            </td>
+                            <td>
+                                @Html.TextBox("iDelivery[]", null, new
+                                {
+                                    @Class = "form-control input-sm datetimepicker",
+                                    Placeholder = "วันที่ส่งสินค้า",
+                                    autocomplete = "off"
+                                })
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <label>หมายเหตุ</label>
+                @Html.TextBoxFor(m => m.JobRemark, new { @Class = "form-control input-sm", rows = "3", autocomplete = "off" })
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <div class="row pull-right">
+            <div class="col-md-12">
+                <div class="tools-action">
+                    <a href="/order/">กลับหน้าหลัก</a> |
+                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

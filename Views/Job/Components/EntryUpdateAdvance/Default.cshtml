@@ -1,0 +1,89 @@
+@model TMSWeb.Models.Entities.LOG.TblJobadvance
+@{
+    var list = (List<TMSWeb.Models.ViewModels.OtherJobViewModel>)ViewBag.Other;
+}
+<div class="row">
+    <div class="col-md-12">
+        <table data-toggle="table" data-height="200" data-width="100" class="data-bootstrap">
+            <thead>
+                <tr>
+                    <th data-align="center" data-width="39"></th>
+                    <th data-align="left" data-width="300">รายการเงินสำรองจ่าย</th>
+                    <th data-align="center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td>ค่ายก (ตู้เปล่า)</td>
+                    <td>
+                        @Html.TextBox("AdvanceLifton", Model.AdvanceLifton, new { @Class = "form-control advance-val form-box", autocomplete = "off" })
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>ค่ายก (ตู้หนัก)</td>
+                    <td>
+                        @Html.TextBox("AdvanceLiftoff", Model.AdvanceLiftoff, new { @Class = "form-control advance-val form-box", autocomplete = "off" })
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>ค่าผ่านลาน</td>
+                    <td>
+                        @Html.TextBox("AdvanceYard", Model.AdvanceYard, new { @Class = "form-control advance-val form-box", autocomplete = "off" })
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>ค่าผ่านท่า</td>
+                    <td>
+                        @Html.TextBox("AdvancePort", Model.AdvancePort, new { @Class = "form-control advance-val form-box", autocomplete = "off" })
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table data-toggle="table" data-height="135" data-width="100" class="data-bootstrap">
+            <thead>
+                <tr>
+                    <th data-align="center" data-width="39"></th>
+                    <th data-align="left" data-width="300">สำรองจ่ายอื่น ๆ</th>
+                    <th data-align="left"></th>
+                </tr>
+            </thead>
+            <tbody id="advance-table">
+                @foreach (var item in list)
+                {
+                    Model.AdvanceTotal = Model.AdvanceTotal + item.value;
+                    <tr>
+                        <td>
+                            <a href="#" class="closed" onclick="removeAdvanceItem(this)"><span class="icon-close"></span></a>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-box" value="@item.name" name="nameAdvance[]" autocomplete="off">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-box" name="valAdvance[]" value="@item.value" autocomplete="off" />
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td style="text-align: center;">
+                        <div style="height:25px;text-align:center;padding-top:4px">
+                            <a href="#" onclick="addAdvance()"><span class="icon-plus"></span></a>
+                        </div>
+
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-box" value="" name="nameAdvance[]" autocomplete="off">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control form-box" name="valAdvance[]" value="" autocomplete="off" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>

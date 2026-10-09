@@ -1,0 +1,303 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblSupplier
+@{
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "supplier";
+    ViewBag.Title = "ข้อมูลบริษัทรถร่วม";
+}
+@section Styles {
+    <style>
+        .mt-checkbox {
+            margin: 0;
+        }
+
+        .mt-checkbox-inline {
+            padding-bottom: 0px !important;
+        }
+
+        .mt-checkbox span {
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลหลัก</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/supplier/">ข้อมูลบริษัทร่วมงาน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/supplier/edit?code=@Model.SupplierCode">แก้ไข</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-pencil"></i>
+                    <span class="caption-subject bold uppercase"> แก้ไขรายการ</span>
+                    <span class="caption-helper">[รหัส @Model.SupplierCode]</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("EditSupplierData", "Supplier", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+            {
+                @Html.HiddenFor(m => m.SupplierCode)
+                @Html.HiddenFor(m => m.SupplierTypeCode)
+                @Html.HiddenFor(m => m.IsActived)
+                @Html.HiddenFor(m => m.IsEnabled)
+                @Html.HiddenFor(m => m.CreateDate)
+                @Html.HiddenFor(m => m.CreateBy)
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="form-group">
+                            <label>
+                                ประการใช้งาน
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="mt-radio-inline">
+                                <label class="mt-radio">
+                                    @Html.RadioButtonFor(m => m.FleetTypeCode, "F1", new { @Class = "rdoFleetType" }) รถร่วมภายใน
+                                    <span></span>
+                                </label>
+
+                                <label class="mt-radio">
+                                    @Html.RadioButtonFor(m => m.FleetTypeCode, "F2", new { @Class = "rdoFleetType" }) บริษัทรถร่วม
+                                    <span></span>
+                                </label>
+
+                                <label class="mt-radio">
+                                    @Html.RadioButtonFor(m => m.FleetTypeCode, "F3", new { @Class = "rdoFleetType" }) ทำรายการอื่น ๆ
+                                    <span></span>
+                                </label>
+                            </div>
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>
+                                เลขประจำตัวผู้เสียภาษี
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.SupplierVatNo, new { id = "txtVat", Class = "form-control", autocomplete = "Off" })
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                ชื่อ
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.SupplierName, new
+                            {
+                                id = "txtName",
+                                Class = "form-control",
+                                autocomplete = "Off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                ชื่อเต็ม
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.SupplierFullname, new
+                            {
+                                id = "txtFullName",
+                                Class = "form-control",
+                                autocomplete = "Off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                ประเภทกิจการ
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.DropDownList("SupplierTypeCode", null, "-----เลือก-----", new
+                            {
+                                @Class = "form-control",
+                                id = "supplier_type"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                ที่อยู่
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.SupplierAddress, new
+                            {
+                                id = "txtAddress",
+                                Class = "form-control",
+                                autocomplete = "Off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 col-lg-6">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อผู้ติดต่อ
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ContactName, new
+                                    {
+                                        id = "txtContact",
+                                        Class = "form-control",
+                                        autocomplete = "Off"
+                                    })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-6">
+                                <div class="form-group">
+                                    <label>
+                                        เบอร์โทรศัพท์
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.SupplierPhone, new
+                                    {
+                                        id = "txtPhone",
+                                        Class = "form-control",
+                                        autocomplete = "Off"
+                                    })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label>
+                                        บัญชีธนาคาร
+                                    </label>
+                                    @Html.DropDownList("BankName", null, "-----เลือก-----", new
+                                    {
+                                        @Class = "form-control",
+                                        id = "bank_name"
+                                    })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <label>
+                                        เลขที่บัญชี
+                                    </label>
+                                    @Html.TextBoxFor(m => m.BankId, new
+                                    {
+                                        id = "txtBankId",
+                                        Class = "form-control",
+                                        autocomplete = "Off"
+                                    })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/supplier/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+        }(jQuery));
+
+        function OnValidate() {
+            var fn = $('#frmEdit').myfunction({
+                rules: {
+                    txtName: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อบริษัท"
+                        }
+                    },
+                    txtFullName: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อเต็มของบริษัท"
+                        }
+                    },
+                    txtAddress: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ที่อยู่ หากไม่มีให้พิมพ์ '-'"
+                        }
+                    },
+                    txtVat: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขประจำตัวผู้เสียภาษี หากไม่มีให้พิมพ์ '-'"
+                        }
+                    },
+                    txtPhone: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เบอร์โทรศัพท์ หากไม่มีให้พิมพ์ '-'"
+                        }
+                    },
+                    supplier_type: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtContact: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อผู้ติดต่อ หากไม่มีให้พิมพ์ '-'"
+                        }
+                    },
+                    rdoFleetType: {
+                        radio: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return true;
+        }
+    </script>
+}
+
+

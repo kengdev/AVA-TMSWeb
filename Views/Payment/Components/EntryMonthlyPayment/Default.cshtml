@@ -1,0 +1,84 @@
+@model TMSWeb.Models.Entities.LOG.TblMonthlypaymentDetail
+@using HtmlHelpers.BeginCollectionItemCore
+@{
+    var action_type = ViewBag.Type;
+}
+
+<tr>
+    @using (Html.BeginCollectionItem("TblMonthlypaymentDetails"))
+    {
+        @if (Model.Id == 0)
+        {
+            <td class="text-center">
+                @if (action_type == "default")
+                {
+                    <a href="#" class="font-blue" onclick="addItem()"><i class="fa fa-plus"></i></a>
+                }
+                else
+                {
+                    <a href="#" class="font-red" onclick="$(this).parent().parent().remove(), removeFunc()">
+                        <i class="fa fa-times"></i>
+                    </a>
+                }
+            </td>
+            <td>
+                <input asp-for="@Model.PaymentDocDate" value="" type="text" class="form-control input-sm mydatepicker" />
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.PaymentDocNo, new { @Class = "form-control input-sm description" })
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.Description, new { @Class = "form-control input-sm description" })
+            </td>
+            <td>
+                <input asp-for="@Model.Amount" type="text" value="" class="form-control input-sm form-decimal amount" />
+            </td>
+        }
+        else
+        {
+            <td class="text-center">
+                @if (action_type == "default")
+                {
+                    <a href="#" class="font-blue" onclick="addItem()"><i class="fa fa-plus"></i></a>
+                }
+                else
+                {
+                    <a href="#" class="font-red" onclick="$(this).parent().parent().remove(), removeFunc()">
+                        <i class="fa fa-times"></i>
+                    </a>
+                }
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.PaymentDocDate, "{0:yyyy-MM-dd}", new { @Class = "form-control input-sm mydatepicker" })
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.PaymentDocNo, new { @Class = "form-control input-sm description" })
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.Description, new { @Class = "form-control input-sm description" })
+            </td>
+            <td>
+                @Html.TextBoxFor(m => m.Amount, new { @Class = "form-control input-sm form-decimal amount" })
+            </td>
+        }
+    }
+</tr>
+
+<script>
+    $('.form-decimal').keypress(function(e) {
+        //return (e.which != 8 && e.which != 0 && (e.which == 46)) ? false : true;
+        if (e.which != 8 && e.which != 0) {
+            if (e.which == 46) {
+                return true;
+            }
+            else if (e.which < 48 || e.which > 57) {
+                return false;
+            }
+        }
+        else {
+            if (e.which == 8 || e.which == 0) {
+                return true;
+            }
+        }
+    });
+</script>

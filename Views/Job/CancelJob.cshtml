@@ -1,0 +1,231 @@
+﻿@model TMSWeb.Models.CancelJobModel
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+
+    var data = (TMSWeb.Models.Entities.LOG.ViewJobListActive)ViewBag.Data;
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/profile/todo-2.min.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+    <style>
+        .table td {
+            font-size: 13px;
+        }
+
+        th {
+            font-size: 13px !important;
+            text-align: center;
+        }
+
+        td.topic {
+            width: 120px !important;
+            text-align: right;
+        }
+    </style>
+}
+<div class="col-md-12 ">
+    <!-- BEGIN SAMPLE FORM PORTLET-->
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-times-circle"></i>
+                <span class="caption-subject bold uppercase"> ยกเลิกงาน</span>
+                <span class="caption-helper">[เลขที่ @Model.job_detail_code]</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("CancelJobData", "Job", FormMethod.Post, new
+        {
+            role = "form",
+            id = "frmEdit",
+            onsubmit =
+        "return OnValidate()"
+        }))
+        {
+            @Html.HiddenFor(m => m.job_detail_code)
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="table-scrollable table-scrollable-borderless">
+                                <table class="table table-light">
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">ลูกค้า</span>
+                                        </td>
+                                        <td> @data.CustomerNameTh</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">พนักงานขับรถ</span>
+                                        </td>
+                                        <td> @data.DriverFullname</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">ทะเบียนรถ</span>
+                                        </td>
+                                        <td> @data.TruckLicense / @data.TrailerLicense</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">รับตู้</span>
+                                        </td>
+                                        <td> @data.StartName </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">เปิดตู้/บรรจุ</span>
+                                        </td>
+                                        <td> @data.MissionName </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">คืนตู้</span>
+                                        </td>
+                                        <td> @data.FinishName</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">วันที่</span>
+                                        </td>
+                                        <td> @data.JobDate.ToString("dd-MM-yyyy HH:mm") </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">ประเภทงาน/ขนาด</span>
+                                        </td>
+                                        <td>
+                                            @data.JobType / @data.ContainerSizeName
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">Booking No.</span>
+                                        </td>
+                                        <td> @data.BookingNo </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">Invoice/Job</span>
+                                        </td>
+                                        <td> @data.JobInvoice</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">หมายเหตุ</span>
+                                        </td>
+                                        <td> @data.JobRemark </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>
+                                            ค่าเที่ยว (สำหรับคิดเงินลูกค้า)<span class="required"> * </span>
+                                        </label>
+                                        @Html.TextBoxFor(m => m.trip_cost, new
+                                        {
+                                            @Class = "form-control",
+                                            autocomplete =
+                                        "off"
+                                        })
+                                        <span class="help-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>
+                                            ค่าเที่ยว (สำหรับพนักงานขับรถ)<span class="required"> * </span>
+                                        </label>
+                                        @Html.TextBoxFor(m => m.driver_cost, new
+                                        {
+                                            @Class = "form-control",
+                                            autocomplete =
+                                        "off"
+                                        })
+                                        <span class="help-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="javascript:;" onclick="window.close();">ยกเลิก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', "บันทึกข้อมูลเรียบร้อยแล้ว", function(r) {
+                        window.opener.reloadRow();
+                        window.close();
+                    });
+                } else {
+                    $.alert.open('error',
+                        "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>"
+                    );
+                }
+            });
+        }(jQuery));
+
+        function OnValidate() {
+            var result = 0;
+            var trip_element = $('#trip_cost');
+            var driver_element = $('#driver_cost');
+            if (trip_element.val() == '') {
+                trip_element.closest("div.form-group").addClass("has-error");
+                trip_element.closest('div.form-group').find('span.help-block').html('กรุณาระบุค่าเที่ยว หากไม่มีใส่ 0');
+                result++;
+            } else {
+                trip_element.closest("div.form-group").removeClass("has-error");
+                trip_element.closest('div.form-group').find('span.help-block').html('');
+            }
+
+            if (driver_element.val() == '') {
+                driver_element.closest("div.form-group").addClass("has-error");
+                driver_element.closest('div.form-group').find('span.help-block').html('กรุณาระบุค่าเที่ยว หากไม่มีใส่ 0');
+                result++;
+            } else {
+                driver_element.closest("div.form-group").removeClass("has-error");
+                driver_element.closest('div.form-group').find('span.help-block').html('');
+            }
+
+            if (result === 0) {
+                overLayForm();
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+}

@@ -1,0 +1,394 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblBillingMaster
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "ทำรายการวางบิล";
+    var data = (List<TMSWeb.Models.ViewModels.JobViewModel>)ViewBag.Data;
+}
+@section styles {
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            visibility: hidden;
+            padding: 0 !important;
+            margin: -15px;
+        }
+
+        div.dataTables_wrapper {
+            margin: 0 auto;
+        }
+
+        .dataTables_scrollBody {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+        }
+
+        th, td {
+            white-space: nowrap;
+            font-size: 13px !important;
+        }
+
+        .col-center {
+            text-align: center !important;
+        }
+
+        .currency {
+            text-align: right;
+        }
+
+        .total {
+            color: red;
+            font-weight: bold;
+        }
+
+        .td-action {
+            text-align: center;
+            border-left: none !important;
+            width: 70px;
+        }
+
+        a {
+            text-decoration: none !important;
+        }
+
+        #list-cash th {
+            font-size: 13px;
+            text-align: left;
+        }
+
+        #list-cash td, .table td {
+            font-size: 13px;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        .table td {
+            padding: 5px !important;
+        }
+
+        .table th {
+            padding: 0px !important;
+            line-height: 32px !important;
+        }
+
+        .filter {
+            height: 27px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+            width: 90% !important;
+            margin-top: 5px !important;
+            margin-bottom: 5px !important;
+            border: 1px solid #ccc !important;
+        }
+
+            .filter:focus {
+                outline: none;
+            }
+    </style>
+}
+<div class="col-md-12">
+    <div class="portlet box blue">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-plus-circle"></i>
+                <span class="caption-subject bold uppercase font-sm"> ทำรายการใบแจ้งหนี้</span>
+            </div>
+            <div class="actions">
+            </div>
+        </div>
+        <div class="portlet-body form">
+            @using (Html.BeginForm("AddTransport", "Billing", FormMethod.Post, new { role = "form", id = "frmCashing", onsubmit = "return OnValidate()" }))
+            {
+                <div class="form-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-bordered table-hover order-column" id="list-cash">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px!important;"></th>
+                                        <th style="width:110px;text-align:center!important;">วันที่</th>
+                                        <th style="text-align:center!important;width:130px;"> ลูกค้า</th>
+                                        <th style="text-align:center!important;">สถานที่</th>
+                                        <th style="text-align:center!important;font-size:12px!important;">Booking</th>
+                                        <th style="text-align:center!important;">เบอร์ตู้</th>
+                                        <th style="width:110px;text-align:center!important;">ทะเบียน</th>
+                                        <th style="width:110px;text-align:center!important;">ราคา</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width:40px!important;padding-left:10px!important;">
+                                            <label class="mt-checkbox mt-checkbox-outline">
+                                                <input type="checkbox" id="check-all" />
+                                                <span></span>
+                                            </label>
+                                        </th>
+                                        <th style="width:110px!important;text-align:center!important;">
+                                            @Html.TextBox("filterDate", null, new { @Class = "filter", autocomplete="Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterCustomer", null, new { @Class = "filter", autocomplete="Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterPlace", null, new { @Class = "filter", autocomplete="Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterBooking", null, new { @Class = "filter", autocomplete="Off" })
+                                        </th>
+                                        <th style="text-align:center!important;">
+                                            @Html.TextBox("filterContainer", null, new { @Class = "filter", autocomplete="Off" })
+                                        </th>
+                                        <th style="width:110px;text-align:center!important;">
+                                            @Html.TextBox("filterLicense", null, new { @Class = "filter", autocomplete="Off" })
+                                        </th>
+                                        <th style="width:110px;text-align:center!important;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cashed-list">
+                                    @foreach (var item in data)
+                                    {
+                                        <tr>
+                                            <td style="text-align:center!important;" class="text-center">
+                                                <label class="mt-checkbox mt-checkbox-outline">
+                                                    <input type="checkbox" id="check-all" class="item-checkable item-checked" value="@item.job_detail_code" onclick="checkboxFunc(this)" name="listChecked[]" />
+                                                    <span></span>
+                                                    <input type="hidden" value="@item.cost_value" name="listValue[]" class="total-val" disabled />
+                                                </td>
+                                                <td style="text-align:center;">@item.job_date_value.ToString("yyyy-MM-dd")</td>
+                                                <td style="text-align:center;">@item.customer_name</td>
+                                                <td style="text-align:center;">@item.mission_name</td>
+                                                <td style="text-align:center;">@item.booking_no</td>
+                                                <td style="text-align:center;">@item.container_no</td>
+                                                <td style="text-align:center;">@item.truck_license</td>
+                                                <td style="text-align:right;">@item.cost_value.Value.ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group" style="margin:0;padding:0;margin-bottom:15px">
+                                    <label class="font-sm">
+                                        ค่าใช้จ่ายอื่น ๆ
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="mt-radio-inline" style="margin:0;padding:0">
+                                        <label class="mt-radio mt-radio-outline" style="margin-bottom:0;padding-bottom:0">
+                                            @Html.RadioButtonFor(m => m.IsAdvance, true, new { @Checked = "Checked" }) รวม
+                                            <span></span>
+                                        </label>
+                                        <label class="mt-radio mt-radio-outline" style="margin-bottom:0;padding-bottom:0">
+                                            @Html.RadioButtonFor(m => m.IsAdvance, false) ไม่รวม
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group" style="margin:0;padding:0;margin-bottom:15px">
+                                    <label class="font-sm">
+                                        การคิดภาษี
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="mt-radio-inline" style="margin:0;padding:0">
+                                        <label class="mt-radio mt-radio-outline" style="margin-bottom:0;padding-bottom:0">
+                                            @Html.RadioButtonFor(m => m.IsVat, true, new { @Checked = "Checked" }) คิดภาษี 1%
+                                            <span></span>
+                                        </label>
+                                        <label class="mt-radio  mt-radio-outline" style="margin-bottom:0;padding-bottom:0">
+                                            @Html.RadioButtonFor(m => m.IsVat, false) ไม่คิดภาษี
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                            <div class="col-md-3">
+                                <div class="row pull-right">
+                                    <div class="col-md-12">
+                                        <div style="display:inline-block;font-size:13px!important;font-weight:bold;">จำนวนรายการ</div>
+                                        <div style="display:inline-block;width:150px;text-align:right;padding-right:20px;font-size:13px;color:red;font-weight:bold;">
+                                            <span id="amount-total"> 0</span>
+                                            @Html.HiddenFor(m => m.BillingAmount, new { id = "amount-total-val", Value = "0", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row pull-right">
+                                    <div class="col-md-12">
+                                        <div style="display:inline-block;font-size:13px!important;font-weight:bold;">ยอดรวม</div>
+                                        <div style="display:inline-block;width:150px;text-align:right;padding-right:20px;font-size:13px;color:red;font-weight:bold;">
+                                            <span id="net-total"> 0.00</span>
+                                            @Html.HiddenFor(m => m.TransportTotal, new { id = "net-total-val", Value = "0.00", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-sm">วันที่</label>
+                                            @Html.TextBoxFor(m => m.BillingDate,"{0:yyyy-MM-dd}", new { @Class = "form-control input-sm datepicker", placeholder = "วันที่วางบิล", autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="font-sm">เลขอ้างอิง</label>
+                                            @Html.TextBoxFor(m => m.SpecialNo, new { @Class = "form-control input-sm", placeholder = "เลขอ้างอิง", autocomplete="Off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="font-sm">หมายเหตุ</label>
+                                            @Html.TextBoxFor(m => m.BillingRemark, new { @Class = "form-control input-sm", placeholder = "หมายเหตุ", autocomplete="Off" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="javascript:;" onclick="window.close();">ยกเลิก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @section scripts
+    {
+        <script type="text/javascript">
+            $("#frmCashing").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                        window.opener.reloadRow();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            var oTable = $('#list-cash').DataTable({
+                scrollY: 307,
+                searching: true,
+                info: false,
+                deferRender: !0,
+                scroller: true,
+                deferRender: true,
+                ordering: false,
+                lengthMenu: [[10, 15, 20, -1], [10, 15, 20, "All"]],
+                pageLength: 1000
+            });
+
+            $("#check-all").change(function() {
+                $("input:checkbox").prop('checked', $(this).prop("checked"));
+                $(".total-val").prop('disabled', !$(this).prop("checked"));
+                setNetTotal();
+            });
+
+            $('#filterDate').on('keyup', function() {
+                $('#list-cash').DataTable().columns(1).search(this.value).draw();
+                $('input:checkbox').prop('checked', false);
+            });
+            $('#filterCustomer').on('keyup', function() {
+                $('#list-cash').DataTable().columns(2).search(this.value).draw();
+                $('input:checkbox').prop('checked', false);
+            });
+            $('#filterPlace').on('keyup', function() {
+                $('#list-cash').DataTable().columns(3).search(this.value).draw();
+                $('input:checkbox').prop('checked', false);
+            });
+            $('#filterBooking').on('keyup', function() {
+                $('#list-cash').DataTable().columns(4).search(this.value).draw();
+                $('input:checkbox').prop('checked', false);
+            });
+            $('#filterContainer').on('keyup', function() {
+                $('#list-cash').DataTable().columns(5).search(this.value).draw();
+                $('input:checkbox').prop('checked', false);
+            });
+            $('#filterLicense').on('keyup', function() {
+                $('#list-cash').DataTable().columns(6).search(this.value).draw();
+                $('input:checkbox').prop('checked', false);
+            });
+
+            function checkboxFunc(e) {
+                var _tot = $(".item-checked").length
+                var _tot_checked = $(".item-checked:checked").length;
+                var x = $(e).closest('td').find('.total-val');
+                if ($(e).is(':checked')) {
+                    x.prop('disabled', false);
+                } else {
+                    x.prop('disabled', true);
+                }
+
+            
+                if (_tot != _tot_checked) {
+                    $("#check-all").prop('checked', false);
+                }
+                else if (_tot == _tot_checked) {
+                    $("#check-all").prop('checked', true);
+                }
+
+                setNetTotal();
+            }
+
+            function setNetTotal() {
+                var total = 0;
+                var amount = $('.item-checked:checked').length;
+                $('.item-checked:checked').each(function() {
+                    total = parseFloat($(this).closest('td').find('.total-val').val()) + total;
+                });
+
+                $('#amount-total').html(amount);
+                $('#amount-total-val').val(amount);
+                $('#net-total').html(number_format(total));
+                $('#net-total-val').val(total.toFixed(2));
+            }
+
+            function number_format(number) {
+                var decimals = 2;
+                var dec_point = '.';
+                var thousands_sep = ',';
+                number = number.toFixed(decimals);
+                var nstr = number.toString();
+                nstr += '';
+                x = nstr.split('.');
+                x1 = x[0];
+                x2 = x.length > 1 ? dec_point + x[1] : '';
+                var rgx = /(\d+)(\d{3})/;
+
+                while (rgx.test(x1))
+                    x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+                return x1 + x2;
+            }
+
+            function OnValidate() {
+                overLayForm();
+                return true;
+            }
+        </script>
+    }

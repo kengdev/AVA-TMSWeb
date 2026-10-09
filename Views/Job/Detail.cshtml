@@ -1,0 +1,274 @@
+﻿@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+
+    var data = (TMSWeb.Models.Entities.LOG.ViewJobListActive)ViewBag.Data;
+    var img = (List<TMSWeb.Models.Entities.LOG.TblJobImg>)ViewBag.Image;
+    var list = (List<TMSWeb.Models.ViewModels.StepViewModel>)ViewBag.Tracking;
+}
+@section Styles {
+    <link href="/css/site/cubeportfolio.css" rel="stylesheet" type="text/css" />
+    <link href="/css/site/portfolio.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        .table td {
+            font-size: 13px;
+        }
+
+        th {
+            font-size: 13px !important;
+            text-align: center;
+        }
+
+        td.topic {
+            text-align: left;
+        }
+
+        .mt-step-title {
+            font-size: 14px !important;
+            font-weight: bold !important;
+        }
+    </style>
+}
+<div class="col-md-12 ">
+    <div class="portlet light bordered">
+        <div class="portlet-title tabbable-line">
+            <div class="caption">
+                <i class="fad fa-clipboard-list"></i>
+                <span class="caption-subject bold uppercase"> รายละเอียดงานเลข </span>
+                <span class="caption-helper">[เลขที่ @data.JobDetailCode]</span>
+            </div>
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#portlet_1" data-toggle="tab"> รายละเอียด </a>
+                </li>
+                <li>
+                    <a href="#portlet_2" data-toggle="tab"> รูปภาพ</a>
+                </li>
+            </ul>
+        </div>
+        <div class="portlet-body">
+            <div class="tab-content">
+                <div class="tab-pane" id="portlet_1">
+                    <div class="row">
+                        <div class="col-md-12 align-middle">
+                            <div class="mt-element-step">
+                                <div class="row step-line">
+                                    @foreach (var item in list)
+                                    {
+                                        <div class="col-md-@item.column mt-step-col @item.index @item.active">
+                                            <div class="mt-step-number bg-white font-grey">
+                                                <span class="@item.icon"></span>
+                                            </div>
+                                            <div class="mt-step-title uppercase font-grey-cascade">
+                                                @item.action
+                                            </div>
+                                            <div class="mt-step-content font-grey-cascade">@item.action_time</div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="portlet light">
+                                    <div class="portlet-body">
+                                        <div class="scroller" style="height:310px" data-rail-visible="1"
+                                             data-rail-color="yellow" data-handle-color="#a1b2bd">
+                                            <div class="col-md-6">
+                                                <div class="table-scrollable table-scrollable-borderless">
+                                                    <table class="table table-light">
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">ลูกค้า</span>
+                                                            </td>
+                                                            <td> @data.CustomerNameTh</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">พนักงานขับรถ</span>
+                                                            </td>
+                                                            <td> @data.DriverFullname</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">วันที่</span>
+                                                            </td>
+                                                            <td>
+                                                                @data.JobDate.ToString("dd-MM-yyyy HH:mm")
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">รับตู้</span>
+                                                            </td>
+                                                            <td> @data.StartName </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">คืนตู้</span>
+                                                            </td>
+                                                            <td> @data.FinishName</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">ประเภทงาน/ขนาดตู้</span>
+                                                            </td>
+                                                            <td>
+                                                                @data.JobType / @data.ContainerSizeName
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">จำนวนตู้</span>
+                                                            </td>
+                                                            <td> @data.LiftedAmount / @data.ContainerAmount</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">หมายเหตุ</span>
+                                                            </td>
+                                                            <td> @data.JobRemark </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="table-scrollable table-scrollable-borderless">
+                                                    <table class="table table-light">
+                                                        <tr>
+                                                            <td style="border:none;">&nbsp;</td>
+                                                            <td style="border:none;">&nbsp;</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">ทะเบียน</span>
+                                                            </td>
+                                                            <td colspan="2">
+                                                                @data.TruckLicense /
+                                                                @data.TrailerLicense
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">วันที่</span>
+                                                            </td>
+                                                            <td>
+                                                                @data.JobDate.ToString("dd-MM-yyyy HH:mm")
+                                                            </td>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">
+                                                                    Closing
+                                                                    Time
+                                                                </span>
+                                                            </td>
+                                                            <td> @data.ClosingTime</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">เปิดตู้/บรรจุ</span>
+                                                            </td>
+                                                            <td colspan="2"> @data.MissionName </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">
+                                                                    Booking
+                                                                    No.
+                                                                </span>
+                                                            </td>
+                                                            <td> @data.BookingNo </td>
+
+                                                            <td class="topic">
+                                                                <span class="font-green-sharp">Invoice/Job</span>
+                                                            </td>
+                                                            <td> @data.JobInvoice</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane active" id="portlet_2">
+                    <div class="scroller" style="height:535px" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
+                        <div class="portfolio-content portfolio-1">
+                            <div id="js-grid-juicy-projects" class="cbp">
+                                @foreach (var item in img)
+                                {
+
+                                    <div class="cbp-item graphic">
+                                        <div class="cbp-caption">
+                                            <div class="cbp-caption-defaultWrap">
+                                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(@item.JobDetailImg)" alt="">
+                                            </div>
+                                            <div class="cbp-caption-activeWrap">
+                                                <div class="cbp-l-caption-alignCenter">
+                                                    <div class="cbp-l-caption-body">
+                                                        <a href="data:image/jpeg;base64,@Convert.ToBase64String(@item.JobDetailImg)"
+                                                           class="cbp-lightbox cbp-l-caption-buttonRight btn blue uppercase" data-title="">
+                                                            view larger
+                                                        </a>
+                                                        <a href="javascript:;" onclick="remove('@item.Id')"
+                                                           class="btn red uppercase btn-sm" data-title="">
+                                                            remove
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cbp-l-grid-projects-title uppercase text-center uppercase text-center">
+                                            @item.JobType.ToUpper()
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/jquery/jquery.cubeportfolio.min.js" type="text/javascript"></script>
+    <script src="~/js/jquery/portfolio-1.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            setTimeout(function() {
+                setActiveTab();
+            }, 100);
+        }(jQuery));
+
+        function remove(id) {
+            overLayForm();
+            $.post("/Job/RemoveImage",
+                {
+                    id: id
+                }, function(data) {
+                    killOverlayForm();
+                    if (data.result == true) {
+                        $.alert.open('info', data.resultMessage, function(r) {
+                            window.location.reload();
+                        });
+                    }
+                    else {
+                        jAlert('ผลการทำงาน', data.resultMessage);
+                    }
+                });
+        }
+
+        function setActiveTab() {
+            $('#portlet_2').removeClass('active');
+            $('#portlet_1').addClass('active');
+        }
+    </script>
+}

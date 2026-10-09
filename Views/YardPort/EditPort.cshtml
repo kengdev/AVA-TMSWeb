@@ -1,0 +1,226 @@
+﻿@model TMSWeb.Models.PortModel
+@{
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "place";
+    ViewBag.SubActive = "yardport";
+    ViewBag.Title = "ข้อมูลท่าเรือและลานตู้";
+    var container = (List<TMSWeb.Models.PortCashingModel>)ViewBag.Cashing;
+    var cols = container.Count();
+}
+@section Styles {
+    <style>
+        th {
+            text-align: center;
+            font-size: 13px !important;
+            background-color: #f1f4f7
+        }
+
+        .container {
+            padding: 3px !important;
+            height: 30px !important;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <li>
+                <a href="javascript:;">ข้อมูลหลัก</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="javascript:;">ข้อมูลสถานที่</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="/yardport/">ท่าเรือและลานตู้</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="/yardport/edityard?code=@Model.place_code">แก้ไข</a>
+            </li>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line">
+                <div class="caption">
+                    <i class="fad fa-pencil"></i>
+                    <span class="caption-subject bold uppercase"> แก้ไขรายการ</span>
+                    <span class="caption-helper">[รหัส @Model.place_code]</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("EditPortData", "YardPort", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+            {
+                @Html.HiddenFor(m => m.place_code)
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อท่าเรือ
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_name, new { id = "txtName", Class = "form-control" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>
+                                        ค่าผ่านท่า (ขาเข้า)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.import_fee, new { id = "txtImportFee", Class = "form-control form-number" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>
+                                        ค่าผ่านท่า (ขาออก)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.export_fee, new { id = "txtExportFee", Class = "form-control form-number" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="table-scrollable">
+                                    <table class="table table-striped table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="@cols">รายละเอียดการค่ายกตู้หนัก</th>
+                                            </tr>
+                                            <tr>
+                                                @foreach (var item in container)
+                                                {
+                                                    <th>@item.container_kind_name</th>
+                                                }
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                @foreach (var item in container)
+                                                {
+                                                    <td>
+                                                        @if (item.container_fee != null)
+                                                        {
+                                                            <input type="text" class="form-control container form-number" value="@item.container_fee.Value" name="container_fee[]" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="text" class="form-control container form-number" value="0" name="container_fee[]" />
+                                                        }
+                                                        <input type="hidden" name="container_size[]" value="@item.container_kind_code" />
+                                                    </td>
+                                                }
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>
+                                        หมายเหตุ
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_remark, new { id = "txtRemark", Class = "form-control" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/yardport/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#dspMap').click(function() {
+                var lat = $('#txtLat').val();
+                var lon = $('#txtLon').val();
+                openMapInit(lat, lon);
+            });
+        }(jQuery));
+
+
+        function openMapInit(lat, lon) {
+            var childWin = window.open("/app/Map/_InitMap?lat=" + lat + "&lon=" + lon, "InitMapWin", "height=620, width=840, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+        }
+
+        function setValue(lat, lon) {
+            $('#txtLat').val(lat);
+            $('#txtLon').val(lon);
+        }
+
+        function OnValidate() {
+            var fn = $('#frmEdit').myfunction({
+                rules: {
+                    txtName: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์โซน"
+                        }
+                    },
+                    txtImportFee: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ค่าผ่านท่า (ขาเข้า)"
+                        }
+                    },
+                    txtExportFee: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ค่าผ่านท่า (ขาออก)"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}
+
+

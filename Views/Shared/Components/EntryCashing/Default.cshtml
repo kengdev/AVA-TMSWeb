@@ -1,0 +1,66 @@
+@model TMSWeb.Models.Entities.LOG.TblJobcashing
+@{
+    var list = (List<TMSWeb.Models.ViewModels.OtherJobViewModel>)ViewBag.Other;
+    int i = 0;
+}
+<div>
+    <div class="row">
+        <div class="col-md-12">
+            <table data-toggle="table" data-height="200" data-width="100" class="data-bootstrap">
+                <thead>
+                    <tr>
+                        <th data-align="center" data-width="39"></th>
+                        <th data-align="left" data-width="150">รายการค่าใช้จ่าย</th>
+                        <th data-align="center">ได้เบิก</th>
+                        <th data-align="center">ยอดใช้จริง</th>
+                    </tr>
+                </thead>
+                @if (Model != null)
+                {
+                    <tbody id="cashing-table">
+                        <tr>
+                            <td></td>
+                            <td>น้ำมัน (ลิตร)</td>
+                            <td>
+                                @Html.TextBoxFor(m => m.CashingFuel, new { @Class = "form-control cashing-val form-box" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(m => m.CashingFuelup, new { @Class = "form-control cashing-val form-box", autocomplete = "off" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;"></td>
+                            <td>ทางด่วน (บาท)</td>
+                            <td>
+                                @Html.TextBoxFor(m => m.CashingExpressway, new { @Class = "form-control cashing-val form-box" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(m => m.CashingExpresswayup, new { @Class = "form-control cashing-val form-box", autocomplete = "off" })
+                            </td>
+                        </tr>
+                        @foreach (var item in list)
+                        {
+                            Model.CashingTotal = Model.CashingTotal + item.value;
+                            <tr>
+                                <td style="text-align: center;">
+                                    <div style="height:25px;text-align:center;padding-top:4px">
+                                        <a href="#" class="" onclick="addCashing()"><span class="icon-plus"></span></a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-box" value="@item.name" name="nameCashing[]" autocomplete = "off">
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control cashing-val form-box" name="valWithdrawCashing[]" value="@item.value" readonly />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control cashing-val form-box" name="valCashing[]" value="@item.value_up" autocomplete = "off"/>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</div>

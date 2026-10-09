@@ -1,0 +1,258 @@
+@model TMSWeb.Models.Entities.LOG.TblCoversheet
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "รายละเอียดการคุมใบวางบิล";
+    var enCulture = new System.Globalization.CultureInfo("en-US", false);
+    var customer = (TMSWeb.Models.Entities.LOG.TblCustomer)ViewBag.Customer;
+    var detail = (List<TMSWeb.Models.ViewModels.CoverSheetViewModel>)ViewBag.Detail;
+    var rule = (TMSWeb.Models.Entities.LOG.TblCustomerRule)ViewBag.Rule;
+}
+<link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+<style>
+    .caption-action-name {
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .caption-action-license {
+        margin: 0;
+    }
+
+    .caption-action-img {
+        display: inline-block;
+        text-align: :center;
+        ;
+    }
+
+        .caption-action-img i {
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+        }
+
+    .caption-action-info {
+        display: inline-block !important;
+    }
+
+    .body-profile {
+        height: 200px;
+        border-right: 1px solid #ccc;
+    }
+
+    .profile-topic {
+        font-weight: bold;
+        color: #2c6289
+    }
+
+    .profile-content {
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+        .profile-content .topic {
+            display: inline-block;
+            font-weight: bold;
+            width: 120px;
+            text-align: right;
+            padding-right: 10px;
+            color: #6c6c6c
+        }
+
+        .profile-content .detail {
+            display: inline-block;
+        }
+
+    .table td {
+        font-size: 13px !important;
+    }
+
+    .table th {
+        font-size: 13px !important;
+        font-weight: bold !important;
+        text-align: left !important;
+    }
+
+    .action-td {
+        text-align: center;
+        width: 120px;
+    }
+
+    .btnEdit {
+        color: #c4b505;
+    }
+
+    .btnSave {
+        display: none;
+    }
+
+    .btnCancel {
+        display: none;
+        color: red;
+        font-weight: bold;
+    }
+
+    .btnSync {
+        color: grey
+    }
+
+    .form-control {
+        height: 25px;
+        font-size: 11px;
+        padding: 2px;
+    }
+
+    .currency-error-td {
+        color: darkblue;
+        text-align: right;
+        padding-right: 5px !important;
+        background-color: #ffe1f0;
+    }
+</style>
+<div class="col-md-12 ">
+    <!-- BEGIN SAMPLE FORM PORTLET-->
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <div class="caption-action-img">
+                    <i class="fad fa-file-invoice"></i>
+                </div>
+                <div class="caption-action-info ">
+                    <div class="caption-action-details ">
+                        <span class="caption-action-name font-purple">รายละเอียดคุมการแจ้งหนี้</span>
+                        <p class="caption-action-license font-xs font-grey-silver">@Model.CoversheetCode</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="portlet-body form">
+            <div class="row">
+                <div class=" col-md-12">
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5 col-sm-5">
+                            <div class="body-profile">
+                                <div class="profile-topic">รายละเอียดคุมการแจ้งหนี้</div>
+                                <div class="profile-content">
+                                    <div class="topic">เลขที่</div>
+                                    <div class="detail">@Model.CoversheetCode</div>
+                                </div>
+                                <div class="profile-content">
+                                    <div class="topic">วันที่</div>
+                                    <div class="detail">@Model.CoversheetDate.ToString("dd MMMM yyyy")</div>
+                                </div>
+                                <div class="profile-content">
+                                    <div class="topic">ลูกค้า</div>
+                                    <div class="detail">@customer.CustomerNameEn</div>
+                                </div>
+                                <div class="profile-content">
+                                    <div class="topic">Tax ID</div>
+                                    <div class="detail">@customer.CustomerVatNo</div>
+                                </div>
+                                <div class="profile-content">
+                                    <div class="detail">@customer.CustomerAddress</div>
+                                </div>
+                                <div class="profile-content">
+                                    <div class="detail bold">หมายเหตุ : </div>
+                                    <div class="detail">@Model.CoversheetRemark</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 col-md-7 col-sm-7">
+                            <div class="body-truck">
+                                <div class="profile-topic">รายการ</div>
+                                <table class="table" data-toggle="table" data-height="335">
+                                    <thead>
+                                        <tr>
+                                            <th data-width="70" data-align="center"></th>
+                                            <th data-align="center">เลขที่ใบวางบิล</th>
+                                            <th data-width="90" data-align="center">ประเภท</th>
+                                            <th data-width="90">สำรองจ่าย</th>
+                                            <th data-width="90">ค่าเที่ยว</th>
+                                            <th data-width="90">ยอดรวม</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in detail)
+                                        {
+                                            var prove = item.transport_value + item.advance_value;
+                                            <tr>
+                                                <td style="text-align: center;">
+                                                    <a href="javascript:;" style="margin-left:5px;" class="btnSync" onclick="prove('@item.billing_code')"><i class="fa fa-sync-alt"></i></a>
+                                                </td>
+                                                <td>@item.billing_code</td>
+                                                <td>
+                                                    <div class="display-type">
+                                                        @if (item.billing_type == "M")
+                                                        {
+                                                            <span class="bold font-blue">รวม</span>
+                                                        }
+                                                        else if (item.billing_type == "T")
+                                                        {
+                                                            <span class="bold font-green">ค่าเที่ยว</span>
+                                                        }
+                                                        else if (item.billing_type == "A")
+                                                        {
+                                                            <span class="bold font-red">สำรองจ่าย</span>
+                                                        }
+                                                        else if (item.billing_type == "O")
+                                                        {
+                                                            <span class="bold font-purple">อื่น ๆ</span>
+                                                        }
+                                                    </div>
+                                                    <div class="display-tool" style="display:none">
+                                                        <select class="form-control select-type">
+                                                            <option value="M">รวม</option>
+                                                            <option value="T">ค่าขนส่ง</option>
+                                                            <option value="A">สำรองจ่าย</option>
+                                                            <option value="O">อื่น ๆ</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="currency-td">
+                                                    <span style="padding-right: 5px;">@item.advance_value.ToString("#,##0.00")</span>
+                                                </td>
+                                                <td class="currency-td">
+                                                    <span style="padding-right: 5px;">@item.transport_value.ToString("#,##0.00")</span>
+                                                </td>
+                                                @if (prove != item.billing_total)
+                                                {
+                                                    <td class="currency-error-td">
+                                                        <span style="padding-right: 5px;">@item.billing_total.ToString("#,##0.00")</span>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="currency-td">
+                                                        <span style="padding-right: 5px;">@item.billing_total.ToString("#,##0.00")</span>
+                                                    </td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                                <div class="profile-content pull-right" style="padding-right:20px;margin-top:20px;">
+                                    <div class="topic">ยอดเงินทั้งสิ้น</div>
+                                    <div class="detail font-red bold">@Model.CoversheetTotal.ToString("#,##0.00")</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function prove(billing_code) {
+            $.post("/CoverSheet/ProveData", {
+                billing_code: billing_code
+            }, function(data) {
+                window.location.reload();
+            });
+        }
+    </script>
+}

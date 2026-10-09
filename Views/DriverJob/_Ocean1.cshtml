@@ -1,0 +1,71 @@
+@model TMSWeb.Models.ViewModels.OrderFormViewModel
+@{
+    Layout = null;
+}
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <table style="width:100%">
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon input-circle-left">
+                                <i class="fad fa-container-storage"></i>
+                            </span>
+                            @Html.TextBoxFor(m => m.container_no,  new{ @Class="form-control input-circle-right", placeholder="เบอร์ตู้", AutoComplete="Off" })
+                        </div>
+                        <span class="help-block"></span>
+                    </div>
+                </td>
+                <td style="text-align:center;width:10%;vertical-align:top!important;">
+                    <div class="file-wrapper">
+                        <div class="file-true"><i class="fas fa-check"></i></div>
+                        <label for="fileUpload" class="btn-file">
+                            <input type="file" name="container" id="container_image" accept="image/*;capture=camera" class="file-upload" hidden>
+                            <button type="button" class="btn btn-circle btn-icon-only btn-outline yellow">
+                                <i class="fal fa-camera"></i>
+                            </button>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon input-circle-left">
+                                <i class="fad fa-tag"></i>&nbsp;
+                            </span>
+                           @Html.TextBoxFor(m => m.seal_no, new{ @Class="form-control input-circle-right", placeholder="เบอร์ซีล", AutoComplete="Off" })
+                        </div>
+                        <span class="help-block"></span>
+                    </div>
+                </td>
+                <td style="text-align:center;width:10%;vertical-align:top!important;">
+                    <div class="file-wrapper">
+                        <div class="file-true"><i class="fas fa-check"></i></div>
+                        <label for="fileUpload" class="btn-file">
+                            <input type="file" name="seal" id="seal_image" accept="image/*;capture=camera" class="file-upload" hidden>
+                            <button type="button" class="btn btn-circle btn-icon-only btn-outline yellow">
+                                <i class="fal fa-camera"></i>
+                            </button>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon input-circle-left">
+                                <i class="fad fa-trailer"></i>
+                            </span>
+                            @Html.TextBoxFor(m => m.trailer_license, new{ @Class="form-control input-circle-right", placeholder="ทะเบียนหาง", AutoComplete="Off" })
+                        </div>
+                        <span class="help-block"></span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

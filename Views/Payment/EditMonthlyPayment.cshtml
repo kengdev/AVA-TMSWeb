@@ -1,0 +1,595 @@
+@model TMSWeb.Models.Entities.LOG.TblMonthlypayment
+@{
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "payment";
+    ViewBag.SubActive = "monthlypayment";
+    ViewBag.Title = "รายการเบิกจ่ายเงินรายวัน";
+    var bank_name = "";
+    var account_no = "";
+    var cheque_no = "";
+    var branch_name = "";
+
+    if (Model.PaymentMethod == "02")
+    {
+        cheque_no = "hide";
+        branch_name = "hide";
+    }
+    else if (Model.PaymentMethod == "03")
+    {
+        account_no = "hide";
+    }
+    else if (Model.PaymentMethod == "01")
+    {
+        cheque_no = "hide";
+        branch_name = "hide";
+        account_no = "hide";
+        bank_name = "hide";
+    }
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/datetime/1.1.2/css/dataTables.dateTime.min.css" />
+    <style>
+        .bordered {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            visibility: hidden;
+        }
+
+        div.dataTables_wrapper {
+            margin: 0 auto;
+        }
+
+        .code {
+            text-align: center;
+            width: 150px;
+            font-size: 13px !important;
+        }
+
+        .date {
+            text-align: center;
+            width: 110px;
+            font-size: 13px !important;
+        }
+
+        .currency {
+            text-align: right;
+            width: 110px;
+            font-size: 13px !important;
+        }
+
+        .name {
+            font-size: 13px !important;
+        }
+
+        table.wrapper {
+            width: 100% !important;
+        }
+
+        .scrolltable {
+            height: 375px;
+            overflow-y: scroll;
+            overflow-x: scroll;
+            border-left: 1px solid #ccc;
+        }
+
+        th,
+        td {
+            font-size: 13px !important;
+        }
+
+        .table {
+            border-top: none !important;
+        }
+
+        .form-body {
+            padding-top: 0 !important;
+        }
+
+        .form-actions {
+            padding: 15px 0 0 0 !important;
+            margin: 0;
+        }
+
+        .summary-table {
+            width: 100%;
+        }
+
+            .summary-table td {
+                height: 30px;
+            }
+
+        .hide {
+            display: none !important;
+        }
+
+        .mt-radio-inline span {
+            background: #fff !important;
+            border: 1px solid #ccc;
+        }
+    </style>
+}
+
+<div class="col-md-12 col-lg-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <span class="caption-subject bold uppercase">แก้ไขรายการใบสำคัญจ่ายเงิน (รายเดือน)</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("EditMonthlyPayment", "Payment", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+        {
+            @Html.HiddenFor(m => m.MonthlyPaymentCode)
+            @Html.HiddenFor(m => m.IsEnabled)
+            @Html.HiddenFor(m => m.CreateDate)
+            @Html.HiddenFor(m => m.CreateBy)
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label font-sm">วันที่</label>
+                                        @Html.TextBoxFor(m => m.PaymentDate, new { @Class = "form-control input-sm datepicker", Autocomplete = "Off" })
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label class="control-label font-sm">ประเภทรายการ</label>
+                                        @Html.DropDownList("PaymentTypeCode", null, new { @Class = "form-control input-sm" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>ชื่อผู้รับเงิน</label>
+                                        <span class="required"> * </span>
+                                        <div class="input-group input-group-sm">
+                                            @Html.TextBoxFor(m => m.SupplierCode, new { @Class = "form-control", autocomplete = "off" })
+                                            <span class="input-group-btn">
+                                                <button class="btn red" type="button" onclick="searchSupplierFunc()">ค้นหา</button>
+                                            </span>
+                                        </div>
+                                        <span class="help-block help-group"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label>&nbsp;</label>
+                                    @Html.TextBox("txtSupplierName", Model.SupplierCodeNavigation.SupplierFullname, new { @Class = "form-control input-sm", disabled = "Disabled" })
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group" style="padding:0!important;margin:0!important">
+                                        <label>ชำระโดย</label>
+                                        <div class="mt-radio-list">
+                                            <label class="mt-radio mt-radio-outline">
+                                                @Html.RadioButtonFor(m => m.PaymentMethod, "01", new { @Class = "rdoPaymentType" })
+                                                เงินสด
+                                                <span></span>
+                                            </label>
+                                            <label class="mt-radio mt-radio-outline">
+                                                @Html.RadioButtonFor(m => m.PaymentMethod, "02", new { @Class = "rdoPaymentType" })
+                                                เงินโอน
+                                                <span></span>
+                                            </label>
+                                            <label class="mt-radio mt-radio-outline">
+                                                @Html.RadioButtonFor(m => m.PaymentMethod, "03", new { @Class = "rdoPaymentType" })
+                                                เช็คธนาคาร
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group" style="padding:0!important;margin:0!important">
+                                        <label>ภาษี</label>
+                                        <div class="mt-radio-inline">
+                                            <label class="mt-radio">
+                                                @Html.RadioButtonFor(m => m.IsVat, true, new { @Class = "rdoVat" })
+                                                คิดภาษี
+                                                <span></span>
+                                            </label>
+                                            <label class="mt-radio">
+                                                @Html.RadioButtonFor(m => m.IsVat, false, new { @Class = "rdoVat" })
+                                                ไม่คิดภาษี
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group" style="padding:0!important;margin:0!important">
+                                        <label>หัก ณ ที่จ่าย</label>
+                                        <div class="mt-radio-inline">
+                                            <label class="mt-radio">
+                                                @Html.RadioButtonFor(m => m.IsTax, true, new { @Class = "rdoTax" })
+                                                หัก
+                                                <span></span>
+                                            </label>
+                                            <label class="mt-radio">
+                                                @Html.RadioButtonFor(m => m.IsTax, false, new { @Class = "rdoTax" })
+                                                ไม่หัก
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-4 wrap-bankname @bank_name">
+                                            <div class="form-group">
+                                                <label class="control-label font-sm">ธนาคาร</label>
+                                                @Html.DropDownList("BankName", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "bank_name" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 wrap-accountno @account_no">
+                                            <div class="form-group">
+                                                <label class="control-label font-sm">เลขที่บัญชี</label>
+                                                @Html.TextBoxFor(m => m.AccountNo, new { @Class = "form-control input-sm", id = "account_no" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 wrap-branchname @branch_name">
+                                            <div class="form-group">
+                                                <label class="control-label font-sm">สาขา</label>
+                                                @Html.TextBoxFor(m => m.BankBranchName, new { @Class = "form-control input-sm", id = "branch_name" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 wrap-chequeno @cheque_no">
+                                            <div class="form-group">
+                                                <label class="control-label font-sm">เช็คเลขที่</label>
+                                                @Html.TextBoxFor(m => m.ChequeNo, new { @Class = "form-control input-sm", id = "cheque_no" })
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin:0!important;padding:0!important;">
+                                        <label class="control-label font-sm">หมายเหตุ</label>
+                                        @Html.TextBoxFor(m => m.Remark, new { @Class = "form-control input-sm", autocomplete = "Off" })
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="summary-table">
+                                        <tbody>
+                                            <tr>
+                                                <td style="font-weight:bold;text-align:right;border:none!important;">
+                                                    มูลค่าสินค้า/บริการ
+                                                </td>
+                                                <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;border:none;">
+                                                    <span id="total-display">@Model.Total.ToString("#,##0.00")</span>
+                                                    @Html.HiddenFor(m => m.Total)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-weight:bold;text-align:right;border:none!important;">
+                                                    <span>ภาษีมูลค่าเพิ่ม 7%</span>
+                                                </td>
+                                                <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;border:none;">
+                                                    <span id="vat-display">@Model.Vat.ToString("#,##0.00")</span>
+                                                    @Html.HiddenFor(m => m.Vat)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-weight:bold;text-align:right;border:none!important;">
+                                                    <span>ภาษีหัก ณ ที่จ่าย</span>
+                                                </td>
+                                                <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;border:none;">
+                                                    <span id="tax-display">@Model.Tax.ToString("#,##0.00")</span>
+                                                    @Html.HiddenFor(m => m.Tax)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-weight:bold;text-align:right;border:none!important;">
+                                                    ยอดเงินสุทธิ
+                                                </td>
+                                                <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;border:none;">
+                                                    <span id="net-display">@Model.NetTotal.ToString("#,##0.00")</span>
+                                                    @Html.HiddenFor(m => m.NetTotal)
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table table-hover" id="selected">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:20px;"></th>
+                                                <th style="width:90px;">วันที่เอกสาร</th>
+                                                <th style="width:90px;">เลขที่เอกสาร</th>
+                                                <th> รายการ</th>
+                                                <th style="width:70px;"> จำนวนเงิน</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="detail-body">
+                                            @await Component.InvokeAsync("EntryMonthlyPayment", new { action_type = "default" })
+
+                                            @foreach (var item in Model.TblMonthlypaymentDetails)
+                                            {
+                                                @await Component.InvokeAsync("EntryMonthlyPayment", new { action_type = "edit", id = item.Id })
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="/payment/monthlypayment">กลับหน้าหลัก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/datetime/1.1.2/js/dataTables.dateTime.min.js"></script>
+    <script type="text/javascript">
+        (function($) {
+            $('.mydatepicker').dtDateTime({
+                locale: "th",
+                i18n: {
+                    months: [
+                        'มกราคม',
+                        'กุมภาพันธ์',
+                        'มีนาคม',
+                        'เมษายน',
+                        'พฤษภาคม',
+                        'มิถุนายน',
+                        'กรกฎาคม',
+                        'สิงหาคม',
+                        'กันยายน',
+                        'ตุลาคม',
+                        'พฤศจิกายน',
+                        'ธันวาคม'
+                    ],
+                    weekdays: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
+                }
+            });
+
+            var sTable = $('#selected').DataTable({
+                scrollY: 330,
+                scrollCollapse: 0,
+                sorting: 0,
+                searching: false,
+                info: false,
+                "ordering": false,
+                "paging": false
+            });
+
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#SupplierCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Supplier', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setSupplierBox(code);
+                    return item;
+                }
+            });
+
+            $('.amount').on('keyup', function() {
+                setTotal();
+            });
+
+            $('#PaymentTypeCode').change(function() {
+                setTotal();
+            });
+
+            $('.rdoVat').change(function() {
+                setTotal();
+            });
+
+            $('.rdoTax').change(function() {
+                setTotal();
+            });
+
+            $('.rdoPaymentType').change(function() {
+                var x = $(this).val();
+                if (x == '03') {
+                    $('.wrap-bankname').removeClass('hide');
+                    $('.wrap-accountno').addClass('hide');
+                    $('.wrap-chequeno').removeClass('hide');
+                    $('.wrap-branchname').removeClass('hide');
+                } else if (x == '02') {
+                    $('.wrap-bankname').removeClass('hide');
+                    $('.wrap-accountno').removeClass('hide');
+                    $('.wrap-chequeno').addClass('hide');
+                    $('.wrap-branchname').addClass('hide');
+                }
+                else {
+                    $('.wrap-bankname').addClass('hide');
+                    $('.wrap-accountno').addClass('hide');
+                    $('.wrap-chequeno').addClass('hide');
+                    $('.wrap-branchname').addClass('hide');
+                }
+            });
+        }(jQuery));
+
+        function searchSupplierFunc() {
+            var url = '../search/supplier';
+            var setting = 'width=1100,height=665';
+            window.open(url, 'search supplier', setting);
+        }
+
+        function setSupplierBox(code) {
+            $.post("../VatInvoice/GetSupplierByCode",
+                {
+                    code: code
+                }, function(data) {
+                    $('#SupplierCode').val(data.supplierCode);
+                    $('#txtSupplierName').val(data.supplierFullname);
+                });
+        }
+
+        function removeFunc() {
+            setTotal();
+        }
+
+        function addItem() {
+            $.post("/Payment/_EntryMonthlyPayment", {
+                action_type: "add"
+            }, function(result) {
+                $('#detail-body').append(result);
+                $('.amount').on('keyup', function() {
+                    setTotal();
+                });
+                $('.mydatepicker').dtDateTime({
+                    locale: "th",
+                    i18n: {
+                        months: [
+                            'มกราคม',
+                            'กุมภาพันธ์',
+                            'มีนาคม',
+                            'เมษายน',
+                            'พฤษภาคม',
+                            'มิถุนายน',
+                            'กรกฎาคม',
+                            'สิงหาคม',
+                            'กันยายน',
+                            'ตุลาคม',
+                            'พฤศจิกายน',
+                            'ธันวาคม'
+                        ],
+                        weekdays: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
+                    }
+                });
+                setTotal();
+            });
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function setTotal() {
+            var sum = 0;
+            var tax = 0;
+            var vat = 0;
+            var net = 0;
+            var service_type = $('#PaymentTypeCode option:selected').val();
+            var is_vat = $('.rdoVat:checked').val();
+            var is_tax = $('.rdoTax:checked').val();
+            $('.amount').each(function() {
+                var x = this.value;
+                if (x != '') {
+                    var amount = parseFloat(x);
+                    sum += amount;
+                }
+            });
+
+            if (is_vat == 'True') {
+                vat = (sum * 7) / 100;
+            }
+
+            if (is_tax == 'True') {
+                if (service_type != '' && service_type == '02') {
+                    tax = (sum * 3) / 100;
+                }
+                else if (service_type != '' && service_type == '03') {
+                    tax = (sum * 5) / 100;
+                }
+                else if (service_type != '' && service_type == '04') {
+                    tax = (sum * 1) / 100;
+                }
+                else if (service_type != '' && service_type == '05') {
+                    tax = (sum * 1) / 100;
+                }
+            }
+
+            var net = (sum + vat) - (tax);
+            $('#total-display').html(number_format(sum));
+            $('#vat-display').html(number_format(vat));
+            $('#tax-display').html(number_format(tax));
+            $('#net-display').html(number_format(net));
+
+            $('#Vat').val(number_format(vat));
+            $('#Tax').val(number_format(tax));
+            $('#Total').val(number_format(sum));
+            $('#NetTotal').val(number_format(net));
+        }
+
+        function OnValidate() {
+            var total = parseFloat($('#total-val').val());
+            if (total <= 0) {
+                $.alert.open('error', "<div>กรุณาเลือกอย่างน้อย 1 รายการ</div>");
+                return false;
+            } else {
+                overLayForm();
+                return true;
+            }
+        }
+    </script>
+}

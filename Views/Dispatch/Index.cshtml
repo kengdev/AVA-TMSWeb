@@ -1,0 +1,46 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Fleet Dispatch Center • Timeline</title>
+    <link rel="stylesheet" href="~/css/dispatch/dispatch.css" asp-append-version="true">
+</head>
+<body>
+    @Html.AntiForgeryToken()
+    <div class="shell">
+        <aside class="rail"><div class="logo">T</div><span class="rail-label">TMS</span><a href="@Url.Action("Index", "Dispatch")" class="nav-active" aria-label="หน้าจัดรถ">▦</a><div class="rail-bottom">DC</div></aside>
+        <main>
+            <header><div><div class="eyebrow">TRANSPORT OPERATIONS / DISPATCH</div><h1>Fleet Dispatch Center</h1><p>วางแผนรถทั้ง Fleet ด้วย Timeline • รถบริษัท + รถร่วมขนส่ง</p></div><div class="header-actions"><span class="demo">DEMO • ข้อมูลจำลอง</span><button id="refresh">↻ รีเฟรช</button></div></header>
+            <section class="metrics" id="metrics" aria-label="ภาพรวมวันที่เลือก"></section>
+            <div class="toolbar"><div class="date-tools"><button id="prevDay" aria-label="วันก่อนหน้า">‹</button><input type="date" id="workDate" aria-label="วันที่จัดรถ"><button id="nextDay" aria-label="วันถัดไป">›</button><button id="today">วันนี้</button><span id="dateLabel"></span></div><div class="filters"><input id="search" aria-label="ค้นหารถ" placeholder="ทะเบียน / คนขับ / ผู้รับเหมา"><select id="status" aria-label="กรองรถ"><option value="ALL">รถทุกสถานะ</option><option value="AVAILABLE">ว่างตามช่วงงานที่เลือก</option><option value="READY">รถใช้งานได้ • ต้องเช็คเวลาว่าง</option><option value="UNCONFIRMED">รถร่วมรอยืนยัน</option><option value="MAINTENANCE">ซ่อมบำรุง</option></select></div></div>
+            <div class="workspace">
+                <section class="panel jobs-panel"><div class="panel-head"><div><h2>งานรอจัดรถ <span id="jobCount"></span></h2><small>งานตามวันรับสินค้าที่เลือก</small></div></div><div id="jobs" class="jobs"></div><div class="side-note">เลือกงาน แล้วกด <b>จัดงานนี้</b> ที่แถวรถ หรือคลิกพื้นที่ว่างในแถวนั้น</div></section>
+                <section class="panel timeline-panel">
+                    <div class="panel-head timeline-toolbar"><div><h2>Fleet Timeline <span id="vehicleCount"></span></h2><small id="fleetHint">เวลาไทย (UTC+7) • เลื่อนแนวนอนเพื่อดูทั้งวัน</small></div><div class="timeline-tools"><select id="hourRange" aria-label="ช่วงเวลาที่แสดง"><option value="6">06:00–24:00</option><option value="0">00:00–24:00</option></select><select id="zoom" aria-label="ความกว้างต่อชั่วโมง"><option value="64">ปกติ</option><option value="96">ขยาย</option><option value="40">ย่อ</option></select><button id="clearJob" hidden>ล้างงาน</button></div></div>
+                    <div class="fleet-tabs tabs" id="fleetTabs"><button class="active" data-fleet="ALL">รถทั้งหมด</button><button data-fleet="COMPANY">รถบริษัท</button><button data-fleet="PARTNER">รถร่วม</button></div>
+                    <div class="legend"><span><i class="dot PLANNED"></i>จัดแล้ว</span><span><i class="dot RUNNING"></i>กำลังวิ่ง</span><span><i class="dot COMPLETED"></i>เสร็จแล้ว</span><span><i class="dot BUFFER"></i>เตรียมรถ / พัก</span><span><i class="dot PROPOSED"></i>งานที่กำลังเลือก</span><span class="legend-note">สถานะเที่ยวใน Demo ตั้งไว้เพื่อแสดงตัวอย่าง</span></div>
+                    <div class="timeline-scroll" id="timelineScroll"><div id="timeline" class="timeline"></div></div>
+                    <div class="timeline-footer"><span id="timelineSummary"></span><span>เส้นแดง = เวลาปัจจุบัน • พื้นที่ว่าง = ไม่มีการจองในข้อมูลนี้</span></div>
+                </section>
+                <section class="panel detail-panel"><div class="panel-head"><div><h2>รายละเอียดเที่ยวงาน</h2><small>คลิกแถบบน Timeline เพื่อดู/แก้ไข</small></div></div><div id="details" class="details"></div></section>
+            </div><footer><span>เตรียมรถ <b id="prepMinutes">30</b> นาที • พักก่อนเที่ยวถัดไป <b id="turnMinutes">45</b> นาที • เวลาจบเป็นประมาณการ</span><span id="updated"></span></footer>
+        </main>
+    </div>
+    <dialog id="assignDialog">
+        <form id="assignForm">
+            <div class="eyebrow">DISPATCH CONFIRMATION</div><h2 id="dialogTitle">ยืนยันจัดรถ</h2><div id="confirmation"></div>
+            <label class="field-label" for="vehicleChoice">รถและคนขับ</label><select id="vehicleChoice" required></select>
+            <div class="time-fields"><div><label class="field-label" for="pickupInput">รับสินค้า (เวลาไทย)</label><input type="datetime-local" id="pickupInput" required step="60"></div><div><label class="field-label" for="deliveryInput">คาดว่าจะส่งเสร็จ (เวลาไทย)</label><input type="datetime-local" id="deliveryInput" required step="60"></div></div>
+            <div id="scheduleCheck" class="schedule-check" role="status"></div><p class="modal-note">รวมเวลาเตรียมรถและพักก่อนเที่ยวถัดไป • คนขับตามคู่ประจำรถใน Demo</p><div class="modal-actions"><button type="button" id="closeDialog">กลับ</button><button class="primary" id="confirmAssign" type="submit">ยืนยันจัดรถ</button></div>
+        </form>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script>window.dispatchConfig = { data: '@Url.Action("Data", "Dispatch")', assign: '@Url.Action("Assign", "Dispatch")', move: '@Url.Action("Move", "Dispatch")', cancel: '@Url.Action("Cancel", "Dispatch")', confirmPartner: '@Url.Action("ConfirmPartner", "Dispatch")' };</script>
+    <script src="~/js/dispatch/schedule.js" asp-append-version="true"></script>
+    <script src="~/js/dispatch/dispatch.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+﻿@model TMSWeb.Models.PlaceModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "place";
+    ViewBag.SubActive = "industry";
+    ViewBag.Title = "ข้อมูลสถานที่เปิดตู้/บรรจุ";
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลหลัก</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">ข้อมูลสถานที่</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/place/">สถานที่เปิด/บรรจุ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/place/add">เพิ่ม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> เพิ่มรายการ</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("AddPlace", "Place", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+            {
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>
+                                        รหัสท่าเรือ
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_port_code, new { id = "txtPortCode", Class = "form-control", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        เลขประจำตัวผู้เสียภาษี
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_tax, new { id = "txtTax", Class = "form-control", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อสถานที่ (ชื่อเต็ม)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_fullname, new { id = "txtFullName", Class = "form-control", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อสถานที่ (ชื่อสั้นอังกฤษ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_name, new { id = "txtNameEn", Class = "form-control", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อสถานที่ (ชื่อสั้นไทย)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_name_th, new { id = "txtNameTh", Class = "form-control", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ค่าทางด่วน
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.expressway_value, new { id = "txtExpress", Class = "form-control form-number", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>
+                                        ที่อยู่
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_address, new { id = "txtAddress", Class = "form-control", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>
+                                                โซน
+                                                <span class="required"> * </span>
+                                            </label>
+                                            <div class="input-group">
+                                                @Html.TextBoxFor(m => m.zone_code, new { @Class = "form-control", autocomplete = "off" })
+                                                <span class="input-group-btn">
+                                                    <button class="btn red" type="button" onclick="searchZoneFunc()">ค้นหา</button>
+                                                </span>
+                                            </div>
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label>ชื่อโซน</label>
+                                        @Html.TextBox("txtZonename", null, new { @Class = "form-control", disabled = "Disabled" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        เขตจังหวัด
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.DropDownList("province_code", null, "-----เลือก-----", new { @Class = "form-control select2 dlList" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>
+                                        Latitude
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_lat, new { id = "txtLat", Class = "form-control form-geo", autocomplete = "off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>
+                                        Longitude
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.place_lon, new { id = "txtLon", Class = "form-control form-geo" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div style="margin-top:24px!important;">
+                                    <a href="javascript:;" class="btn yellow" id="dspMap">
+                                        แผนที่
+                                        <i class="fa fa-map-marked-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>หมายเหตุ</label>
+                                    @Html.TextBoxFor(m => m.place_remark, new { id = "txtRemark", Class = "form-control" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/place/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmAdd").ajaxForm(function(data) {
+                if (data.result == true) {
+                    killOverlayForm();
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#zone_code').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('../AutoComplete/Zone', {
+                        term: query
+                    }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].code;
+                    var name = map[item].title;
+                    setZoneBox(code, name);
+                    return item;
+                }
+            });
+
+            $('#dspMap').click(function() {
+                var lat = $('#txtLat').val();
+                var lon = $('#txtLon').val();
+
+                lat = lat == '' ? '13.119919462467978' : lat;
+                lon = lon == '' ? '100.95782389385485' : lon;
+
+                openMapInit(lat, lon);
+            });
+        }(jQuery));
+
+        function openMapInit(lat, lon) {
+            var childWin = window.open("/Map/InitMap?lat=" + lat + "&lon=" + lon, "InitMapWin", "height=620, width=840, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+        }
+
+        function setValue(lat, lon) {
+            $('#txtLat').val(lat);
+            $('#txtLon').val(lon);
+        }
+
+        function setZoneBox(code) {
+            $.post("../Place/GetZoneByCode", {
+                code: code
+            }, function(data) {
+                $('#zone_code').val(data.zoneCode);
+                $('#txtZonename').val(data.zoneName);
+            });
+        }
+
+        function searchZoneFunc() {
+            var url = '/search/zone';
+            var setting = 'width=800,height=550';
+            window.open(url, 'search', setting);
+        }
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtPortCode: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์รหัสท่าเรือ หากไม่มีพิมพ์ -"
+                        }
+                    },
+                    txtTax: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขประจำตัวผู้เสียภาษีของสถานที่ส่งสินค้า"
+                        }
+                    },
+                    txtFullName: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อสถานที่ (ชื่อเต็ม)"
+                        }
+                    },
+                    txtNameEn: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อสถานที่ (ชื่อสั้นภาษาอังกฤษ)"
+                        },
+                        minlength: {
+                            value: 3,
+                            message: "กรุณาพิมพ์ข้อความอย่างน้อย 3 ตัวอักษร"
+                        }
+                    },
+                    txtNameTh: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อสถานที่ (ชื่อสั้นภาษาไทย)"
+                        },
+                        minlength: {
+                            value: 3,
+                            message: "กรุณาพิมพ์ข้อความอย่างน้อย 3 ตัวอักษร"
+                        }
+                    },
+                    txtExpress: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ค่าทางด่วน หากไม่มีพิมพ์ 0"
+                        }
+                    },
+                    zone_code: {
+                        text_button: {
+                            message: "กรุณาพิมพ์ หรือเลือกข้อมูล"
+                        }
+                    },
+                    txtAddress: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ที่อยู่ หากไม่มีพิมพ์ -"
+                        }
+                    },
+                    province_code: {
+                        selected: {
+                            value: true,
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    zone_code: {
+                        selected: {
+                            value: true,
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtLat: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขละติจูด (เลือกจากแผนที่) หากไม่มีพิมพ์ -"
+                        }
+                    },
+                    txtLon: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขลองติจูด (เลือกจากแผนที่) หากไม่มีพิมพ์ -"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}
+
+

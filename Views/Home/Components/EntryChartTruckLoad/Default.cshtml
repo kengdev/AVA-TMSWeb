@@ -1,0 +1,58 @@
+@model List<TMSWeb.Models.ViewModels.TruckWorkingViewModel>
+<style>
+    .table th, .table td {
+        font-size: 13px !important;
+    }
+</style>
+<div class="task-content">
+    <table data-toggle="table" data-height="300">
+        <thead>
+            <tr>
+                <th>ทะเบียน</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th>ยอดรวมค่าเที่ยว</th>
+                <th>ค่าน้ำมัน</th>
+                <th>ค่าทางด่วน</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @if (item.trip > 0)
+                        {
+                            <a href="javascript:;" onclick="detail_working('@item.driver_code')">@item.truck_license</a>
+                        }
+                        else
+                        {
+                            <span>@item.truck_license</span>
+                        }
+                    </td>
+                    <td>@item.driver_fullname</td>
+                    <td class="currency-td">@item.trip.ToString("#,##0.00")</td>
+                    <td class="currency-td">
+                        @if (item.fuel < 0)
+                        {
+                            <span class="font-red-mint">@item.fuel.ToString("#,##0.00")</span>
+                        }
+                        else
+                        {
+                            @item.fuel.ToString("#,##0.00")
+                        }
+                    </td>
+                    <td class="currency-td">
+                        @if (item.expressway < 0)
+                        {
+                            <span class="font-red-mint">@item.expressway.ToString("#,##0.00")</span>
+                        }
+                        else
+                        {
+                            @item.expressway.ToString("#,##0.00")
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

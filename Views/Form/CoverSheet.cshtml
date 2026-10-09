@@ -1,0 +1,66 @@
+﻿@{
+    Layout = "~/Views/Shared/_PartialFormLayout.cshtml";
+    var data = (List<TMSWeb.Models.ViewModels.CoverSheetFormViewModel>)ViewBag.Data;
+    var col = ViewBag.Col;
+    var code = data.FirstOrDefault().coversheet_code;
+}
+<div class="actions">
+    <div class="tools">
+        <a href="javascript:;" id="btnPrint">
+            <img src="~/images/icons30/icon-print-30.png" />
+        </a>
+        &nbsp;&nbsp;&nbsp;
+        <a href="javascript:;" id="btnPdf">
+            <img src="~/images/icons30/icon-save-30.png" />
+        </a>
+        &nbsp;&nbsp;&nbsp;
+        <a href="javascript:;" id="btnReload">
+            <img src="~/images/icons30/icon-reload-30.png" />
+        </a>
+    </div>
+    <div class="tool-line"></div>
+    <div class="clearfix"></div>
+
+    <div class="col-md-12" style="overflow-y:scroll;height:550px;">
+        <div class="break-point">
+            <div class="page-preview">
+                @{
+                    Html.RenderPartial("_CoverSheet");
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div id="PrintDisplay" style="display:none;">
+        <div id="docprint">
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript" src="~/js/site/app-reportscript.js"></script>
+    <script type="text/javascript">
+        var code = '@code';
+
+        function pdfFunc() {
+            window.open("/form/PageCoverSheetPdf?code=" + code)
+        }
+
+        function printFunc() {
+            $.post("/form/_coversheet",
+                {
+                    code: code
+                }, function(result) {
+                    var divToPrint = document.getElementById('docprint');
+                    var htmlToPrint = '';
+                    htmlToPrint += divToPrint.outerHTML;
+                    newWin = window.open("");
+                    newWin.document.write(result);
+                    newWin.document.write(htmlToPrint);
+                    newWin.print();
+                    newWin.close();
+                });
+        }
+    </script>
+}

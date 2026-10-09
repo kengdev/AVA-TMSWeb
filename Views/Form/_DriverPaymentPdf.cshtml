@@ -1,0 +1,240 @@
+@model List<TMSWeb.Models.ViewModels.DriverPaymentFormViewModel>
+@{
+    int pg = 0;
+    Layout = null;
+    var thCulture = new System.Globalization.CultureInfo("th-TH", false);
+}
+<link rel="stylesheet" type="text/css" href="~/css/print/printform.css" media="print">
+<style>
+    body {
+        background-color: #fff;
+    }
+
+    .page {
+        padding: 0.5cm;
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+    }
+
+    .top-header {
+        width: 100%;
+        display: inline-block;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    .form-wrap {
+        padding: 7px;
+    }
+
+    .form-detail {
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .header-col-1 {
+        width: 150px;
+        float: left;
+        display: table;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: table;
+    }
+
+    .company-name {
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .company-detail {
+        font-size: 13px !important;
+    }
+
+    .topic-name {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 13px;
+        margin-top: 20px;
+    }
+
+    .table th {
+        font-size: 11px;
+        border: 1px solid #000 !important;
+        text-align: center !important;
+        padding: 7px;
+    }
+
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .table td {
+            font-size: 11px;
+            border: 1px solid #000 !important;
+            padding: 3px !important;
+            line-height: 17px !important;
+        }
+
+    .center-td {
+        text-align: center;
+    }
+
+    .currency-td {
+        text-align: right;
+    }
+
+    .total-td {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    @@media all {
+        .page-break {
+            display: none;
+        }
+    }
+
+    @@media print {
+        html, body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: block;
+            page-break-after: always;
+        }
+    }
+</style>
+
+@foreach (var item in Model)
+{
+    pg++;
+    var allowance = item.allowance;
+    var subtract = item.substract;
+    var addit = item.addit;
+    //var date = (AVA.Models.Entities.TblAllowance)ViewBag.Date;
+    decimal trip = item.trip_value;
+    decimal fuel = item.fuel_value;
+    decimal waste = item.waste_value;
+    decimal other = item.other_value;
+    decimal total_subtract = item.total_substract;
+    decimal trip_total = (trip + fuel + waste + other + item.total_addit);
+
+    <div class="page">
+        <div class="top-header">
+            @{
+                Html.RenderPartial("HeaderPdf");
+            }
+        </div>
+        <div class="topic-name">
+        </div>
+        <br />
+        <div>
+            <table class="table-header" style="font-size:14px;">
+                <tr>
+                    <td style="font-weight:bold;">ชื่อ</td>
+                    <td style="padding-left:10px;">
+                        <div style="width:150px;">@item.driver_name</div>
+                    </td>
+                    <td style="font-weight:bold;">ทะเบียน</td>
+                    <td style="padding-left:10px;">@item.truck_license [@item.truck_no]</td>
+                </tr>
+            </table>
+        </div>
+        <div style="margin-top:5px;">
+            <table class="table table-bordered">
+                <tr>
+                    <th>Date</th>
+                    <th>Booking</th>
+                    <th>Container</th>
+                    <th>สถานที่</th>
+                    <th>เบี้ยเลี้ยง</th>
+                    <th>น้ำมัน</th>
+                    <th>เสียเวลา</th>
+                    <th>อื่น ๆ</th>
+                </tr>
+                @foreach (var item_data in item.data)
+                {
+                    <tr>
+                        <td class="center-td">@item_data.working_date</td>
+                        <td class="center-td">@item_data.booking_no</td>
+                        <td class="center-td">@item_data.container_no</td>
+                        <td class="center-td">@item_data.trip_place</td>
+                        <td class="currency-td">@item_data.trip_value.ToString("#,##0.00")</td>
+                        <td class="currency-td">@item_data.fuel_value.ToString("#,##0.00")</td>
+                        <td class="currency-td">@item_data.waste_value.ToString("#,##0.00")</td>
+                        <td class="currency-td">@item_data.other_value.ToString("#,##0.00")</td>
+                    </tr>
+                }
+                @foreach (var item_addit in item.addit)
+                {
+                    <tr>
+                        <td colspan="4" style="padding-left:30px!important;color:green;">@item_addit.name</td>
+                        <td colspan="4" style="text-align: right;">@item_addit.value.ToString("#,##0.00")</td>
+                    </tr>
+                }
+                <tr>
+                    <td colspan="4" class="total-td">ยอดรวม</td>
+                    <td class="total-td">@trip.ToString("#,##0.00")</td>
+                    <td class="total-td">@fuel.ToString("#,##0.00")</td>
+                    <td class="total-td">@waste.ToString("#,##0.00")</td>
+                    <td class="total-td">@other.ToString("#,##0.00")</td>
+                </tr>
+                <tr>
+                    <th colspan="4">รายการหัก</th>
+                    <th colspan="4"></th>
+                </tr>
+                @if (subtract != null)
+                {
+                    foreach (var item_subtract in subtract)
+                    {
+                        <tr>
+                            <td colspan="4" style="padding-left:30px!important;color:red;">@item_subtract.name</td>
+                            <td colspan="4" class="currency-td" style="color:red;">@item_subtract.value.ToString("#,##0.00")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="padding-left:30px!important;">-</td>
+                        <td colspan="4"></td>
+                    </tr>
+                }
+                <tr>
+                    <td colspan="4" class="total-td">ยอดหักรวม</td>
+                    <td colspan="4" class="currency-td" style="color:red;">@total_subtract.ToString("#,##0.00")</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="total-td">ยอดเงินได้รวม</td>
+                    <td colspan="4" class="currency-td">@trip_total.ToString("#,##0.00")</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="total-td" style="font-size:14px;font-weight:bold;color:green;">ยอดเงินทั้งสิ้น</td>
+                    <td colspan="4" class="currency-td" style="font-size:14px;font-weight:bold;color:green;">@item.net_total.ToString("#,##0.00")</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table>
+                <tr>
+                    <th></th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    if (pg < Model.Count())
+    {
+        <div style="overflow:hidden;page-break-before:always;"></div>
+    }
+}

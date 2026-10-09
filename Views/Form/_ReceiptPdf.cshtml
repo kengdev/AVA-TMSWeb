@@ -1,0 +1,502 @@
+@model TMSWeb.Models.ViewModels.ReceiptFormViewModel
+@{
+    Layout = null;
+    var enCulture = new System.Globalization.CultureInfo("en-US", false);
+}
+<link rel="stylesheet" type="text/css" href="~/css/print/printform.css" media="print">
+<style>
+    body {
+        background: #fff;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+        width: 100%;
+    }
+
+    .form-wrap {
+        padding: 7px;
+    }
+
+    .form-detail {
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .header-col-1 {
+        width: 150px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-3 {
+        float: right;
+        text-align: center;
+        display: inline-block
+    }
+
+    .company-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .company-detail {
+        font-size: 13px !important;
+    }
+
+    .topic-name {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+        display: inline-block !important;
+    }
+
+    .table-bordered td, .table-bordered th {
+        border: 1px solid #000 !important;
+    }
+
+    td.header-topic {
+        text-align: center;
+        vertical-align: middle !important;
+        font-weight: bold;
+    }
+
+    .topic-customer-name, .topic-customer-tax {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .topic-customer-tax {
+        margin-top: 10px;
+    }
+
+    .topic-customer-address {
+        font-size: 13px;
+        width: 350px;
+        height: 40px;
+    }
+
+    .table {
+        border-collapse: collapse;
+    }
+
+        .table th {
+            padding: 5px !important;
+            text-align: center !important;
+        }
+
+        .table td {
+            padding: 3px !important;
+        }
+
+    table td.topic-body {
+        font-weight: bold;
+        text-align: center;
+        height: 35px;
+        vertical-align: middle !important;
+    }
+
+    .item-box {
+        border: 1px solid #000;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .stamp {
+        text-align: center;
+        position: relative;
+        top: -35px !important;
+        left: -30px !important;
+    }
+
+    .stamp-img {
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+    .receiver-topic {
+        margin-top: 25px
+    }
+
+    @@media all {
+        .page-break {
+            display: none;
+        }
+    }
+
+    @@media print {
+        html, body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: block;
+            page-break-after: always;
+        }
+    }
+</style>
+
+@for (int i = 0; i < 2; i++)
+{
+    <div class="page">
+        <div class="form-content">
+            <div class="top-header">
+                @{
+                    Html.RenderPartial("HeaderPdf");
+                }
+            </div>
+            <br />
+            <div class="topic-name">
+                @if (i == 0)
+                {
+                    <div style="font-size:18px;font-weight:bold;">ต้นฉบับใบเสร็จรับเงิน</div>
+                    <div style="font-size:18px;font-weight:bold;">ORIGINAL RECEIPT</div>
+                }
+                else
+                {
+                    <div style="font-size:18px;font-weight:bold;">สำเนาใบเสร็จรับเงิน</div>
+                    <div style="font-size:18px;font-weight:bold;">COPY RECEIPT</div>
+                }
+            </div>
+            <br />
+            <div style="width:100%!important;">
+                <table class="table table-bordered" style="width:96%;">
+                    <tr>
+                        <td rowspan="2" colspan="2">
+                            <div style="width:390px;margin-top:10px;display:inline-block">
+                                <div class="topic-customer-name">
+                                    @Model.customer_name
+                                </div>
+                                <div class="topic-customer-address">
+                                    @Model.customer_address
+                                </div>
+                                <div class="topic-customer-tax">
+                                    Tax ID : @Model.customer_tax
+                                </div>
+                            </div>
+                        </td>
+                        <td class="header-topic">
+                            วันที่ / Date :
+                        </td>
+                        <td class="header-topic">
+                            @Model.receipt_date.ToString("dd MMMM yyyy", enCulture)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="header-topic">เลขที่ / NO.</td>
+                        <td class="header-topic">@Model.receipt_part_code</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="4" style="border-left:none!important;border-right:none!important;"></td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:50px" class="topic-body">ลำดับ</td>
+                        <td colspan="2" class="topic-body">รายละเอียด</td>
+                        <td style="width:150px;" class="topic-body">จำนวนเงิน</td>
+                    </tr>
+                    <tr>
+                        <td class="topic-body">No.</td>
+                        <td colspan="2" class="topic-body">Description</td>
+                        <td class="topic-body">Total</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">1.</td>
+                        <td colspan="2">@Model.receipt_name</td>
+                        <td style="text-align:right;">@Model.transport_value.ToString("#,##0.00")</td>
+                    </tr>
+                    @if (Model.is_excharge)
+                    {
+                        <tr>
+                            <td style="text-align:center">2.</td>
+                            <td colspan="2">@Model.excharge_topic</td>
+                            <td style="text-align:right">
+                                @Model.advance_value.ToString("#,##0.00")
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td colspan="2">&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="2">&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" style="text-align:center;vertical-align:middle!important;">@this.ChangeCurrencyToText(Model.transport_value)</td>
+                        <td class="topic-body">ยอดเงินทั้งสิ้น</td>
+                        <td style="text-align:right;padding-right:30px!important;vertical-align:middle!important">@Model.transport_value.ToString("#,##0.00")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="vertical-align:middle!important;font-size:13px;">
+                            <span style="font-weight:bold;">*** หมายเหตุ</span>
+                            <span>@Model.receipt_remark</span>
+                        </td>
+                        <td class="topic-body">เงินสำรองจ่าย</td>
+                        <td style="text-align:right;padding-right:30px!important;vertical-align:middle!important">
+                            @if (Model.advance_value > 0)
+                            {
+                                <span>@Model.advance_value.ToString("#,##0.00")</span>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <br />
+            <div style="font-weight:bold;">ชำระโดย</div>
+            <div style="margin-top:5px;margin-left: 10px;">
+                <div style="font-size:14px;width:100%;">
+                    <div style="display: inline-block;">
+                        <div class="item-box">
+                            @if (Model.receipt_type == "01")
+                            {
+                                <span>&#10004;</span>
+                            }
+                        </div>
+                    </div>
+                    <label style="margin-left:20px">เงินสด</label>
+                </div>
+
+                <div style="margin-top: 5px;">
+                    <div class="item-box">
+                        @if (Model.receipt_type == "02")
+                        {
+                            <span>&#10004;</span>
+                        }
+                    </div>
+                    @if (Model.receipt_type == "02")
+                    {
+                        <div style="position: relative;top:-14px;left:25px;">
+                            <label style="margin-left:20px;">โอนเงิน วันที่</label>
+                            <div style="display:inline-block;border-bottom:1px dashed #000;width:150px;padding-left:10px">
+                                @if (Model.receipt_date.ToString("yyyy") != "0001")
+                                {
+                                    @Model.receipt_date.ToString("dd MMMM yyyy", enCulture)
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="position:relative;top:-14px;">
+                            <label style="margin-left: 45px;">โอนเงิน วันที่</label>
+                            <div style="display:inline-block;border-bottom:1px dashed #000;width:90px;padding-left:10px"></div>
+                        </div>
+                    }
+                </div>
+
+                <div style="margin-top: -8px;">
+                    <div class="item-box">
+                        @if (Model.receipt_type == "03")
+                        {
+                            <span>&#10004;</span>
+                        }
+                    </div>
+                    @if (Model.receipt_type == "03")
+                    {
+                        <div style="position:relative;top:-14px;left:24px;">
+                            <span style="margin-left:20px;">เช็คธนาคาร</span>
+                            <div style="display:inline-block;border-bottom:1px dashed #000;width:140px;padding-left:10px">@Model.bank_name</div>
+                            <span style="margin-left:10px;">สาขา</span>
+                            <div style="display:inline-block;border-bottom:1px dashed #000;width:100px;padding-left:10px">@Model.bank_branch_name</div>
+                            <span style="margin-left:10px;">เลขที่</span>
+                            <div style="display:inline-block;border-bottom:1px dashed #000;width:90px;padding-left:10px">@Model.cheque_no</div>
+                            <span style="margin-left:10px;">ลงวันที่</span>
+                            <div style="display:inline-block;border-bottom:1px dashed #000;width:90px;padding-left:10px">@Model.receipt_date.ToString("dd-MM-yyyy", enCulture)</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span style="margin-left:20px;">เช็คธนาคาร</span>
+                        <div style="display:inline-block;border-bottom:1px dashed #000;width:140px;padding-left:10px">&nbsp;</div>
+                        <span style="margin-left:10px;">สาขา</span>
+                        <div style="display:inline-block;border-bottom:1px dashed #000;width:100px;padding-left:10px">&nbsp;</div>
+                        <span style="margin-left:10px;">เลขที่</span>
+                        <div style="display:inline-block;border-bottom:1px dashed #000;width:90px;padding-left:10px">&nbsp;</div>
+                        <span style="margin-left:10px;">ลงวันที่</span>
+                        <div style="display:inline-block;border-bottom:1px dashed #000;width:90px;padding-left:10px">&nbsp;</div>
+                    }
+                </div>
+            </div>
+            <br />
+            <div>
+                ** ใบเสร็จรับเงินฉบับนี้จะสมบูรณ์เมื่อลงลายมือรับเงินเรียบร้อยแล้ว ถ้าชำระเป็นเช็คจะสมบูรณ์เมือได้รับเงินตามเช็คเรียบร้อยแล้ว
+            </div>
+
+            <div>
+                <div class="stamp">
+                    <div class="stamp-img">
+                        @{
+                            Html.RenderPartial("StampPdf");
+                        }
+                    </div>
+                </div>
+                <table style="width:100%;font-size:13px;margin-top:-105px;">
+                    <tr>
+                        <td style="text-align:center;font-weight:bold;">ได้รับชำระเงินไว้ถูกต้องแล้ว<br />Payment received with thanks</td>
+                        <td style="text-align:center;font-weight:bold;">ในนาม บริษัทเอวา โกลบอล โลจิสติกส์ จำกัด<br />For AVA GLOBAL LOGISTICS CO.,LTD</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;font-weight:bold;height:120px">
+                            <div class="receiver-topic">
+                                _____________________________<br />ลายมือชือผู้รับเงิน / Receipt Signature
+                            </div>
+                        </td>
+                        <td style="text-align:center;font-weight:bold;">
+                            <div class="sign">
+                                <div class="sign-img">
+                                    @{
+                                        Html.RenderPartial("SignJutaratPdf");
+                                    }
+                                </div>
+                            </div>
+                            <div class="approve-topic">
+                                _____________________________<br />
+                                ลายมือผู้มีอำนาจลงนาม / Authorized Signature
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    if (i == 0)
+    {
+        <div style='page-break-before: always;'></div>
+    }
+}
+
+@functions {
+    private string ChangeCurrencyToText(decimal val)
+    {
+        string bahtTxt, n, bahtTH = "";
+        double amount;
+        try { amount = Convert.ToDouble(val); }
+        catch { amount = 0; }
+        bahtTxt = amount.ToString("####.00");
+        string[] num = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ" };
+        string[] rank = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        string[] temp = bahtTxt.Split('.');
+        string intVal = temp[0];
+        string decVal = temp[1];
+        if (Convert.ToDouble(bahtTxt) == 0)
+            bahtTH = "ศูนย์บาทถ้วน";
+        else
+        {
+            for (int i = 0; i < intVal.Length; i++)
+            {
+                n = intVal.Substring(i, 1);
+                if (n != "0")
+                {
+                    if ((i == (intVal.Length - 1)) && (n == "1"))
+                        bahtTH += "เอ็ด";
+                    else if ((i == (intVal.Length - 2)) && (n == "2"))
+                        bahtTH += "ยี่";
+                    else if ((i == (intVal.Length - 2)) && (n == "1"))
+                        bahtTH += "";
+                    else
+                        bahtTH += num[Convert.ToInt32(n)];
+                    bahtTH += rank[(intVal.Length - i) - 1];
+                }
+            }
+            bahtTH += "บาท";
+            if (decVal == "00")
+                bahtTH += "ถ้วน";
+            else
+            {
+                for (int i = 0; i < decVal.Length; i++)
+                {
+                    n = decVal.Substring(i, 1);
+                    if (n != "0")
+                    {
+                        if ((i == decVal.Length - 1) && (n == "1"))
+                            bahtTH += "เอ็ด";
+                        else if ((i == (decVal.Length - 2)) && (n == "2"))
+                            bahtTH += "ยี่";
+                        else if ((i == (decVal.Length - 2)) && (n == "1"))
+                            bahtTH += "";
+                        else
+                            bahtTH += num[Convert.ToInt32(n)];
+                        bahtTH += rank[(decVal.Length - i) - 1];
+                    }
+                }
+                bahtTH += "สตางค์";
+            }
+        }
+        return bahtTH;
+    }
+
+}

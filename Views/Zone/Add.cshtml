@@ -1,0 +1,154 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblZone
+@{
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "place";
+    ViewBag.SubActive = "zone";
+    ViewBag.Title = "ข้อมูลโซนที่ตั้ง";
+    var list = (List<TMSWeb.Models.Entities.LOG.TblFuelRate>)ViewBag.Rate;
+}
+@section Styles {
+    <style>
+        th {
+            text-align: center;
+            font-size: 13px !important;
+            background-color: #f1f4f7
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <li>
+                <a href="javascript:;">ข้อมูลหลัก</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="javascript:;">ข้อมูลสถานที่</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="/zone/">ข้อมูลโซนที่ตั้ง</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="/zone/add">เพิ่ม</a>
+            </li>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> เพิ่มรายการ</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("AddZoneData", "Zone", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+            {
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>
+                                        โซน
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ZoneName, new
+                                    {
+                                        id = "txtName",
+                                        Class = "form-control",
+                                        autocomplete = "Off"
+                                    })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="@list.Count()">เรทน้ำมัน</th>
+                                        </tr>
+                                        <tr>
+                                            <th>4TR</th>
+                                            <th>6TR</th>
+                                            <th>10TR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text" class="form-control form-number" name="tr4"
+                                                       autocomplete="Off" />
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control form-number" name="tr6"
+                                                       autocomplete="Off" />
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control form-number" name="tr10"
+                                                       autocomplete="Off" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/zone/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+        }(jQuery));
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtName: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์โซน"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}

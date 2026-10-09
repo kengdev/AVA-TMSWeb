@@ -1,0 +1,30 @@
+@model List<TMSWeb.Models.ViewModels.JobViewModel>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td style="padding-left: 10px;">
+            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                <input type="checkbox" class="checkboxes item-checked" value="@item.job_detail_code" onclick="checkboxFunc(this)"
+                       name="listChecked[]" />
+                <span></span>
+            </label>
+            <input type="hidden" value="@item.cost_value" name="listValue[]" class="total-val" disabled />
+        </td>
+        <td>
+            <div class="text-center">@item.job_date</div>
+        </td>
+        <td>
+            <div class="text-center">@item.job_invoice</div>
+        </td>
+        <td>
+            <div>@item.mission_name</div>
+        </td>
+        <td>
+            <div class="text-center">@item.container_no</div>
+        </td>
+        <td>
+            <div class="text-right">@item.cost_value</div>
+        </td>
+    </tr>
+}

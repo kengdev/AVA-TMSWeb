@@ -1,0 +1,103 @@
+﻿@model TMSWeb.Models.Entities.LOG.ViewJobListActive
+@{
+    Layout = null;
+}
+@Html.HiddenFor(m => m.JobDetailCode, new { id = "job_detail_code" })
+@Html.HiddenFor(m => m.JobType, new { id = "job_type" })
+@Html.HiddenFor(m => m.ContainerSizeCode, new { id = "container_size" })
+@Html.HiddenFor(m => m.SupplierCode, new { id = "supplyer_code" })
+<div class="modal-wrapper-content-title">
+    <div class="text-center" style="width:550px">
+        <div class="title-modal">
+            ปรับปรุงข้อมูลงานเลขที่ @Model.JobDetailCode | @Model.TruckLicense
+        </div>
+
+        <div class="form-content">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>ทะเบียนหาง</label>
+                        @Html.TextBoxFor(m => m.TrailerLicense, new { id = "trailer_license", @Class = "form-control", autocomplete = "off" })
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>เบอร์ตู้</label>
+                        @Html.TextBoxFor(m => m.ContainerNo, new { id = "container_no", @Class = "form-control", autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>เบอร์ซีล</label>
+                        @Html.TextBoxFor(m => m.SealNo, new { id = "seal_no", @Class = "form-control", autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Tare weight</label>
+                        @Html.TextBoxFor(m => m.TareWeight, new { id = "tare_weight", @Class = "form-control", autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>วันที่</label>
+                        @Html.TextBoxFor(m => m.JobDate, "{0:yyyy-MM-dd HH:mm}", new { id = "job_date", @Class = "form-control datetimepicker", autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.JobType != "FLOOR")
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>สถานที่คืนตู้</label>
+                            <div class="input-group">
+                                @Html.TextBoxFor(m => m.FinishCode, new { id = "finish_code", @Class = "form-control", autocomplete = "off" })
+                                <span class="input-group-btn">
+                                    <button class="btn red btn-sm" type="button" onclick="searchPlaceFunc('F')">ค้นหา</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>ชื่อสถานที่คืนตู้</label>
+                            @Html.TextBox("txtDisFinishName", Model.FinishName, new { @Class = "form-control", disabled = "Disabled" })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="actions-modal pull-right">
+            <div id="wrapper-action-modal">
+                <a onclick="closeModal()" href="javascript:;">ยกเลิก</a> |
+                <button type="button" onclick="setUpdate()" class="btn btn-sm btn-info">บันทึกข้อมูล</button>
+            </div>
+            <div id="spin-item">
+                <div class="loader09"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    (function($) {
+        $('.datetimepicker').datetimepicker({
+            datepicker: true,
+            timepicker: true,
+            lang: 'th',
+            step: 30,
+            format: 'Y-m-d H:i',
+            inline: false
+        });
+    }(jQuery));
+</script>

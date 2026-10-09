@@ -1,0 +1,412 @@
+@model TMSWeb.Models.ViewModels.SalaryFormViewModel
+@{
+    Layout = null;
+    var detail = Model.detail;
+    var profile = detail.EmpCodeNavigation;
+    var incomRow = 14 - (Model.addition.Count() + 2);
+    var dedictRow = 15 - (Model.deduction.Count() + 4);
+}
+<link href="~/css/site/form.css" rel="stylesheet" type="text/css" media="print">
+<style>
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+        width: 100%;
+    }
+
+    .header-col-1 {
+        width: 60px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 350px;
+        float: left;
+        display: inline-block;
+        font-size: 11px;
+    }
+
+    .header-col-3 {
+        float: right;
+        text-align: center;
+        display: inline-block
+    }
+
+
+    .doc-type {
+        text-align: center !important;
+        width: 100%;
+    }
+
+    .doc-type-content {
+        margin-top: 5px;
+        padding: 3px;
+        border: 1px solid black;
+        border-radius: 7px !important;
+        width: 100px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .doc-name {
+        text-align: center;
+        margin-top: 7px;
+    }
+
+    .employee-detail {
+        font-size: 13px !important;
+        width: 100% !important;
+    }
+
+        .employee-detail div {
+            display: inline-block;
+        }
+
+        .employee-detail .left {
+            width: 45% !important;
+            text-align: left;
+        }
+
+        .employee-detail .right {
+            width: 50% !important;
+            text-align: right;
+        }
+
+    .payment-detail {
+        display: inline-block;
+        font-size: 13px;
+    }
+
+    div.clear-float {
+        clear: both;
+    }
+
+    div.row:after {
+        display: table;
+        clear: both;
+        width: 100%;
+        vertical-align: top;
+        font-size: 13px;
+    }
+
+    div.column {
+        float: left;
+        width: 49.5%;
+        padding: 10px;
+        border: 1px solid rgb(96, 96, 96);
+    }
+
+    div.list-incoming {
+        border-left: 2px solid rgb(96, 96, 96);
+        border-top: 2px solid rgb(96, 96, 96);
+        padding: 0;
+    }
+
+    div.list-dediction {
+        border-top: 2px solid rgb(96, 96, 96);
+        padding: 0;
+    }
+
+    div.list-total {
+        border-right: 2px solid rgb(96, 96, 96);
+        border-top: 2px solid rgb(96, 96, 96);
+        padding: 0;
+    }
+
+    div.total-payment {
+        float: left;
+        width: 32%;
+        padding: 10px;
+        border: 1px solid rgb(96, 96, 96);
+    }
+
+    .table-incoming {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+    }
+
+        .table-incoming tr,
+        .table-dediction tr,
+        .table-total tr {
+            border-bottom: 1px solid rgb(96, 96, 96);
+        }
+
+        .table-incoming th,
+        .table-dediction th,
+        .table-total th,
+        .table-incoming td,
+        .table-dediction td,
+        .table-total td {
+            padding: 3px;
+            padding-right: 7px;
+            padding-left: 7px;
+            font-size: 11px;
+        }
+
+    td.itemSummary {
+        text-align: right;
+        font-weight: bold;
+        font-size: 11px !important;
+    }
+
+    .itemValue {
+        border-left: 1px solid rgb(96, 96, 96);
+        text-align: right;
+        width: 45px;
+        font-size: 11px;
+    }
+
+    .blankRow {
+        text-align: center;
+    }
+
+    .net-total {
+        width: 100%;
+        border-bottom: 2px solid rgb(96, 96, 96);
+    }
+
+    .table-total-payment {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 11px;
+    }
+
+        .table-total-payment td.topic {
+            font-weight: bold;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .table-total-payment td.total {
+            text-align: right;
+            width: 123px;
+            height: 40px;
+            font-weight: bold;
+            font-size: 12px;
+            padding-right: 9px;
+        }
+
+    .fund {
+        width: 100%;
+    }
+
+    .table-total-fund {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 11px;
+    }
+
+        .table-total-fund td.topic {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .table-total-fund td.total {
+            text-align: right;
+            width: 123px;
+            font-size: 12px;
+            padding-right: 9px;
+        }
+
+    .footer {
+        margin-top: 20px;
+        font-size: 11px;
+    }
+
+        .footer div.remark {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .footer div.list-footer {
+            padding-left: 20px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+
+    @@media all {
+        .page-break {
+            display: block;
+            page-break-after: always !important;
+        }
+    }
+
+    @@media print {
+
+        html,
+        body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: block;
+            page-break-after: always !important;
+        }
+    }
+</style>
+<div class="page">
+    <div class="form-content">
+        <div class="top-header">
+            @{
+                Html.RenderPartial("HeaderPdfSM");
+            }
+            <div class="header-col-3 pull-right bold">
+                <div class="owner-doc-wrapper">
+                    <div class="doc-type">
+                        <div class="doc-type-content">
+                            <div>ใบแจ้งเงินเดือน</div>
+                            <div>(PAY SLIP)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="clear-float"></div>
+            <div class="employee-detail" style="margin-top: 20px;">
+                <div class="left">
+                    รหัสพนักงาน : @profile.EmpCode
+                </div>
+            </div>
+
+            <div class="employee-detail">
+                <div class="left">
+                    ชื่อ-นามสกุล : @profile.EmpFullname
+                </div>
+
+                <div class="right">
+                    ตำแหน่ง : @Model.departments.DeptName
+                </div>
+            </div>
+
+            <div class="employee-detail" style="margin-top: 5px;">
+                <div class="left">
+                    เงินเดือนประจำงวด : @Model.payment_month
+                </div>
+
+                <div class="right">
+                    วันที่จ่าย : @Model.payment_date.ToString("dd-MM-yyyy")
+                </div>
+            </div>
+
+            <div class="clear-float"></div>
+
+            <div class="row" style="margin-top: 10px;">
+                <div class="list-incoming column">
+                    <table class="table-incoming">
+                        <tr>
+                            <th colspan="2" class="font-sm">รายได้ (Income)</th>
+                        </tr>
+                        <tr>
+                            <td>เงินเดือนค่าจ้าง</td>
+                            <td class="itemValue">@detail.IncomingSalary.ToString("#,##0.00")</td>
+                        </tr>
+                        <tr>
+                            <td>เบี้ยขยัน</td>
+                            <td class="itemValue">@detail.IncomingDiligence.ToString("#,##0.00")</td>
+                        </tr>
+                        @foreach (var item in Model.addition)
+                        {
+                            <tr>
+                                <td>@item.PaymentAdditionName</td>
+                                <td class="itemValue">@item.PaymentValue.ToString("#,##0.00")</td>
+                            </tr>
+                        }
+                        @for (int i = 0; i <= incomRow; i++)
+                        {
+                            <tr>
+                                <td class="blankRow">-</td>
+                                <td class="itemValue blankRow">-</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td class="itemSummary">รวมเงินได้</td>
+                            <td class="itemValue itemSummary">@detail.IncomingTotal.ToString("#,##0.00")</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="list-dediction column">
+                    <table class="table-incoming">
+                        <tr>
+                            <th colspan="2">รายการหัก (Dediction)</th>
+                        </tr>
+                        <tr>
+                            <td>ประกันสังคม</td>
+                            <td class="itemValue">@detail.DedictionSso.ToString("#,##0.00")</td>
+                        </tr>
+                        <tr>
+                            <td>หักขาดงาน</td>
+                            <td class="itemValue">@detail.DedictionAbsent.ToString("#,##0.00")</td>
+                        </tr>
+                        <tr>
+                            <td>หักเงินประกัน</td>
+                            <td class="itemValue">@detail.DedictionSecure.ToString("#,##0.00")</td>
+                        </tr>
+                        @foreach (var item in Model.deduction)
+                        {
+                            <tr>
+                                <td>@item.PaymentDedictionName</td>
+                                <td class="itemValue">@item.PaymentValue.ToString("#,##0.00")</td>
+                            </tr>
+                        }
+                        @for (int i = 0; i <= dedictRow; i++)
+                        {
+                            <tr>
+                                <td class="blankRow">-</td>
+                                <td class="itemValue blankRow">-</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td class="itemSummary">รวมเงินหัก</td>
+                            <td class="itemValue itemSummary">@detail.DedictionTotal.ToString("#,##0.00")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+                <div class="net-total">
+                    <table class="table-total-payment">
+                        <tr>
+                            <td class="topic">รายได้สุทธิ</td>
+                            <td class="total">@detail.PaymentTransfer.ToString("#,##0.00")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+                <div class="fund">
+                    <table class="table-total-fund">
+                        <tr>
+                            <td class="topic">เงินประกันสะสม</td>
+                            <td class="total">@Model.fund.SecureBalanceValue.ToString("#,##0.00")</td>
+                            <td class="topic">ประกันสังคมสะสม</td>
+                            <td class="total">@Model.fund.SsoBalanceValue.ToString("#,##0.00")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="remark">
+                หมายเหตุ : @detail.Remark
+            </div>
+            <div class="list-footer">
+                *** เงินประกันเริ่ม @Model.start_date
+            </div>
+            <div class="list-footer">
+                *** เงินประกันความเสียหายจะคืนให้ก็ต่อเมื่อสิ้นสุดการเป็นพนักงาน และต้องแจ้งล่วงหน้า 30 วัน**
+            </div>
+            <div class="list-footer">
+                ***เงินประกันสะสมจะหักเดือนละ 1,000 บาท ติดต่อกัน 10 เดือนเท่านั้น **
+            </div>
+        </div>
+    </div>
+</div>

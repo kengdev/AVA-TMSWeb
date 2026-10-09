@@ -1,0 +1,304 @@
+@{
+    ViewBag.TopActive = "Rate";
+    ViewBag.MidActive = "fleetrate";
+    ViewBag.Title = "เรทการคำนวณเงิน";
+}
+@section Styles {
+    <style>
+        table.dataTable td, table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        .dataTables_length {
+            position: relative;
+            top: 5px;
+        }
+
+        .dataTables_length {
+            /*display: none;*/
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        .table th {
+            padding-left: 20px !important;
+        }
+
+        .table td {
+            height: 25px;
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+        }
+
+        .rate-td {
+            width: 130px !important;
+            text-align: right;
+        }
+
+        .value-content {
+            width: 80px;
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .type-td {
+            width: 90px !important;
+        }
+
+        .zone-td {
+            width: 150px !important;
+        }
+
+        .rate {
+            padding: 0;
+            height: 25px !important;
+            padding-left: 5px !important;
+            display: none;
+        }
+
+        .btnEdit {
+            color: #c4b505;
+            font-size: 14px;
+        }
+
+        .btnSave {
+            display: none;
+            font-size: 14px;
+        }
+
+        .btnCancel {
+            display: none;
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การคำนวณเงิน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">ข้อมูลเรทจ่ายเงินรถภายใน</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการเรทจ่ายเงินรถภายใน</span>
+                </div>
+                <div class="actions">
+                    <div class="btn-group btn-group-devided" data-toggle="buttons">
+                    </div>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered table-hover table-checkable order-column" id="table-rate">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2"> สังกัด</th>
+                                    <th rowspan="2"> ชื่อสถานที่</th>
+                                    <th rowspan="2"> โซนการส่งสินค้า</th>
+                                    <th colspan="3" style="text-align: center!important;"> เรทราคา</th>
+                                </tr>
+                                <tr>
+                                    <th style="text-align: center!important;"> 4W</th>
+                                    <th style="text-align: center!important;"> 6W</th>
+                                    <th style="text-align: center!important;"> 10W</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr role="row" class="heading">
+                                    <th class="filter"> @Html.DropDownList("supplyer_code", null, new { @Class = "form-control filterDropdown" })</th>
+                                    <th class="filter"><input type="text" class="form-control filterText" id="filterMission" /></th>
+                                    <th class="filter"><input type="text" class="form-control filterText" id="filterZone" /></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#table-rate').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [[1, "desc"]],
+                "sAjaxSource": "/AllowanceRate/GetFleetRateDataList",
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "filterMission", "value": $("#filterMission").val() });
+                    aoData.push({ "name": "filterSupplier", "value": $("#supplyer_code").val() });
+                    aoData.push({ "name": "filterZone", "value": $("#filterZone").val() });
+                },
+                "fnRowCallback": function(row, aData, index) {
+                    var x4 = number_format(aData.rate_4W_value)
+                    var x6 = number_format(aData.rate_6W_value)
+                    var x10 = number_format(aData.rate_10W_value)
+
+                    var t4W = "<div class='value-content'><span>" + x4 + "</span>";
+                    t4W += "<input type='text' value='" + aData.rate_4W_value + "' class='form-control rate' /> </div>";
+                    t4W += "<a href='javascript:;' class='btnEdit' onclick='edit(this)'><i class='fad fa-pencil'></i></a>&nbsp;&nbsp;";
+                    t4W += "<a href='javascript:;' class='btnSave' onclick=save(this,'" + aData.supplyer_code + "','" + aData.place_code + "','4W')><span class='fad fa-save'></span></a>&nbsp;&nbsp;";
+                    t4W += "<a href='javascript:;' class='btnCancel' onclick='cancel(this)'><span class='fal fa-times'></span></a>";
+
+                    var t6W = "<div class='value-content'><span>" + x6 + "</span>";
+                    t6W += "<input type='text' value='" + aData.rate_6W_value + "' class='form-control rate' /> </div>";
+                    t6W += "<a href='javascript:;' class='btnEdit' onclick='edit(this)'><i class='fad fa-pencil'></i></a>&nbsp;&nbsp;";
+                    t6W += "<a href='javascript:;' class='btnSave' onclick=save(this,'" + aData.supplyer_code + "','" + aData.place_code + "','6W')><span class='fad fa-save'></span></a>&nbsp;&nbsp;";
+                    t6W += "<a href='javascript:;' class='btnCancel' onclick='cancel(this)'><span class='fal fa-times'></span></a>";
+
+                    var t10W = "<div class='value-content'><span>" + x10 + "</span>";
+                    t10W += "<input type='text' value='" + aData.rate_10W_value + "' class='form-control rate' /> </div>";
+                    t10W += "<a href='javascript:;' class='btnEdit' onclick='edit(this)'><i class='fad fa-pencil'></i></a>&nbsp;&nbsp;";
+                    t10W += "<a href='javascript:;' class='btnSave' onclick=save(this,'" + aData.supplyer_code + "','" + aData.place_code + "','10W')><span class='fad fa-save'></span></a>&nbsp;&nbsp;";
+                    t10W += "<a href='javascript:;' class='btnCancel' onclick='cancel(this)'><span class='fal fa-times'></span></a>";
+
+                    $('td', row).eq(3).html(t4W);
+                    $('td', row).eq(4).html(t6W);
+                    $('td', row).eq(5).html(t10W);
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "name-td", targets: 0 },
+                    { className: "name-td", targets: 1 },
+                    { className: "zone-td", targets: 2 },
+                    { className: "rate-td", targets: 3 },
+                    { className: "rate-td", targets: 4 },
+                    { className: "rate-td", targets: 5 }
+                ],
+                "columns":
+                    [
+                        { "data": "supplyer_name", "orderable": false },
+                        { "data": "place_name" },
+                        { "data": "zone_name" },
+                        { "data": "rate_4W_value", "orderable": false },
+                        { "data": "rate_6W_value", "orderable": false },
+                        { "data": "rate_10W_value", "orderable": false }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-rate tfoot tr').appendTo('#table-rate thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-rate').dataTable()._fnAjaxUpdate();
+            });
+
+            $('.filterDropdown').change(function() {
+                $('#table-rate').dataTable()._fnAjaxUpdate();
+            });
+        }(jQuery));
+
+        function cancel(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $(item).prev().prev().prev().find('.rate').hide();
+            $(item).prev().prev().prev().find('span').show();
+        }
+
+        function edit(item) {
+            $(item).prev().find('span').hide();
+            $(item).prev().find('.rate').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function save(item, supplier_code, place_code, type) {
+            var x = $(item).prev().prev().find('.rate').val();
+            $(item).next().hide();
+            $(item).prev().hide();
+            $(item).hide();
+            $(item).prev().prev().html('<div class="spin-item"><div class="loader10-sm"></div></div>');
+            $.post("/AllowanceRate/EditFleetRate",
+                {
+                    value: x,
+                    supplier_code: supplier_code,
+                    place_code: place_code,
+                    type: type
+                }, function(data) {
+                    if (data.result == true) {
+                        reloadRow();
+                    } else {
+                        jAlert('ผลการทำงาน', data.resultMessage);
+                        reloadRow();
+                    }
+                });
+        }
+
+        function reloadRow() {
+            $("#table-rate").DataTable().ajax.reload();
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}

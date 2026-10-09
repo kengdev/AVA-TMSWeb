@@ -1,0 +1,43 @@
+﻿@{
+    string current_month = DateTime.Now.ToString("MMMM");
+}
+
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <!-- BEGIN PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-bar-chart hide"></i>
+                    <span class="caption-subject bold">Graph Daily trip</span>
+                    <span class="caption-helper">@DateTime.Now.ToString("MM-yyyy")</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div id="render-daily-trips" align="center"></div>
+            </div>
+        </div>
+        <!-- END PORTLET-->
+    </div>
+
+    <div class="col-lg-6 col-xs-6 col-sm-6">
+        <!-- BEGIN PORTLET-->
+        <div class="portlet light tasks-widget bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-bar-chart hide"></i>
+                    <span class="caption-subject bold">สถานะการใช้งานรถปัจจุบัน</span>
+                    <span class="caption-helper">Thursday - Wednesday</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                @await Component.InvokeAsync("EntryChartTruckLoad")
+            </div>
+        </div>
+        <!-- END PORTLET-->
+    </div>
+</div>

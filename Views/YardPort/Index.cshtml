@@ -1,0 +1,271 @@
+﻿@{
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "place";
+    ViewBag.SubActive = "yardport";
+    ViewBag.Title = "ข้อมูลท่าเรือและลานตู้";
+}
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลหลัก</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">ข้อมูลสถานที่</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/yardport/">ข้อมูลท่าเรือและลานตู้</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการข้อมูลท่าเรือและลานตู้</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <button type="button" class="btn btn-sm purple" onclick="setAddPort()">เพิ่มท่าเรือ</button>
+                            <button type="button" class="btn btn-sm red" onclick="setAddYard()">เพิ่มลานตู้</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover table-checkable order-column" id="table-place">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ชื่อท่าเรือ/ลานตู้</th>
+                            <th>ประเภท</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter"></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterNameTH" /></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterNameEN" /></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#table-place').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [
+                    [1, "desc"]
+                ],
+                "sAjaxSource": "/yardport/GetYardPortDataList",
+                "fnRowCallback": function(row, aData, index) {
+                    if (!aData.is_actived)
+                        $(row).addClass('inactive');
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({
+                        "name": "filterNameTH",
+                        "value": $("#filterNameTH").val()
+                    });
+                    aoData.push({
+                        "name": "filterNameEN",
+                        "value": $("#filterNameEN").val()
+                    });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [{
+                    className: "action-3-td text-center",
+                    targets: 0
+                },
+                {
+                    className: "name-td",
+                    targets: 1
+                },
+                {
+                    className: "code-td",
+                    targets: 2
+                },
+                ],
+                "columns": [{
+                    "data": "yardport_code",
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        var modify =
+                            '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' +
+                            data + '","' + row.yardport_type +
+                            '")><i class="fad fa-pencil-alt"></i></a>';
+                        var remove =
+                            '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' +
+                            data + '")><i class="fad fa-trash-alt"></i></a>';
+                        var active =
+                            '<a class="btn btn-xs green-jungle" href="javascript:;" data-title="เปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setActive("' +
+                            data + '")><i class="fa fa-check"></i></a>';
+                        var inactive =
+                            '<a class="btn btn-xs grey" href="javascript:;" data-title="ปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setInactive("' +
+                            data + '")><i class="fa fa-times"></i></a>';
+
+                        if (row.is_actived) {
+                            return inactive + remove + modify;
+                        } else {
+                            return active + remove;
+                        }
+                    }
+                },
+                {
+                    "data": "yardport_name"
+                },
+                {
+                    "data": "yardport_type"
+                }
+                ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-place tfoot tr').appendTo('#table-place thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-place').dataTable()._fnAjaxUpdate();
+            });
+        }(jQuery));
+
+        function reloadRow() {
+            $("#table-place").DataTable().ajax.reload();
+        }
+
+        function setAddPort() {
+            var url = '/yardport/addport';
+            window.location = url;
+        }
+
+        function setAddYard() {
+            var url = '/yardport/addyard';
+            window.location = url;
+        }
+
+        function setEdit(code, type) {
+            var url = '';
+            if (type == "YARD") {
+                url = '/yardport/edityard?code=' + code;
+                window.location = url;
+            } else {
+                url = '/yardport/editport?code=' + code;
+                window.location = url;
+            }
+        }
+
+        function setDisabled(code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/YardPort/Remove", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-place').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        function setActive(code) {
+            $.alert.open('confirm', 'คุณต้องการเปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/YardPort/Active", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-place').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        function setInactive(code) {
+            $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/YardPort/Inactive", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-place').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

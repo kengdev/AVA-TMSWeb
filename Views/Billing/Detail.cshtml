@@ -1,0 +1,463 @@
+﻿@model List<TMSWeb.Models.ViewModels.BillingViewModel>
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "รายละเอียดรายการวางบิล";
+    var data = Model.FirstOrDefault();
+    var total = Model.Sum(s => s.cost_value);
+    var amount = Model.Count();
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+    <style>
+        .todo-tasklist {
+            padding-left: 20px;
+        }
+
+        .action-td {
+            text-align: center;
+            width: 150px;
+        }
+
+        .highlight {
+            border-left: none !important;
+        }
+
+        .table td {
+            font-size: 13px !important;
+        }
+
+        th {
+            font-size: 13px !important;
+            font-weight: bold !important;
+            text-align: center !important;
+        }
+
+        table.dataTable thead td {
+            border-bottom: 0;
+        }
+
+        table.dataTable tfoot td {
+            border-top: 0;
+        }
+
+        th,
+        td {
+            font-size: 13px !important;
+        }
+
+            td.topic {
+                width: 150px !important;
+            }
+
+        .code-content {
+            width: 140px;
+            display: inline-block;
+        }
+
+        .value-content {
+            display: inline-block;
+            width: 65%;
+        }
+
+        .rate {
+            padding: 0 !important;
+            height: 25px;
+            padding-left: 3px !important;
+            display: none;
+            width: 150px !important;
+            font-size: 12px !important;
+        }
+
+        .booking,
+        .invoice,
+        .container {
+            width: 130px;
+        }
+
+        .btnEdit,
+        .btnEditAdvance {
+            color: #c4b505;
+        }
+
+        .btnSave {
+            display: none;
+            font-size: 16px;
+        }
+
+        .btnCancel {
+            display: none;
+            color: red;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .title-modal {
+            width: 100%;
+            height: 32px;
+            background-color: #0094ff;
+            padding: 5px;
+            padding-top: 7px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        a.close-modal {
+            color: #337ab7 !important;
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        .form-content {
+            background: #fff;
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-right: 15px;
+            padding-bottom: 20px;
+        }
+    </style>
+}
+<div class="col-md-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-clipboard-list"></i>
+                <span class="caption-subject bold uppercase"> รายละเอียดการวางบิล</span>
+                <span class="caption-helper">[งานเลขที่ @data.billing_code]</span>
+            </div>
+            <div class="actions">
+                <div class="btn-group btn-group-devided" data-toggle="buttons">
+                </div>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-scrollable table-scrollable-borderless">
+                        <table class="table table-light">
+                            <tr>
+                                <td class="topic">
+                                    <span class="font-green-sharp">เลขที่</span>
+                                </td>
+                                <td> @data.billing_code</td>
+                            </tr>
+                            <tr>
+                                <td class="topic">
+                                    <span class="font-green-sharp">ประเภท</span>
+                                </td>
+                                <td>
+                                    @if (data.billing_type == "M")
+                                    {
+                                        <span>รวม</span>
+                                    }
+                                    else if (data.billing_type == "T")
+                                    {
+                                        <span>ค่าขนส่ง</span>
+                                    }
+                                    else if (data.billing_type == "A")
+                                    {
+                                        <span>สำรองจ่าย</span>
+                                    }
+                                    else if (data.billing_type == "O")
+                                    {
+                                        <span>สำรองจ่ายอื่น ๆ</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="topic">
+                                    <span class="font-green-sharp">ลูกค้า</span>
+                                </td>
+                                <td> @data.customer_name</td>
+                            </tr>
+                            <tr>
+                                <td class="topic">
+                                    <span class="font-green-sharp">สถานที่</span>
+                                </td>
+                                <td> @data.mission_name</td>
+                            </tr>
+                            <tr>
+                                <td class="topic">
+                                    <span class="font-green-sharp">วันที่</span>
+                                </td>
+                                <td> @data.billing_date_value.ToString("dd MMMM yyyy") </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table data-toggle="table" id="list-detail" data-height="300">
+                        <thead>
+                            <tr>
+                                <th data-align="center" data-width="110">วันที่</th>
+                                <th data-align="center" data-width="220">Booking</th>
+                                <th data-align="center" data-width="220">Invoice/Job</th>
+                                <th data-align="center" data-width="220">Container</th>
+                                <th data-align="right" data-width="220">ค่าเที่ยว</th>
+                                <th data-align="right" data-width="170">สำรองจ่าย</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.job_date</td>
+                                    <td>
+                                        <div class="code-content">
+                                            <span>@item.booking_no</span>
+                                            <input type="text" value="@item.booking_no" class="form-control rate booking" />
+                                        </div>
+                                        <div style="display:inline-block;">
+                                            <a href="javascript:;" class="btnEdit" onclick="edit(this)">
+                                                <i class='fad fa-pencil'></i>
+                                            </a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnSave"
+                                               onclick="savecode(this,'@item.job_detail_code','booking')">
+                                                <i class='fad fa-save'></i>
+                                            </a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnCancel" onclick="cancel(this)">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="code-content">
+                                            <span>@item.invoice_no</span>
+                                            <input type="text" value="@item.invoice_no" class="form-control rate invoice" />
+                                        </div>
+                                        <div style="display:inline-block">
+                                            <a href="javascript:;" class="btnEdit" onclick="edit(this)">
+                                                <i class='fad fa-pencil'></i>
+                                            </a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnSave"
+                                               onclick="savecode(this,'@item.job_detail_code','invoice')">
+                                                <i class='fad fa-save'></i>
+                                            </a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnCancel" onclick="cancel(this)">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="code-content">
+                                            <span>@item.container_no</span>
+                                            <input type="text" value="@item.container_no" class="form-control rate container" />
+                                        </div>
+                                        <div style="display:inline-block">
+                                            <a href="javascript:;" class="btnEdit" onclick="edit(this)">
+                                                <i class='fad fa-pencil'></i>
+                                            </a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnSave"
+                                               onclick="savecode(this,'@item.job_detail_code','container')">
+                                                <i class='fad fa-save'></i>
+                                            </a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnCancel" onclick="cancel(this)">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="value-content">
+                                            <span>@item.transport_value.ToString("#,##0.00")</span>
+                                            <input type="text" value="@item.transport_value" class="form-control rate" />
+                                        </div>
+                                        <div style="display:inline-block;width:30%!important;padding-right:7px;">
+                                            <a href="javascript:;" class="btnEdit" onclick="edit(this)"><i class='fad fa-pencil'></i></a>&nbsp;&nbsp;
+                                            <a href="javascript:;" class="btnSave" onclick="save(this, '@item.billing_code', '@item.job_detail_code')"><i class='fad fa-save'></i></a>&nbsp;&nbsp; <a href="javascript:;" class="btnCancel" onclick="cancel(this)"><i class="fa fa-times"></i></a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="value-content">
+                                            <span>@item.advance_value.ToString("#,##0.00")</span>
+                                        </div>
+
+                                        <a href="javascript:;" style="margin-right:7px!important;" class="btnEditAdvance"
+                                           onclick="editadvance('@item.job_detail_code')"><i class='fad fa-pencil'></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form-content" style="display:none;">
+    @using (Html.BeginForm("EditAdvanceDetailData", "Billing", FormMethod.Post, new
+    {
+        id = "frmEdit",
+        onsubmit =
+    "return OnValidate()"
+    }))
+    {
+        <input type="hidden" name="billing_code" value="@data.billing_code" />
+        <input type="hidden" name="AdvanceCode" id="txtAdvance" />
+        <div id="modal-wrapper-content-title">
+            <div style="width:550px;">
+                <div class="title-modal">
+                    แก้ไขรายการเงินสำรองจ่าย
+                </div>
+
+                <div class="form-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-sm font-grey-mint">ค่าผ่านลาน/ผ่านท่า</label>
+                                        <input type="text" id="txtYard" name="AdvanceYard" class="form-control input-sm" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-sm font-grey-mint">ค่าผ่านลาน/ผ่านท่า</label>
+                                        <input type="text" id="txtPort" name="AdvancePort" class="form-control input-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-sm font-grey-mint">ค่ายก (ตู้เปล่า)</label>
+                                        <input type="text" id="txtLiftOn" name="AdvanceLiftOn" class="form-control input-sm" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-sm font-grey-mint">ค่ายก (ตู้หนัก)</label>
+                                        <input type="text" id="txtLiftOff" name="AdvanceLiftOff" class="form-control input-sm" />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-modal pull-right">
+                    <div id="wrapper-action-modal">
+                        <a onclick="closeModal()" href="javascript:;">ยกเลิก</a> |
+                        <button type="submit" onclick="setUpdate()" class="btn btn-sm btn-info">บันทึกข้อมูล</button>
+                    </div>
+                    <div id="spin-item">
+                        <div class="loader09"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayDiv();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        closeModal();
+                        window.location.reload();
+                        window.opener.reloadRow();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+        }(jQuery));
+
+        function cancel(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $(item).closest('td').find('span').show();
+            $(item).closest('td').find('.rate').hide();
+        }
+
+        function edit(item) {
+            $(item).closest('td').find('span').hide();
+            $(item).closest('td').find('.rate').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function editadvance(code) {
+            $.post("/billing/GetAdvanceByCode", {
+                code: code
+            }, function(data) {
+                $('#txtAdvance').val(data.advanceCode);
+                $('#txtYard').val(data.advanceYardup);
+                $('#txtPort').val(data.advancePortup);
+                $('#txtLiftOn').val(data.advanceLiftonup);
+                $('#txtLiftOff').val(data.advanceLiftoffup);
+                $('#modal-form-content').modal();
+            });
+        }
+
+        function save(item, billing_code, job_detail_code) {
+            var x = $(item).closest('td').find('.rate').val();
+            $(item).next().hide();
+            $(item).prev().hide();
+            $(item).hide();
+            $(item).closest('div').prev().html('<div class="spin-item"><div class="loader10-sm"></div></div>');
+
+            $.post("/billing/EditTransportDetailData", {
+                value: x,
+                billing_code: billing_code,
+                job_detail_code: job_detail_code
+            }, function(data) {
+                window.opener.reloadRow();
+                window.location.reload();
+            });
+        }
+
+        function savecode(item, job_detail_code, type) {
+            var x = $(item).closest('td').find('.rate').val();
+            $(item).next().hide();
+            $(item).prev().hide();
+            $(item).hide();
+            $(item).closest('div').prev().html('<div class="spin-item"><div class="loader10-sm"></div></div>');
+            if (type == 'booking') {
+                $.post("/billing/EditBookingData", {
+                    value: x,
+                    job_detail_code: job_detail_code,
+                }, function(data) {
+                    window.opener.reloadRow();
+                    window.location.reload();
+                });
+            } else if (type == 'invoice') {
+                $.post("/billing/EditInvoiceData", {
+                    value: x,
+                    job_detail_code: job_detail_code,
+                }, function(data) {
+                    window.opener.reloadRow();
+                    window.location.reload();
+                });
+            } else if (type == 'container') {
+                $.post("/billing/EditContainerData", {
+                    value: x,
+                    job_detail_code: job_detail_code,
+                }, function(data) {
+                    window.opener.reloadRow();
+                    window.location.reload();
+                });
+            }
+        }
+
+        function closeModal() {
+            $.modal.close();
+        }
+
+        function OnValidate() {
+            overLayDiv('.form-content');
+            return true;
+        }
+    </script>
+}

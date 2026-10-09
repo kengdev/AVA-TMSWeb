@@ -1,0 +1,41 @@
+@model TMSWeb.Models.Entities.LOG.TblFleetpaymentDetail
+@using HtmlHelpers.BeginCollectionItemCore
+@{
+    var data = (TMSWeb.Models.ViewModels.JobViewModel)ViewBag.Data;
+    string cost_value = data.cost_value.Value.ToString("#,##0.00");
+}
+<tr>
+    @using (Html.BeginCollectionItem("TblFleetpaymentDetails"))
+    {
+        @Html.HiddenFor(m => m.JobDetailCode, new { @Class = "job_detail_code" })
+        @Html.HiddenFor(m => m.TransportValue)
+        @Html.Hidden("cost_value", data.cost_value, new { @class = "cost_value" })
+        <td style="border-left:none;">
+            <div style="width:100%;text-align:center;">
+                <a href="#" class="font-red" onclick="$(this).parent().parent().parent().remove(), removeFunc('@data.job_detail_code','@data.job_date','@data.job_invoice','@data.mission_name', '@data.container_no', '@cost_value')">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </td>
+        <td>
+            <div style="width:100%;text-align:center;font-size:11px;">
+                @data.job_date
+            </div>
+        </td>
+        <td>
+            <div style="width:100%;text-align:center;font-size:11px;">
+                @data.mission_name
+            </div>
+        </td>
+        <td>
+            <div style="width:100%;text-align:center;font-size:11px;">
+                @data.container_no
+            </div>
+        </td>
+        <td>
+            <div style="width:100%;text-align:right;font-size:11px;">
+                @data.cost_value.Value.ToString("#,##0.00")
+            </div>
+        </td>
+    }
+</tr>

@@ -1,0 +1,439 @@
+﻿@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "ค่าเที่ยวพนักงานขับรถ";
+    var dv = (TMSWeb.Models.ViewModels.DriverViewModel)ViewBag.Driver;
+    var pm = (List<TMSWeb.Models.ViewModels.DriverPaymentDetailViewModel>)ViewBag.Allowance;
+    var sb = (List<TMSWeb.Models.ViewModels.SubstractPaymentViewModel>)ViewBag.Substract;
+    var q = pm.FirstOrDefault();
+}
+<link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+<style>
+    .table th {
+        font-size: 13px !important;
+        background-color: #e9e9e9
+    }
+
+    .table td {
+        font-size: 13px !important;
+    }
+
+        .table td.currency {
+            font-size: 13px !important;
+            text-align: right;
+            width: 80px !important;
+        }
+
+        .table td.license {
+            font-size: 13px !important;
+            text-align: center;
+            width: 110px;
+        }
+
+        .table td.action {
+            text-align: center !important;
+            width: 90px !important;
+        }
+
+    .form-subtract {
+        height: 25px !important;
+    }
+
+    .pic-bordered {
+        border: 1px solid #808080;
+        width: 158px;
+        height: 200px;
+    }
+
+    .topic-content {
+        font-weight: bold;
+        font-size: 13px;
+        display: inline-block;
+        width: 100px;
+    }
+
+    .date {
+        text-align: center;
+    }
+
+    .currency_val {
+        width: 80px !important;
+        padding-left: 7px;
+    }
+
+    a.closed {
+        color: #E43A45;
+    }
+
+        a.closed:hover {
+            color: #E26A6A;
+        }
+
+    .approve {
+        text-align: center;
+        background-color: #128f04;
+        color: #fff;
+    }
+
+    .pending {
+        text-align: center;
+        background-color: #e11e1e;
+        color: #fff;
+        font-weight: normal;
+    }
+
+    .none {
+        text-align: center;
+        background-color: #fff;
+    }
+
+    .stop {
+        text-align: center;
+        background-color: #7d3caa;
+        color: #fff;
+    }
+
+
+    .table tr:hover td.pending {
+        background: #e11e1e !important;
+        pointer-events: none !important
+    }
+
+    .table tr:hover td.approve {
+        background: #128f04 !important;
+        pointer-events: none !important
+    }
+
+    .table tr:hover td.none {
+        background: #fff !important;
+        pointer-events: none !important
+    }
+
+    .table tr:hover td.stop {
+        background: #7d3caa !important;
+        pointer-events: none !important
+    }
+
+    fieldset {
+        border: none;
+        padding: 0;
+        margin: 0;
+        z-index: 9999;
+    }
+
+    .table {
+        overflow: hidden;
+    }
+
+    .active-row {
+        background-color: #cacaca
+    }
+
+    .optional {
+        width: 60px;
+    }
+</style>
+
+<div class="col-md-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-clipboard-list"></i>
+                <span class="caption-subject bold uppercase"> รายละเอียดค่าเที่ยวพนักงานขับรถ</span>
+            </div>
+
+            <div class="actions">
+            </div>
+        </div>
+        <div class="portlet-body">
+            @using (Html.BeginForm("EditDriverPayment", "Payment", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+            {
+                @Html.Hidden("allowance_code", q.allowance_code)
+                @Html.Hidden("driver_code", dv.driver_code)
+                <div class="row">
+                    <div class="col-sm-2">
+                        @if (this.IsExists(@dv.driver_img))
+                        {
+                            <img src="~/Pics/userpic/@dv.driver_img" id="imgAvatar" class="img-responsive pic-bordered" alt="" />
+                        }
+                        else
+                        {
+                            <img src="~/Pics/userpic/dfimage.jpg" id="imgAvatar" class="img-responsive pic-bordered" alt="" />
+                        }
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table">
+                                    <tr>
+                                        <td>ชื่อ-นามสกุล :</td>
+                                        <td>@dv.fullname</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ทะเบียน :</td>
+                                        <td>
+                                            @if (dv.truck_license != null)
+                                            {
+                                                <span>@dv.truck_license</span>
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>เบอร์โทรศัพท์ :</td>
+                                        <td>@dv.phone</td>
+                                    </tr>
+                                    <tr>
+                                        <td>บริษัท :</td>
+                                        <td>
+                                            <span>@dv.supplyer_name</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-5">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <fieldset id="subtract-content">
+                                    <table data-toggle="table" data-height="200">
+                                        <thead>
+                                            <tr>
+                                                <th data-width="90" data-align="center">
+                                                    <a href="#" class="closed" onclick="addList()" style="display:none;">เพิ่ม</a>
+                                                </th>
+                                                <th>ประเภท</th>
+                                                <th>รายการ</th>
+                                                <th>ยอดเงิน</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="list-subtract">
+                                            @if (sb.Count > 0)
+                                            {
+                                                foreach (var item in sb)
+                                                {
+                                                    <tr>
+                                                        <td><a href="#" class="closed" style="display:none;" onclick="$(this).parent().parent().remove()"><i class="fa fa-times"></i></a></td>
+                                                        <td>
+                                                            @if (item.sub_type == "sub")
+                                                            {
+                                                                <select class="optional" name="subtractType[]" disabled>
+                                                                    <option value="add">เพิ่ม</option>
+                                                                    <option value="sub" selected>หัก</option>
+                                                                </select>
+                                                            }
+                                                            else
+                                                            {
+                                                                <select class="optional" name="subtractType[]" disabled>
+                                                                    <option value="add" selected>เพิ่ม</option>
+                                                                    <option value="sub">หัก</option>
+                                                                </select>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-subtract" name="subtractName[]" value="@item.sub_name" readonly />
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control form-subtract" name="subtractVal[]" value="@item.sub_value" readonly />
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <select class="optional" name="subtractType[]" disabled>
+                                                            <option value="add">เพิ่ม</option>
+                                                            <option value="sub">หัก</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control form-subtract" name="subtractName[]" readonly />
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control form-subtract" name="subtractVal[]" readonly />
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-sm-7">
+                    </div>
+                    <div class="col-md-5">
+                        <button type="button" class="btn btn-sm grey" id="btnEdit"><i class="fad fa-pencil"></i></button>
+                        <button type="button" class="btn btn-sm grey" id="btnCancel" disabled><span class="fa fa-times"> </span></button>
+                        <button type="button" class="btn btn-sm grey" id="btnApprove" disabled><span class="fad fa-save"> </span></button>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table data-toggle="table" data-height="250">
+                            <thead>
+                                <tr>
+                                    <th data-width="50" data-align="center"></th>
+                                    <th data-width="140" data-align="center">Date</th>
+                                    <th data-width="180" data-align="center">สถานที่</th>
+                                    <th data-width="150" data-align="center">ตู้</th>
+                                    <th data-width="100">เบี้ยเลี้ยง</th>
+                                    <th data-width="100">น้ำมัน</th>
+                                    <th data-width="100">เสียเวลา</th>
+                                    <th data-width="100">อื่น ๆ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="content-body">
+                                @foreach (var item in pm)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="javascript:;" class="closed" style="display: none;" onclick="removeItem('@item.allowance_code','@item.id')"><i class="fad fa-trash"></i></a>
+                                        </td>
+                                        <td>@item.working_date.ToString("ddd, dd MM yyyy")</td>
+                                        <td>@item.mission_name</td>
+                                        <td>@item.container_no</td>
+                                        <td>
+                                            <input type="text" class="form-subtract form-control" value="@item.trip_value" name="trip[]" readonly />
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-subtract form-control" value="@item.fuel_value" name="fuel[]" readonly />
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-subtract form-control" value="@item.waste_value" name="waste[]" readonly />
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-subtract form-control" value="@item.other_value" name="other[]" readonly />
+                                            <input type="hidden" value="@item.id" name="allowance_detail_id[]" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private bool IsExists(string img)
+    {
+        string path = "wwwroot/pics/userpic/" + img;
+        return System.IO.File.Exists(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), path));
+    }
+}
+
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayPage();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        $('#btnApprove').prop('disabled', true);
+                        $('#btnCancel').prop('disabled', true);
+                        $('#btnEdit').prop('disabled', false);
+                        $('#btnPrint').prop('disabled', false);
+                        $('.driver-show').show();
+                        $('input:text').attr('readonly', 'readonly')
+                        window.opener.reloadRow();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#btnEdit').click(function() {
+                $('#btnAdd').show();
+                $('.closed').show();
+                $('input:text').removeAttr('readonly')
+                $('#btnEdit').prop('disabled', true);
+                $('#btnPrint').prop('disabled', true);
+                $('#btnApprove').prop('disabled', false);
+                $('#btnCancel').prop('disabled', false);
+                $('#subtract-content').prop('disabled', false);
+                $('.optional').prop('disabled', false);
+                $('.closed').show();
+                $('.driver-show').hide();
+            });
+
+            $('#btnCancel').click(function() {
+                $('.closed').hide();
+                $('#btnAdd').hide();
+                $('input:text').attr('readonly', 'readonly')
+                $('#btnEdit').prop('disabled', false);
+                $('#btnCancel').prop('disabled', true);
+                $('#btnApprove').prop('disabled', true);
+                $('#btnPrint').prop('disabled', false);
+                $('#subtract-content').prop('disabled', true);
+            });
+
+            $('#btnApprove').click(function() {
+                $('.closed').hide();
+                $('#btnAdd').hide();
+                $('#subtract-content').prop('disabled', true);
+                $('#frmEdit').submit();
+            });
+
+            $('#btnPrint').click(function() {
+                printAllowance();
+            });
+        }(jQuery));
+
+        function addList() {
+            var msg = '<tr><td style="text-align:center;"><a href="javascript:;" class="closed" onclick="$(this).parent().parent().remove()"><i class="fad fa-times"></i></a></td>';
+            msg += "<td><select class='optional' name=subtractType[]><option value='add'>เพิ่ม</option><option value='sub'>หัก</option></select></td>";
+            msg += '<td><input type="text" class="form-control form-subtract" name="subtractName[]" /></td>';
+            msg += '<td><input type="text" class="form-control form-subtract" name="subtractVal[]" /></td></tr>';
+
+            $('#list-subtract').append(msg);
+        }
+
+        function removeItem(code, id) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Payment/RemoveDriverPaymentItem",
+                        {
+                            code: code,
+                            id: id
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                if (data.fact == 1) {
+                                    window.opener.reloadRow();
+                                    window.close();
+                                }
+                                else {
+                                    location.reload();
+                                }
+                            } else {
+                                jAlert('ผลการทำงาน', "<div>เกิดข้อผิดลพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function OnValidate() {
+            overLayPage();
+            return true;
+        }
+    </script>
+}

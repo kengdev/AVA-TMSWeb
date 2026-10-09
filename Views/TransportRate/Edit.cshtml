@@ -1,0 +1,216 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblCustomerCost
+@{
+    ViewBag.TopActive = "Rate";
+    ViewBag.MidActive = "triprate";
+    ViewBag.Title = "ข้อมูลการคิดเงินลูกค้า";
+    var data_customer = (TMSWeb.Models.ViewModels.CostViewModel)ViewBag.Customer;
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การคำนวณเงิน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/transportrate/">ข้อมูลการคิดเงินลูกค้า</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/transportrate/edit?code=@Model.CostCode">แก้ไข</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-pencil"></i>
+                    <span class="caption-subject bold uppercase"> แก้ไขรายการ</span>
+                    <span class="caption-helper">[รหัส @Model.CostCode]</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("EditCost", "TransportRate", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+            {
+                @Html.HiddenFor(m => m.CostCode)
+                @Html.HiddenFor(m => m.CustomerCode)
+                @Html.HiddenFor(m => m.MissionCode)
+                @Html.HiddenFor(m => m.IsActived)
+                @Html.HiddenFor(m => m.IsEnabled)
+                @Html.HiddenFor(m => m.CreateDate)
+                @Html.HiddenFor(m => m.CreateBy)
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="form-group">
+                            <label>ชื่อลูกค้า</label>
+                            @Html.TextBox("txtCustomerName", data_customer.customer_name_th, new { @Class = "form-control", disabled = "Disabled" })
+                            @Html.Hidden("txtCustomerAddress", data_customer.customer_address)
+                            @Html.Hidden("txtCustomerTax", data_customer.customer_tax)
+                        </div>
+                        <div class="form-group">
+                            <label>ชื่อสถานที่ส่งสินค้า</label>
+                            @Html.TextBox("txtPlaceName", data_customer.mission_name, new { @Class = "form-control", disabled = "Disabled" })
+                            @Html.Hidden("txtPlaceAddress", data_customer.mission_address)
+                            @Html.Hidden("txtPlaceTax", data_customer.mission_tax)
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ราคา
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CostValue, new { id = "cost_value", @Class = "form-control form-number" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>การออกใบเสร็จ</label>
+                                    <select class="form-control" id="sltBill">
+                                        <option value="0" selected>----เลือก----</option>
+                                        <option value="1">ออกใบเสร็จตามที่อยู่ลูกค้า</option>
+                                        <option value="2">ออกใบเสร็จตามสถานที่ส่งสินค้า</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อ (สำหรับออกใบเสร็จ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ReceiptName, new { @Class = "form-control", id = "receipt_name" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        เลขประจำตัวผู้เสียภาษี (สำหรับออกใบเสร็จ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ReceiptTax, new { @Class = "form-control", id = "receipt_tax" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>
+                                        ที่อยู่ (สำหรับออกใบเสร็จ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ReceiptAddress, new { @Class = "form-control", id = "receipt_address" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>หมายเหตุ</label>
+                                @Html.TextBoxFor(m => m.CostRemark, new { @Class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/transportrate/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Scripts/default/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#sltBill').change(function() {
+                var x = $(this).val();
+                var name = '';
+                var address = '';
+                var tax = '';
+                if (x == '1') {
+                    name = $('#txtCustomerName').val();
+                    address = $('#txtCustomerAddress').val();
+                    tax = $('#txtCustomerTax').val();
+                } else if (x == '2') {
+                    name = $('#txtPlaceName').val();
+                    address = $('#txtPlaceAddress').val();
+                    tax = $('#txtPlaceTax').val();
+                }
+
+                $('#receipt_name').val(name);
+                $('#receipt_tax').val(tax);
+                $('#receipt_address').val(address);
+            });
+        }(jQuery));
+
+
+        function OnValidate() {
+            var fn = false;
+            fn = $('#frmEdit').myfunction({
+                rules: {
+                    cost_value: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ราคา"
+                        }
+                    },
+                    receipt_name: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อที่ใช้ออกใบเสร็จ"
+                        }
+                    },
+                    receipt_tax: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขประจำตัวผู้เสียภาษี"
+                        }
+                    },
+                    receipt_address: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ที่อยู่ออกใบเสร็จ"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}

@@ -1,0 +1,510 @@
+@model TMSWeb.Models.ViewModels.BillingPdfFormViewModel
+@{
+    Layout = "~/Views/Shared/_PartialFormLayout.cshtml";
+
+    var enCulture = new System.Globalization.CultureInfo("en-US", false);
+    var advance = Model.advance;
+    var customer = Model.customer;
+
+    string code = Model.billing_code;
+    decimal row = advance.Count;
+
+    int pg = (int)Math.Ceiling(row / 20);
+    pg = (row >= 41 && row <= 50 ? pg - 1 : pg);
+    pg = (row >= 61 && row <= 100 ? pg - 1 : pg);
+    pg = (row >= 101 && row <= 160 ? pg - 2 : pg);
+    pg = (row >= 151 && row <= 170 ? pg - 3 : pg);
+}
+<style>
+    body {
+        background: #fff;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    .page {
+        padding: 0.5cm;
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+    }
+
+    #job-th, .job-td {
+        display: none;
+    }
+
+    .form-wrap {
+        padding: 7px;
+    }
+
+    .form-detail {
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .header-col-1 {
+        width: 150px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-3 {
+        float: right;
+        text-align: center;
+        display: inline-block
+    }
+
+    .company-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .company-detail {
+        font-size: 13px !important;
+    }
+
+    .topic-name {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .topic-date {
+        text-align: right;
+    }
+
+    .clear-float {
+        clear: both;
+    }
+
+    .form-topic {
+        float: left;
+    }
+
+    .form-detail {
+        float: left;
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .form-time {
+        float: left;
+        border-bottom: 1px dashed #000;
+        font-size: 14px;
+        text-align: left;
+        padding-left: 10px;
+        height: 20px;
+    }
+
+    .table-invoice {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table-invoice th {
+            font-size: 11px;
+            border: 1px solid #000 !important;
+            text-align: center !important;
+            padding: 7px;
+        }
+
+        .table-invoice td {
+            font-size: 11px;
+            border: 1px solid #000 !important;
+            padding: 5px;
+        }
+
+    .topic-customer-name, .topic-customer-tax {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .topic-customer-tax {
+        margin-top: 10px;
+    }
+
+    .topic-customer-address {
+        font-size: 13px;
+        width: 350px;
+        height: 60px;
+    }
+
+    .topic-attention {
+        font-weight: bold;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .topic-date, .topic-invoice {
+        font-weight: bold;
+        display: inline-block;
+        width: 120px;
+        text-align: right;
+        padding-right: 30px;
+    }
+
+    .content-topic {
+        font-weight: bold;
+        font-size: 15px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .table th {
+        font-size: 11px;
+        border: 1px solid #000 !important;
+        text-align: center !important;
+    }
+
+    .table td {
+        font-size: 11px;
+        border: 1px solid #000 !important;
+    }
+
+    td.col-index {
+        text-align: center !important;
+    }
+
+    td.col-center {
+        text-align: center !important;
+        font-size: 10px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+        overflow: hidden;
+    }
+
+    td.currency {
+        text-align: right !important;
+        font-size: 10px !important;
+    }
+
+    td.text-currency {
+        text-align: center !important;
+        font-weight: bold;
+        background: #D3D3D3
+    }
+
+    .footer-doc {
+        width: 100%;
+        text-align: center;
+        font-size: 9pt !important;
+        margin-top: 15px;
+    }
+
+    .stamp {
+        text-align: center;
+        position: relative;
+        top: -35px !important;
+        left: -30px !important;
+    }
+
+    .stamp-img {
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+    @@media all {
+        .page-break {
+            display: inline-block;
+            page-break-after: always !important;
+        }
+    }
+
+    @@media print {
+        html, body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: inline-block;
+            page-break-after: always !important;
+        }
+    }
+</style>
+
+@for (int y = 0; y < 2; y++)
+{
+    var pindex = 0;
+    int index = 1;
+    int item = 0;
+    for (int c = 0; c < pg; c++)
+    {
+        pindex++;
+        <div class="page">
+            <div class="form-content">
+                <div class="top-header">
+                    @{
+                        Html.RenderPartial("HeaderPdf");
+                    }
+                    <div class="header-col-3">
+                        <div>
+                            หน้า @pindex.ToString() จาก @pg.ToString()
+                        </div>
+                        @if (y == 0)
+                        {
+                            <div style="text-align:center!important;font-weight:bold;font-size:18px;color:#ea3333;margin-top:20px;">
+                                <div>ต้นฉบับ</div>
+                                <div>ORIGINAL</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="text-align:center!important;font-weight:bold;font-size:18px;color:#ea3333;margin-top:20px;">
+                                <div>สำเนา</div>
+                                <div>COPY</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <br />
+                <div class="clear-float"></div>
+                <div class="topic-name">
+                    ใบแจ้งหนี้ / INVOICE
+                </div>
+
+                <div style="width:390px;margin-top:10px;display:inline-block">
+                    <div class="topic-customer-name">
+                        @Model.tax_name
+                    </div>
+                    <div class="topic-customer-address">
+                        @Model.tax_address
+                    </div>
+                    <div class="topic-customer-tax">
+                        TAX ID : @Model.tax_id
+                    </div>
+                    <div class="topic-attention">
+                        Attention : Account Payable
+                    </div>
+                </div>
+
+                <div style="vertical-align:top;text-align:left;float:right;">
+                    <div style="text-align:left;">
+                        <div class="topic-date">Date</div>
+                        <span>@Model.billing_date.ToString("dd MMMM yyyy", enCulture)</span>
+                    </div>
+                    <div style="text-align:left;margin-top:10px;">
+                        <div class="topic-invoice">Invoice No.</div>
+                        <span>@Model.billing_code</span>
+                    </div>
+                    @if (customer.VendorCode != "-")
+                    {
+                        <div style="text-align:left;margin-top:10px;">
+                            <div class="topic-invoice">Vendor No.</div>
+                            <span>@customer.VendorCode</span>
+                        </div>
+                    }
+                    @if (Model.special_no != "")
+                    {
+                        <div style="text-align:left;margin-top:10px;">
+                            <div class="topic-invoice"></div>
+                            <span>@Model.special_no</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="clear-float"></div>
+                <div class="content-topic">
+                    Payment Description
+                </div>
+                <div class="content-body">
+                    <table class="table-invoice">
+                        <tr>
+                            <th style="width:30px;">No.</th>
+                            <th style="width:66px;">Date</th>
+                            <th>
+                                @if (Model.col == "JN")
+                                {
+                                    <span>Job No</span>
+                                }
+                                else
+                                {
+                                    <span>Booking</span>
+                                }
+                            </th>
+                            <th>Container No.</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Detail</th>
+                            <th>Amount</th>
+                        </tr>
+                        @{
+                            var rowcontrol = 30;
+                            if (pindex == pg)
+                            {
+                                rowcontrol = 21;
+                            }
+                        }
+                        @for (int i = 0; i < rowcontrol; i++)
+                        {
+                            if (item < advance.Count)
+                            {
+                                <tr>
+                                    <td class="col-index">@index.ToString().</td>
+                                    <td class="col-center">@advance[item].job_date.ToString("dd-MM-yyyy")</td>
+                                    <td class="col-center">
+                                        @if (Model.col == "JN")
+                                        {
+                                            <span>@advance[item].job_invoice</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@advance[item].booking_no</span>
+                                        }
+                                    </td>
+                                    <td class="col-center">@advance[item].container_no</td>
+                                    <td class="col-center">@advance[item].container_size</td>
+                                    <td class="col-center">@advance[item].mission_name</td>
+                                    <td class="col-center">@advance[item].advance_other</td>
+                                    <td class="currency">@advance[item].advance_other_value.ToString("#,##0.00")</td>
+
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="col-index">&nbsp;</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            }
+                            index++;
+                            item++;
+                        }
+                        @if (pindex == pg)
+                        {
+                            <tr>
+                                <td colspan="6" style="font-weight:bold;text-align:center;font-size:14px;">
+                                    @this.ChangeCurrencyToText(Model.net_total)
+                                </td>
+                                <td style="text-align:right;font-weight:bold;font-size:14px;">รวม</td>
+                                <td class="currency" style="font-size:14px;font-weight:bold;">@Model.net_total.ToString("#,##0.00")</td>
+                            </tr>
+                        }
+                    </table>
+                    @if (pindex == pg)
+                    {
+                        <br />
+                        <div style="width:100%;text-align:center;">
+                            <div style="display:inline-block;vertical-align:top;">
+                                <div style="font-weight:bold;">AVA GLOBAL LOGISTICS CO., LTD</div>
+                                <div class="sign">
+                                    <div class="sign-img">
+                                        @{
+                                            Html.RenderPartial("SignJutaratPdf");
+                                        }
+                                    </div>
+                                </div>
+                                <div style="height:40px;width:300px;border-bottom:1px #000 double;margin-top:-70px"></div>
+                                <div style="font-weight:bold;">Prepared by</div>
+                                <div style="font-weight:bold;">Jutarat Vittayarat</div>
+                            </div>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <div style="display:inline-block;vertical-align:top;">
+                                <div style="font-weight:bold;">&nbsp;</div>
+                                <div style="height:40px;width:300px;border-bottom:1px #000 double;"></div>
+                                <div style="font-weight:bold;">Received Bill</div>
+                                <div style="font-weight:bold;">@Model.billing_date.ToString("dd-MM-yyyy")</div>
+                            </div>
+                        </div>
+                        <div class="footer-doc">
+                            <div style="margin-top:20px;">
+                                <div>โอนเงินเข้าบัญชี : ธนาคารทหารไทยธนชาต เลขที่บัญชี : 466-1-07445-2 บริษัท เอวา โกลบอล โลจิสติกส์ จำกัด</div>
+                            </div>
+                            <div style="margin-top:10px;">
+                                โปรดสั่งจ่ายเช็คขีดคร่อมในนาม "AVA GLOBAL LOGISTICS CO., LTD" เท่านั้น และเรียกเก็บใบเสร็จรับเงินหลังจากการชำระเงินทุกครั้ง
+                                <br />
+                                หนี้ตามใบเก็บเงินฉบับนี้จะต้องชำระเงินภายในกำหนดชำระ หากพ้นกำหนดชำระ บริษัทฯมีสิทธิ์เรียกร้องดอกเบี้ย 15% จากวันที่เกินกำหนด
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        if (pindex != pg)
+        {
+            <div class="page-break"></div>
+        }
+    }
+    if (y == 0)
+    {
+        <div class="page-break"></div>
+    }
+}
+
+@functions {
+    private string ChangeCurrencyToText(decimal val)
+    {
+        string bahtTxt, n, bahtTH = "";
+        double amount;
+        try { amount = Convert.ToDouble(val); }
+        catch { amount = 0; }
+        bahtTxt = amount.ToString("####.00");
+        string[] num = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ" };
+        string[] rank = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        string[] temp = bahtTxt.Split('.');
+        string intVal = temp[0];
+        string decVal = temp[1];
+        if (Convert.ToDouble(bahtTxt) == 0)
+            bahtTH = "ศูนย์บาทถ้วน";
+        else
+        {
+            for (int i = 0; i < intVal.Length; i++)
+            {
+                n = intVal.Substring(i, 1);
+                if (n != "0")
+                {
+                    if ((i == (intVal.Length - 1)) && (n == "1"))
+                        bahtTH += "เอ็ด";
+                    else if ((i == (intVal.Length - 2)) && (n == "2"))
+                        bahtTH += "ยี่";
+                    else if ((i == (intVal.Length - 2)) && (n == "1"))
+                        bahtTH += "";
+                    else
+                        bahtTH += num[Convert.ToInt32(n)];
+                    bahtTH += rank[(intVal.Length - i) - 1];
+                }
+            }
+            bahtTH += "บาท";
+            if (decVal == "00")
+                bahtTH += "ถ้วน";
+            else
+            {
+                for (int i = 0; i < decVal.Length; i++)
+                {
+                    n = decVal.Substring(i, 1);
+                    if (n != "0")
+                    {
+                        if ((i == decVal.Length - 1) && (n == "1"))
+                            bahtTH += "เอ็ด";
+                        else if ((i == (decVal.Length - 2)) && (n == "2"))
+                            bahtTH += "ยี่";
+                        else if ((i == (decVal.Length - 2)) && (n == "1"))
+                            bahtTH += "";
+                        else
+                            bahtTH += num[Convert.ToInt32(n)];
+                        bahtTH += rank[(decVal.Length - i) - 1];
+                    }
+                }
+                bahtTH += "สตางค์";
+            }
+        }
+        return bahtTH;
+    }
+}

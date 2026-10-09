@@ -1,0 +1,316 @@
+@model List<TMSWeb.Models.ViewModels.JobViewModel>
+@{
+    ViewBag.TopActive = "Job";
+    ViewBag.MidActive = "tarry";
+    ViewBag.Title = "ข้อมูลงานทอยตู้";
+    int i = 1;
+}
+@section Styles {
+    <style>
+        .detail-topic {
+            width: 100px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .table-light td {
+            font-size: 13px !important;
+        }
+
+        .accordion-toggle {
+            font-size: 13px;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        .dropdown-td {
+            width: 80px !important;
+            padding-left: 7px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        .action-3-td {
+            width: 110px !important;
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+
+        .form-content {
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-right: 15px;
+            padding-bottom: 20px;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+            .form-group label {
+                margin: 0;
+                font-size: 13px;
+                color: #000;
+            }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลงาน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/่job/">ข้อมูลงานตู้ตัดหาง</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการงานตู้ตัดหาง </span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div id="accordion2" class="panel-group">
+                            @foreach (var item in Model)
+                            {
+                                int days = this.PanelColor(item.job_date_value);
+                                string panel = "";
+                                if (days >= 0 && days <= 2)
+                                {
+                                    panel = "panel-default";
+                                }
+                                else if (days > 2 && days <= 5)
+                                {
+                                    panel = "panel-info";
+                                }
+                                else if (days > 5 && days <= 7)
+                                {
+                                    panel = "panel-warning";
+                                }
+                                else if (days > 7)
+                                {
+                                    panel = "panel-danger";
+                                }
+
+                                <div class="panel @panel">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a class="accordion-toggle accordion-toggle-styled bold" data-toggle="collapse"
+                                               data-parent="#accordion2" href="#accordion2_@i.ToString()">
+                                                @item.job_date_value.ToString("dd MMMM yyyy").ToUpper() | @item.container_no
+                                                -
+                                                @item.mission_name [@item.truck_license]
+                                            </a>
+                                        </h4>
+                                    </div>
+
+                                    <div id="accordion2_@i.ToString()" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <table class="table table-light">
+                                                <tr>
+                                                    <td class="detail-topic">เลขที่</td>
+                                                    <td>@item.job_detail_code</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">ลูกค้า</td>
+                                                    <td>@item.customer_name</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">งานวันที่</td>
+                                                    <td>@item.job_date_value.ToString("dd MMMM yyyy").ToUpper()</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">จำนวนวัน</td>
+                                                    <td>@days.ToString() วัน</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">ทะเบียน</td>
+                                                    <td>@item.truck_license</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">ทะเบียนหาง</td>
+                                                    <td>@item.trailer_license</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">Booking</td>
+                                                    <td>@item.booking_no</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">เบอร์ตู้</td>
+                                                    <td>@item.container_no</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">เบอร์ซีล</td>
+                                                    <td>@item.seal_no</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="detail-topic">รับจาก</td>
+                                                    <td>@item.start_name</td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:right;">
+                                                        <button type="button" onclick="getUpdateTracking('@item.job_detail_code')"
+                                                                class="btn btn-sm yellow-gold">
+                                                            ปรับปรุงสถานะ
+                                                        </button>
+                                                        <button type="button" onclick="getUpdate('@item.job_detail_code')"
+                                                                class="btn btn-sm btn-info">
+                                                            ปรับปรุงข้อมูล
+                                                        </button>
+                                                        <button type="button" onclick="setDoc('@item.job_detail_code')"
+                                                                class="btn btn-sm btn-success">
+                                                            รับเอกสาร
+                                                        </button>
+                                                        <button type="button" onclick="setRemove('@item.job_detail_code')"
+                                                                class="btn btn-sm btn-danger">
+                                                            ลบรายการ
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                i++;
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form-content" style="display: none;">
+    <div id="form-content"></div>
+</div>
+@functions {
+    private int PanelColor(DateTime job_date)
+    {
+        DateTime current = DateTime.Now.Date;
+        double daysDiff = (current - job_date.Date).Days;
+        return int.Parse(daysDiff.ToString());
+    }
+}
+
+@section scripts
+{
+    <script type="text/javascript">
+        function getUpdateTracking(code) {
+            var url = '/job/statusupdate?code=' + code;
+            var setting = 'width=1100,height=665';
+
+            window.open(url, 'Status Station', setting);
+        }
+
+        function setDoc(code) {
+            var url = '/job/finishtarry?code=' + code;
+            var setting = 'width=1100,height=665';
+
+            window.open(url, 'Finished Job', setting);
+        }
+
+        function setUpdate() {
+            $('#wrapper-action-modal').hide();
+            $('#spin-item').show();
+            overLayDiv('.form-content');
+
+            var code = $('#job_detail_code').val();
+            var container_no = $('#container_no').val();
+            var trailer_license = $('#trailer_license').val();
+            var seal_no = $('#seal_no').val();
+            var tare_weight = $('#tare_weight').val();
+            var fuel_fillup = $('#fuel_fillup').val();
+            var finish_code = $('#finish_code').val();
+            var job_date = $('#job_date').val();
+            var container_size = $('#container_size').val();
+            var job_type = $('#job_type').val();
+            var supplyer_code = $('#supplyer_code').val();
+
+            $.post("/Job/UpdateData", {
+                job_date: job_date,
+                job_detail_code: code,
+                container_no: container_no,
+                seal_no: seal_no,
+                tare_weight: tare_weight,
+                fuel_fillup: fuel_fillup,
+                trailer_license: trailer_license,
+                finish_place_code: finish_code,
+                container_size_code: container_size,
+                job_type: job_type,
+                supplyer_code: supplyer_code
+            }, function(data) {
+                killOverlayDiv()
+                $('#wrapper-action-modal').show();
+                $('#spin-item').hide();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        closeModal();
+                        reloadRow();
+                    });
+                } else {
+                    jAlert('ผลการทำงาน', data.resultMessage);
+                }
+            });
+        }
+
+        function getUpdate(code) {
+            $.post("/Job/Update", {
+                job_detail_code: code
+            }, function(result) {
+                $('#form-content').html(result)
+                $('#modal-form-content').modal();
+            });
+        }
+
+        function setRemove(code) {
+            $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Job/RemoveJob",
+                        {
+                            job_detail_code: code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                $.alert.open('info', "ยกเลิกข้อมูลเรียบร้อยแล้ว", function(r) {
+                                    window.location.reload();
+                                });
+                            } else {
+                                jAlert('ผลการทำงาน', "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function closeModal() {
+            $.modal.close();
+        }
+
+        function reload() {
+            window.location.reload();
+        }
+    </script>
+}

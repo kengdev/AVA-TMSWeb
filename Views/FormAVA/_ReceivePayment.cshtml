@@ -1,0 +1,498 @@
+@model TMSWeb.Models.Entities.LOG.TblReceivePayment
+@{
+    Layout = null;
+
+    var thCulture = new System.Globalization.CultureInfo("th-TH", false);
+    var data = Model.TblReceivePaymentDetails.ToArray();
+
+    string code = Model.ReceivePaymentCode;
+    int row = data.Count();
+    int rowcontrol = 13 - row;
+    int itemRow = 1;
+}
+<link rel="stylesheet" type="text/css" href="~/css/print/printform.css" media="print">
+<style>
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+        width: 100%;
+    }
+
+    .header {
+        margin-top: 15px
+    }
+
+    .header-col-1 {
+        width: 150px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-4 {
+        width: 350px;
+        float: left;
+        text-align: left;
+        display: inline-block
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .font-18 {
+        font-size: 18px;
+    }
+
+    .company-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .company-detail {
+        font-size: 13px !important;
+    }
+
+    .font-16 {
+        font-size: 16px;
+    }
+
+    .font-14 {
+        font-size: 14px;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .wrap-box {
+        padding-top: 10px;
+    }
+
+    .topic-content {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .topic-name {
+        display: inline-block;
+    }
+
+    .topic-detail {
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .topic-detail-underline {
+        display: inline-block;
+        margin-left: 10px;
+        border-bottom: 1px solid #444444;
+    }
+
+    .box-50 {
+        width: 35px;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .box-70 {
+        width: 60px;
+        text-align: left;
+    }
+
+    .box-140 {
+        width: 120px;
+        text-align: left;
+        padding-left: 10px
+    }
+
+    .box-500 {
+        width: 500px;
+        text-align: left;
+        padding-left: 10px
+    }
+
+    .box-inline {
+        display: inline-block;
+    }
+
+    .font-underline {
+        text-decoration: underline;
+    }
+
+    .clearboth {
+        clear: both
+    }
+
+    .payment {
+        margin-top: 5px;
+        vertical-align: top !important;
+    }
+
+    .item-box {
+        border: 1px solid #000;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .payment-detail {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .payment-detail th {
+            background: #e0e0e0;
+            border: 1px solid #000;
+            padding: 5px !important;
+            text-align: center !important;
+            font-size: 13px
+        }
+
+        .payment-detail td {
+            border: 1px solid #000;
+            padding: 3px !important;
+            font-size: 13px;
+            height: 30px;
+        }
+
+    td.text-center {
+        text-align: center;
+    }
+
+    td.text-right {
+        text-align: right;
+        padding-right: 7px !important;
+    }
+
+    td.description {
+        padding-left: 7px !important;
+    }
+
+    td.no {
+        width: 50px !important;
+    }
+
+    td.amount, td.unit {
+        width: 70px !important;
+        border-right: 1px solid #000;
+    }
+
+    td.price, td.total {
+        width: 95px !important;
+    }
+
+    tfoot td {
+        border: 1px solid #000;
+        height: 35px
+    }
+
+    .footer {
+        margin-top: 50px;
+    }
+
+    .box-170 {
+        width: 110px;
+        text-align: left;
+        padding-left: 10px
+    }
+
+    .stamp {
+        position: absolute;
+        bottom: 50px !important;
+        right: 20px !important;
+    }
+
+    .stamp-img {
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+        .stamp-img img {
+            width: 150px !important;
+        }
+
+    .sign {
+        text-align: center;
+        position: relative;
+        top: 0px !important;
+        left: 0px !important;
+    }
+
+    .sign-img {
+        display: inline-block;
+    }
+
+        .sign-img img {
+            width: 150px !important;
+        }
+
+    .approve-topic {
+        position: relative;
+        top: -48px !important;
+    }
+
+    .mid-table {
+        border-collapse: collapse;
+        border: 1px solid #000;
+        font-size: 13px !important;
+        width: 100%;
+    }
+
+        .mid-table th {
+            border: 1px solid #000;
+            background: #e0e0e0;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .mid-table td {
+            border: 1px solid #000;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align: center;
+        }
+
+
+
+    @@media all {
+        .page-break {
+            display: block;
+            page-break-after: always !important;
+        }
+    }
+
+    @@media print {
+
+        html,
+        body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: block;
+            page-break-after: always !important;
+        }
+    }
+</style>
+<div class="page">
+    <div class="form-content">
+        <div class="top-header">
+            @{
+                Html.RenderPartial("HeaderPdf");
+            }
+        </div>
+        <br />
+        <div class="clearboth"></div>
+        <br />
+        <div class="topic-content">
+            ใบแจ้งหนี้/ใบวางบิล
+        </div>
+        <div class="payment">
+            <div style="height:90px;width:501px;display:inline-block;vertical-align:top!important;border:1px solid #000;padding:10px;">
+                <div class="wrap-box">
+                    <div class="font-14">
+                        <label class="bold">ลูกค้า </label>
+                        <div style="margin-left:10px;padding-left:7px;display:inline-block;width:440px;border-bottom:1px solid #000;">@Model.SupplierCodeNavigation.SupplierFullname.ToUpper()</div>
+                    </div>
+                    <div class="font-14" style="margin-top:10px;">
+                        <label class="bold">ที่อยู่ </label>
+                        <div style="margin-left:18px;padding-left:7px;display:inline-block;width:440px;border-bottom:1px solid #000;">@Model.SupplierCodeNavigation.SupplierAddress.ToUpper()</div>
+                    </div>
+                    <div class="font-14" style="margin-top:10px;">
+                        <label class="bold">เลขประจำตัวผู้เสียภาษี </label>
+                        <div style="display:inline-block;width:300px;border-bottom:1px solid #000;padding-left:10px;">@Model.SupplierCodeNavigation.SupplierVatNo.ToUpper()</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height:90px;width:190px;text-align:right;float:right;border:1px solid #000;padding:10px;">
+                <div class="wrap-box">
+                    <div class="font-14 bold topic-name">เลขที่</div>
+                    <div class="font-14 topic-detail-underline box-140">@Model.ReceivePaymentCode</div>
+                </div>
+                <div class="wrap-box">
+                    <div class="font-14 bold topic-name">วันที่</div>
+                    <div class="font-14 topic-detail-underline box-140">@Model.PaymentDate.ToString("dd MMM yyyy", thCulture)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment">
+            <table class="mid-table">
+                <tr>
+                    <th>เงือนไขการชำระเงิน</th>
+                    <th>วันครบกำหนด</th>
+                    <th>เอกสารอ้างอิง</th>
+                </tr>
+                <tr>
+                    <td>เงินสด / เงินโอน</td>
+                    <td>@Model.DueDate.ToString("dd MMM yyyy", thCulture)</td>
+                    <td>@Model.RefDoc</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="payment">
+            <table class="payment-detail">
+                <thead>
+                    <tr>
+                        <th>ลำดับ<br />No.</th>
+                        <th>รายละเอียด <br />Description</th>
+                        <th>จำนวน <br />Quantity</th>
+                        <th>หน่วย <br />Unit</th>
+                        <th>ราคาต่อหน่วย <br />Unit/Price</th>
+                        <th>ราคารวม <br />Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.TblReceivePaymentDetails)
+                    {
+                        <tr>
+                            <td class="text-center no">@itemRow.ToString().</td>
+                            <td>@item.Description</td>
+                            <td class="text-center amount">@item.Amount.ToString("#,##0")</td>
+                            <td class="text-center unit">@item.Unit</td>
+                            <td class="text-right price">@item.Price.ToString("#,##0.00")</td>
+                            <td class="text-right total">@item.Total.ToString("#,##0.00")</td>
+                        </tr>
+                        itemRow++;
+                    }
+                    @for (int i = 0; i < rowcontrol; i++)
+                    {
+                        <tr>
+                            <td class="text-center no">&nbsp;</td>
+                            <td class="description">&nbsp;</td>
+                            <td class="text-center amount">&nbsp;</td>
+                            <td class="text-center unit">&nbsp;</td>
+                            <td class="text-right price">&nbsp;</td>
+                            <td class="text-right total">&nbsp;</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="text-center" rowspan="4" colspan="2" style="background:#e0e0e0">@this.ChangeCurrencyToText(Model.NetTotal)</td>
+                        <td class="box-170" colspan="3">รวมมูลค่าสินค้า / Sub Total</td>
+                        <td class="amount text-right">@Model.Total.ToString("#,##0.00")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">ภาษีมูลค่าเพิม / VAT 7%</td>
+                        <td class="amount text-right">@Model.Vat.ToString("#,##0.00")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">หัก ณ ที่จ่าย / Withholding</td>
+                        <td class="amount text-right">@Model.Tax.ToString("#,##0.00")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="bold">รวมเงินสุทธิ / Grand Total</td>
+                        <td class="amount text-right bold">@Model.NetTotal.ToString("#,##0.00")</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" class="text-center" style="vertical-align:top;">
+                            <div style="margin-top:20px;">@Model.SupplierCodeNavigation.SupplierFullname.ToUpper()</div>
+                            <div style="margin-top:50px;width:100%;">
+                                .......................................................................................
+                            </div>
+                            <div style="margin-top:10px;">ผู้มีอำนาจลงนาม</div>
+                            <div style="margin-top:10px;">วันที่ .......................................................................</div>
+                        </td>
+                        <td colspan="4" class="text-center" style="vertical-align:top;">
+                            <div style="margin-top:20px;">บริษัท เอวา โกลบอล โลจิสติกส์ จำกัด</div>
+                            <div style="margin-top:10px;width:100%;">
+                                <div class="sign">
+                                    @{
+                                        Html.RenderPartial("SignJutaratPdf");
+                                    }
+                                </div>
+                                <div style="margin-top:-30px;">( จุฑารัตน์ วิทยารัตน์ )</div>
+                            </div>
+                            <div style="margin-top:10px;">ผู้มีอำนาจลงนาม</div>
+                            <div style="margin-top:10px;">วันที่ @DateTime.Now.ToString("dd MMM yyyy", thCulture)</div>
+                            <div class="stamp">
+                                <div class="stamp-img">
+                                    @{
+                                        Html.RenderPartial("StampPdf");
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@functions {
+    private string ChangeCurrencyToText(decimal val)
+    {
+        string bahtTxt, n, bahtTH = "";
+        double amount;
+        try { amount = Convert.ToDouble(val); }
+        catch { amount = 0; }
+        bahtTxt = amount.ToString("####.00");
+        string[] num = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ" };
+        string[] rank = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        string[] temp = bahtTxt.Split('.');
+        string intVal = temp[0];
+        string decVal = temp[1];
+        if (Convert.ToDouble(bahtTxt) == 0)
+            bahtTH = "ศูนย์บาทถ้วน";
+        else
+        {
+            for (int i = 0; i < intVal.Length; i++)
+            {
+                n = intVal.Substring(i, 1);
+                if (n != "0")
+                {
+                    if ((i == (intVal.Length - 1)) && (n == "1"))
+                        bahtTH += "เอ็ด";
+                    else if ((i == (intVal.Length - 2)) && (n == "2"))
+                        bahtTH += "ยี่";
+                    else if ((i == (intVal.Length - 2)) && (n == "1"))
+                        bahtTH += "";
+                    else
+                        bahtTH += num[Convert.ToInt32(n)];
+                    bahtTH += rank[(intVal.Length - i) - 1];
+                }
+            }
+            bahtTH += "บาท";
+            if (decVal == "00")
+                bahtTH += "ถ้วน";
+            else
+            {
+                for (int i = 0; i < decVal.Length; i++)
+                {
+                    n = decVal.Substring(i, 1);
+                    if (n != "0")
+                    {
+                        if ((i == decVal.Length - 1) && (n == "1"))
+                            bahtTH += "เอ็ด";
+                        else if ((i == (decVal.Length - 2)) && (n == "2"))
+                            bahtTH += "ยี่";
+                        else if ((i == (decVal.Length - 2)) && (n == "1"))
+                            bahtTH += "";
+                        else
+                            bahtTH += num[Convert.ToInt32(n)];
+                        bahtTH += rank[(decVal.Length - i) - 1];
+                    }
+                }
+                bahtTH += "สตางค์";
+            }
+        }
+        return bahtTH;
+    }
+}

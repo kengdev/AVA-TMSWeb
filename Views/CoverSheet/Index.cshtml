@@ -1,0 +1,252 @@
+﻿@{
+    ViewBag.TopActive = "Billing";
+    ViewBag.MidActive = "coversheet";
+    ViewBag.SubActive = "coversheetbill";
+    ViewBag.Title = "ข้อมูลการคุมใบวางบิล";
+}
+@section Styles {
+    <style>
+        table.dataTable td, table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การวางบิล</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">รายการคุมใบแจ้งหนี้</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/coversheet/">จัดการคุมใบแจ้งหนี้</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการคุมใบแจ้งหนี้</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <div class="form-group">
+                                @Html.DropDownList("month", null, new { @Class = "form-control dlListForm", Style = "width:120px;" })
+                            </div>
+                            <div class="form-group">
+                                @Html.DropDownList("year", null, new { @Class = "form-control dlListForm", Style = "width:90px;" })
+                            </div>
+                            |
+                            <button type="button" class="btn btn-sm red" onclick="setAdd()">ทำรายการ</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered table-hover" id="table-coversheet">
+                            <thead>
+                                <tr>
+                                    <th style="width:80px!important;text-align:center!important;"></th>
+                                    <th> วันที่</th>
+                                    <th> รหัส</th>
+                                    <th> ชื่อลูกค้า</th>
+                                    <th> จำนวน</th>
+                                    <th> ยอดรวม</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr role="row" class="heading">
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"><input type="text" class="form-control filterText" id="filterCode" /></th>
+                                    <th class="filter"><input type="text" class="form-control filterText" id="filterCustomer" /></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var oTable = $('#table-coversheet').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "searching": false,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [[2, "desc"]],
+                "sAjaxSource": "/CoverSheet/GetCoverSheetDataList",
+                "fnRowCallback": function(row, aData, index) {
+                    $('td', row).eq(5).html(number_format(aData.coversheet_total));
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "month", "value": $("#month").val() });
+                    aoData.push({ "name": "year", "value": $("#year").val() });
+                    aoData.push({ "name": "filterCode", "value": $("#filterCode").val() });
+                    aoData.push({ "name": "filterCustomer", "value": $("#filterCustomer").val() });
+                },
+                "columnDefs": [
+                    { className: "action-4-td text-center", targets: 0 },
+                    { className: "date-td", targets: 1 },
+                    { className: "code-td", targets: 2 },
+                    { className: "name-td", targets: 3 },
+                    { className: "amount-td", targets: 4 },
+                    { className: "currency-td", targets: 5 }
+                ],
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columns":
+                    [
+                        {
+                            "data": "coversheet_code", "orderable": false, "render": function(data, type, row) {
+                                var edit = '<a  class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' + data + '")><i class="fad fa-pencil-alt"></i></a>';
+                                var remove = '<a  class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setRemove("' + data + '")><i class="fad fa-trash-alt"></i></a>';
+                                var print = '<a  class="btn btn-xs grey" href="javascript:;" data-title="พิมพ์เอกสาร"  data-toggle="tooltip" data-trigger="hover" onclick=setDoc("' + data + '","' + row.customer_code + '")><i class="fad fa-print"></i></a>';
+                                var detail = '<a href="javascript:;" class="btn btn-xs blue" data-title="รายละเอียด" data-toggle="tooltip" data-trigger="hover" onclick=setDetail("' + data + '")><i class="fad fa-clipboard-list"></i></a>';
+
+                                return remove + edit + detail + print;
+                            }
+                        },
+                        { "data": "coversheet_date" },
+                        { "data": "coversheet_code" },
+                        { "data": "customer_name" },
+                        { "data": "coversheet_amount", "orderable": false },
+                        { "data": "coversheet_total", "orderable": false }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-coversheet tfoot tr').appendTo('#table-coversheet thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-coversheet').dataTable()._fnAjaxUpdate();
+            });
+
+            $('.dlListForm').change(function() {
+                $('#table-coversheet').dataTable()._fnAjaxUpdate();
+            });
+        });
+
+        function setAdd() {
+            var url = '/coversheet/add';
+            var setting = 'width=1350,height=700';
+
+            window.open(url, 'add billing', setting);
+        }
+
+        function setDetail(code) {
+            var url = '/coversheet/detail?code=' + code;
+            var setting = 'width=1200,height=550';
+
+            window.open(url, 'Detail Billing', setting);
+        }
+
+        function setEdit(code) {
+            var url = '/coversheet/edit?code=' + code;
+            var setting = 'width=1350,height=700';
+
+            window.open(url, 'edit billing', setting);
+        }
+
+        function setRemove(code) {
+            $.alert.open('confirm', 'คุณต้องการยกเลิกข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/CoverSheet/Remove",
+                        {
+                            code: code,
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                $.alert.open('info', "ยกเลิกข้อมูลเรียบร้อยแล้ว", function(r) {
+                                    $('#table-coversheet').dataTable()._fnAjaxUpdate();
+                                });
+                            } else {
+                                jAlert('ผลการทำงาน', "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function reloadRow() {
+            $("#table-coversheet").DataTable().ajax.reload();
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function setDoc(code, customer) {
+            var url = '/form/coversheet?code=' + code;
+            window.open(url, 'form coversheet');
+        }
+    </script>
+}

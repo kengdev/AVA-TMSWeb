@@ -1,0 +1,236 @@
+﻿@model TMSWeb.Models.TruckModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "truck";
+    ViewBag.SubActive = "trucklist";
+    ViewBag.Title = "ข้อมูลรถหัวลาก";
+}
+@section Styles {
+    <link href="~/css/upload/blueimp-gallery.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/upload/jquery.fileupload.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/upload/jquery.fileupload-ui.css" rel="stylesheet" type="text/css" />
+    <style>
+        .pic-bordered {
+            border: 1px solid #808080;
+            width: 80%;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลรถ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/truck/">หัวลาก</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/truck/edit?code=@Model.truck_code">แก้ไข</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-pencil"></i>
+                    <span class="bold small"> แก้ไขรายการ</span>
+                    <span class="caption-helper">ทะเบียน @Model.truck_license</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("EditTruck", "Truck", FormMethod.Post, new
+            {
+                @encType = "multipart/form-data",
+                id =
+            "frmEdit",
+                onsubmit = "return OnValidate()"
+            }))
+            {
+                @Html.HiddenFor(m => m.truck_code)
+                @Html.HiddenFor(m => m.truck_license)
+                @Html.HiddenFor(m => m.supplier_code)
+                @Html.HiddenFor(m => m.truck_img)
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="~/pics/trucks/@Model.truck_img" id="imgAvatar" class="img-responsive pic-bordered"
+                                     alt="" />
+                                <span class="btn yellow fileinput-button">
+                                    <i class="fa fa-plus"></i>
+                                    <span> เลือกไฟล์ </span>
+                                    <input type="file" name="files" multiple="" OnChange="imgPreview(this)" id="PersonImage">
+                                </span>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                ทะเบียนรถ
+                                                <span class="required"> * </span>
+                                            </label>
+                                            @Html.TextBoxFor(m => m.truck_license, new
+                                            {
+                                                id = "txtLicense",
+                                                Class =
+                                            "form-control form-license"
+                                            })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                หมายเลขรถ
+                                            </label>
+                                            <span class="required"> * </span>
+                                            @Html.TextBoxFor(m => m.truck_no, new { id = "txtTruckNo", Class = "form-control form-eng" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                เลขคัสซี
+                                                <span class="required"> * </span>
+                                            </label>
+                                            @Html.TextBoxFor(m => m.truck_chassis_number, new
+                                            {
+                                                id = "txtChassis",
+                                                Class =
+                                            "form-control form-eng"
+                                            })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                ประเภทรถ
+                                            </label>
+                                            @Html.DropDownList("truck_type_code", null, new { @Class = "form-control dlList" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                ยี่ห้อ
+                                            </label>
+                                            @Html.DropDownList("brand_code", null, new { @Class = "form-control dlList" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                ปี
+                                            </label>
+                                            @Html.DropDownList("truck_year", null, new { @Class = "form-control dlList" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>
+                                                เชื้อเพลง
+                                            </label>
+                                            @Html.DropDownList("fuel_type_code", null, new { @Class = "form-control dlList" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/truck/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+        });
+
+        function imgPreview(ele) {
+            $('#imgAvatar').attr('src', ele.value); // for IE
+            if (ele.files && ele.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imgAvatar').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(ele.files[0]);
+            }
+        }
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtLicense: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ทะเบียนรถ"
+                        }
+                    },
+                    txtTruckNo: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์หมายเลขรถ"
+                        }
+                    },
+                    txtChassis: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์หมายเลขคัสซี หากไม่มีพิมพ์ -"
+                        }
+                    }
+                }
+            })
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}

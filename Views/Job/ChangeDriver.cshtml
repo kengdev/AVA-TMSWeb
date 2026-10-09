@@ -1,0 +1,412 @@
+﻿@model TMSWeb.Models.ChangeDriverModel
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+
+    var data = (TMSWeb.Models.Entities.LOG.ViewJobListActive)ViewBag.Data;
+}
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/profile/todo-2.min.css" />
+    <style>
+        .table td {
+            font-size: 13px;
+        }
+
+        th {
+            font-size: 13px !important;
+            text-align: center;
+        }
+
+        td.topic {
+            width: 120px !important;
+            text-align: right;
+        }
+    </style>
+}
+<div class="col-md-12 ">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-user-friends"></i>
+                <span class="caption-subject bold uppercase"> เปลี่ยนการขนส่งงานเลขที่</span>
+                <span class="caption-helper">[เลขที่ @data.JobDetailCode]</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("ChangeDriverData", "Job", FormMethod.Post, new
+        {
+            role = "form",
+            id = "frmEdit",
+            onsubmit
+        = "return OnValidate()"
+        }))
+        {
+            @Html.HiddenFor(m => m.trailer_license)
+            @Html.HiddenFor(m => m.job_detail_code)
+            @Html.HiddenFor(m => m.supplier_code, new { id = "old_supplier_code" })
+            @Html.HiddenFor(m => m.driver_code, new { id = "old_driver_code" })
+            @Html.HiddenFor(m => m.truck_code, new { id = "old_truck_code" })
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="table-scrollable table-scrollable-borderless">
+                                <table class="table table-light">
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">ลูกค้า</span>
+                                        </td>
+                                        <td> @data.CustomerNameTh</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">พนักงานขับรถเดิม</span>
+                                        </td>
+                                        <td> @data.DriverFullname</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">ทะเบียนรถเดิม</span>
+                                        </td>
+                                        <td> @data.TruckLicense / @data.TrailerLicense</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">รับตู้</span>
+                                        </td>
+                                        <td> @data.StartName </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">เปิดตู้/บรรจุ</span>
+                                        </td>
+                                        <td> @data.MissionName </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">คืนตู้</span>
+                                        </td>
+                                        <td> @data.FinishName</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">วันที่</span>
+                                        </td>
+                                        <td> @data.JobDate.ToString("dd-MM-yyyy HH:mm") </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">ประเภทงาน/ขนาด</span>
+                                        </td>
+                                        <td>
+                                            @data.JobType / @data.ContainerSizeName
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">Booking No.</span>
+                                        </td>
+                                        <td> @data.BookingNo </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">Invoice/Job</span>
+                                        </td>
+                                        <td> @data.JobInvoice</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="topic">
+                                            <span class="font-green-sharp">หมายเหตุ</span>
+                                        </td>
+                                        <td> @data.JobRemark </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>
+                                            บริษัทผู้รับงานใหม่<span class="required"> * </span>
+                                        </label>
+                                        <br />
+                                        @Html.DropDownList("new_supplier_code", null, new
+                                        {
+                                            @Class = "form-control",
+                                            id = "new_supplier_code",
+                                            autocomplete =
+                                        "off"
+                                        })
+                                        <span class="help-block help-filter"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (Model.supplier_code != "SP18001")
+                            {
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>
+                                                ทะเบียนรถใหม่<span class="required"> * </span>
+                                            </label>
+                                            <br />
+                                            @Html.DropDownList("new_truck_code", null, "-----เลือก-----", new
+                                            {
+                                                @Class =
+                                            "form-control",
+                                                id = "new_truck_code",
+                                                autocomplete = "off",
+                                                disabled = "disabled"
+                                            })
+                                            <span class="help-block help-filter"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>
+                                                พนักงานขับรถใหม่<span class="required"> * </span>
+                                            </label>
+                                            <br />
+                                            @Html.DropDownList("new_driver_code", null, "-----เลือก-----", new
+                                            {
+                                                @Class =
+                                            "form-control",
+                                                id = "new_driver_code",
+                                                autocomplete = "off",
+                                                disabled = "disabled"
+                                            })
+                                            <span class="help-block help-filter"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>
+                                                ทะเบียนรถใหม่<span class="required"> * </span>
+                                            </label>
+                                            <br />
+                                            @Html.DropDownList("new_truck_code", null, "-----เลือก-----", new
+                                            {
+                                                @Class =
+                                            "form-control",
+                                                id = "new_truck_code",
+                                                autocomplete = "off"
+                                            })
+                                            <span class="help-block help-filter"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>
+                                                พนักงานขับรถใหม่<span class="required"> * </span>
+                                            </label>
+                                            <br />
+                                            @Html.DropDownList("new_driver_code", null, "-----เลือก-----", new
+                                            {
+                                                @Class =
+                                            "form-control",
+                                                id = "new_driver_code",
+                                                autocomplete = "off"
+                                            })
+                                            <span class="help-block help-filter"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>ค่าทอยตู้<span class="required"> * </span></label>
+                                        @if (data.SupplierCode == "SP18001")
+                                        {
+                                            @Html.TextBoxFor(m => m.driver_cost, new
+                                            {
+                                                @Class = "form-control",
+                                                autocomplete = "off"
+                                            })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => m.driver_cost, new
+                                            {
+                                                @Class = "form-control",
+                                                autocomplete =
+                                            "off",
+                                                disabled = "disabled"
+                                            })
+                                        }
+                                        <span class="help-block help-filter"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="javascript:;" onclick="window.close();">ยกเลิก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.opener.reloadRow();
+                        window.close();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#new_supplier_code').change(function() {
+                var supplyer = $(this).val();
+                if (supplyer == 'SP18001') {
+                    $('#new_truck_code').prop('disabled', false);
+                    $('#new_driver_code').prop('disabled', false);
+                    $('#driver_cost').prop('disabled', false);
+                    setDriverDropDown();
+                } else {
+                    $('#new_truck_code').val('');
+                    $('#new_driver_code').val('');
+                    $('#new_truck_code').prop('disabled', true);
+                    $('#new_driver_code').prop('disabled', true);
+                    $('#driver_cost').prop('disabled', true);
+                }
+            });
+
+            $('#new_truck_code').change(function() {
+                var truck = $(this).val();
+                setSelectDriver(truck);
+            });
+        }(jQuery));
+
+        function setTruckDropDown(supplyer) {
+            $("#new_truck_code option").remove();
+            $.post("/AutoComplete/GetTruckBySupplyer", {
+                code: supplyer
+            }, function(data) {
+                $('#new_truck_code').append("<option>-----เลือก-----</option>");
+                $.each(data.result, function(i, item) {
+                    var option = "<option value='" + item.truck_code + "'>" + item.truck_license +
+                        "</option>"
+                    $('#new_truck_code').append(option)
+                });
+                if (sgfpplyer != 'SP18001') {
+                    $('#new_truck_code').append("<option value='T000000'>ไม่ระบุ</option>");
+                }
+            });
+        }
+
+        function setDriverDropDown() {
+            $("#new_driver_code option").index(0);
+            $.post("/Order/GetDriverData", {
+
+            }, function(data) {
+
+                $.each(data.result, function(i, item) {
+                    var option = "<option value='" + item.driver_code + "'>" + item.fullname + "</option>"
+                    $('#new_driver_code').append(option)
+                });
+            });
+        }
+
+        function setSelectDriver(truck) {
+            $.post("/Order/GetTruckDriverByTruckCode", {
+                code: truck
+            }, function(result) {
+                $('#new_driver_code').val(result.driver_code);
+            });
+        }
+
+        function OnValidate() {
+            /*var result = 0;
+            var e = $('#driver_cost');
+            var supplier = $('#supplier_code').val();
+            var truck = $('#truck_code').val();
+            var driver = $('#driver_code').val();
+            if (supplier == 'SP18001') {
+                var truck_element = $('#truck_code');
+                var driver_element = $('#driver_code');
+                if (truck === '') {
+
+                    truck_element.closest("div.form-group").addClass("has-error");
+                    truck_element.closest('div.form-group').find('span.help-block').html('กรุณาเลือกทะเบียนรถ');
+                    result++;
+                } else {
+                    truck_element.closest("div.form-group").removeClass("has-error");
+                    truck_element.closest('div.form-group').find('span.help-block').html('');
+                }
+
+                if (driver === '') {
+
+                    driver_element.closest("div.form-group").addClass("has-error");
+                    driver_element.closest('div.form-group').find('span.help-block').html('กรุณาเลือกทะเบียนรถ');
+                    result++;
+                } else {
+                    driver_element.closest("div.form-group").removeClass("has-error");
+                    driver_element.closest('div.form-group').find('span.help-block').html('');
+                }
+            } else {
+                truck_element.closest("div.form-group").removeClass("has-error");
+                truck_element.closest('div.form-group').find('span.help-block').html('');
+
+                driver_element.closest("div.form-group").removeClass("has-error");
+                driver_element.closest('div.form-group').find('span.help-block').html('');
+
+                result++;
+            }
+            if (e.val() != '') {
+                var driver_cost = parseFloat(e.val());
+                if (driver_cost > 250) {
+                    e.closest("div.form-group").addClass("has-error");
+                    e.closest('div.form-group').find('span.help-block').html('กรุณาระบุค่าทอยตู้ให้ถูกต้อง หากไม่มีใส่ 0');
+                    result++;
+                }
+            } else {
+                e.closest("div.form-group").addClass("has-error");
+                e.closest('div.form-group').find('span.help-block').html('กรุณาระบุค่าทอยตู้ให้ถูกต้อง หากไม่มีใส่ 0');
+                result++;
+            }
+
+            if (result === 0) {
+                overLayForm();
+                return true;
+            } else {
+                return false;
+            }*/
+
+            overLayForm();
+            return true;
+        }
+    </script>
+}

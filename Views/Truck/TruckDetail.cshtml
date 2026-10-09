@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "จัดการพนักประจำรถ";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    var trx = (TMSWeb.Models.Entities.LOG.ViewTruckListActive)ViewBag.Truck;
+    var DriverList = (List<TMSWeb.Models.ViewModels.TruckViewModel>)ViewBag.DriverList;
+
+}
+@section Styles {
+    <style>
+        .todo-tasklist {
+            padding-left: 20px;
+        }
+
+        .action-td {
+            text-align: center;
+            width: 150px;
+        }
+
+        .highlight {
+            border-left: none !important;
+        }
+
+        .table td {
+            font-size: 13px !important;
+        }
+
+        .table th {
+            font-size: 13px !important;
+            font-weight: bold !important;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="profile-sidebar">
+            <div class="portlet light profile-sidebar-portlet ">
+                <div class="profile-userpic">
+                    @if (this.IsExists(trx.TruckImage))
+                    {
+                        <img src="~/pics/trucks/@trx.TruckImage" class="img-responsive" alt="" />
+                    }
+                    else
+                    {
+                        <img src="~/pics/trucks/dfimage.jpg" class="img-responsive" alt="" />
+                    }
+                </div>
+
+                <div class="profile-usertitle">
+                    <div class="profile-usertitle-name"> @trx.TruckLicense</div>
+                </div>
+
+                <div class="profile-userbuttons">
+                    <button type="button" class="btn btn-circle red btn-sm"
+                            onclick="editdriver('@trx.TruckCode')">
+                        จัดการพนักงานขับรถ
+                    </button>
+                </div>
+
+                <div class="profile-usermenu">
+                    <div class="todo-tasklist">
+                        <div class="todo-tasklist-item todo-tasklist-item-border-green">
+                            <div class="todo-tasklist-item-text"><strong>ทะเบียน</strong> @trx.TruckLicense</div>
+                            <div class="todo-tasklist-item-text"><strong>เลขคัสซี</strong> @trx.TruckChassisNumber</div>
+                            <div class="todo-tasklist-item-text"><strong>รุ่นปี</strong> @trx.TruckYear</div>
+                            <div class="todo-tasklist-item-text"><strong>ประเภท</strong> @trx.TruckTypeName</div>
+                            <div class="todo-tasklist-item-text"><strong>ยี่ห้อ</strong> @trx.BrandName</div>
+                            <div class="todo-tasklist-item-text"><strong>เชื้อเพลิง</strong> @trx.FuelTypeName</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet light bordered">
+                            <div class="portlet-title">
+                                <div class="caption font-dark">
+                                    <span class="caption-subject bold uppercase"> ข้อมูลพนักงานขับรถ</span>
+                                </div>
+                                <div class="actions">
+                                    <div class="btn-group btn-group-devided" data-toggle="buttons">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="portlet-body">
+                                <table class="table table-striped table-bordered table-advance">
+                                    <thead>
+                                        <tr>
+                                            <th> ชื่อ-นามสกุล</th>
+                                            <th>โทรศัพท์</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in DriverList)
+                                        {
+                                            <tr>
+                                                <td class="highlight">
+                                                    <div class="success"></div>&nbsp;&nbsp;
+                                                    @item.driver_name
+                                                </td>
+                                                <td>@item.driver_phone</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@functions {
+    private bool IsExists(string img)
+    {
+        string path = "wwwroot/pics/trucks/" + img;
+        return File.Exists(System.IO.Path.Combine(Directory.GetCurrentDirectory(), path));
+    }
+}
+@section scripts {
+    <script type="text/javascript">
+        function editdriver(code) {
+            var url = "/truck/editdriver?code=" + code;
+            window.location = url;
+        }
+
+        function addinsurance(code) {
+            var url = "/truck/addinsurance?code=" + code;
+            window.location = url;
+        }
+    </script>
+}

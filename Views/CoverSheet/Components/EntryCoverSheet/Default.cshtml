@@ -1,0 +1,32 @@
+@model TMSWeb.Models.Entities.LOG.TblCoversheetDetail
+@using HtmlHelpers.BeginCollectionItemCore
+@{
+    var data = (TMSWeb.Models.ViewModels.CoverSheetViewModel)ViewBag.Data;
+}
+<tr>
+    @using (Html.BeginCollectionItem("TblCoversheetDetails"))
+    {
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.BillingCode)
+        @Html.HiddenFor(m => m.CoversheetValue)
+        @Html.Hidden("billing_code", data.billing_code, new { @Class = "billing_code" })
+        @Html.Hidden("billing_date", data.create_date.ToString("dd-MM-yyyy"))
+        @Html.Hidden("customer_name", data.customer_name)
+        @Html.Hidden("billing_total", data.billing_total)
+        <td style="border-left:none;text-align:center;">
+            <div style="width:100%;text-align:center;">
+                <a href="#" class="font-red" onclick="$(this).parent().parent().parent().remove(), removeFunc('@data.billing_code','@data.billing_total','@data.create_date.ToString("dd-MM-yyyy")','@data.customer_name')">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </td>
+        <td style="text-align:left;">@data.billing_code</td>
+        <td style="text-align:left;">@data.customer_name</td>
+        <td style="text-align:left;">@data.billing_date</td>
+        <td>
+            <div style="width:100%;text-align:right">
+                @data.billing_total.ToString("#,##0.00")
+            </div>
+        </td>
+    }
+</tr>

@@ -1,0 +1,361 @@
+@model TMSWeb.Models.ViewModels.OrderFormViewModel
+@{
+    string fuel_rate = " ";
+    string lift = " ";
+    string yard = " ";
+    string port = " ";
+    string express = " ";
+    string total = " ";
+    var license = Model.truck_license != null ? Model.truck_license : "";
+    var driver = Model.driver_fullname != null ? Model.driver_fullname : "";
+    Layout = null;
+    if (Model.container_size == "06")
+    {
+        if (Model.is2short != true)
+        {
+            fuel_rate = (Model.fuel_rate > 0 ? Model.fuel_rate.ToString("#,##0 ลิตร") : " ");
+            lift = (Model.lift > 0 ? (Model.lift * 2).ToString("#,##0.00") : " ");
+            yard = (Model.yard > 0 ? Model.yard.ToString("#,##0.00") : " ");
+
+            express = (Model.express_way > 0 ? Model.express_way.ToString("#,##0.00") : " ");
+            total = ((Model.lift * 2) + Model.port + Model.yard + Model.express_way).ToString("#,##0.00 บาท");
+        }
+
+        port = (Model.port > 0 ? Model.port.ToString("#,##0.00") : " ");
+    }
+    else
+    {
+        fuel_rate = (Model.fuel_rate > 0 ? Model.fuel_rate.ToString("#,##0 ลิตร") : " ");
+        lift = (Model.lift > 0 ? Model.lift.ToString("#,##0.00") : " ");
+        yard = (Model.yard > 0 ? Model.yard.ToString("#,##0.00") : " ");
+        port = (Model.port > 0 ? Model.port.ToString("#,##0.00") : " ");
+        express = (Model.express_way > 0 ? Model.express_way.ToString("#,##0.00") : " ");
+        total = (Model.lift + Model.port + Model.yard + Model.express_way).ToString("#,##0.00 บาท");
+    }
+}
+<style>
+    body {
+        background-color: #fff;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    .form-wrap {
+        padding: 7px;
+    }
+
+    .form-detail {
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .header-col-1 {
+        width: 200px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: inline-block;
+    }
+
+    .company-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .company-detail {
+        font-size: 13px !important;
+    }
+
+    .topic-name {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .topic-date {
+        text-align: right;
+    }
+
+    .clear-float {
+        clear: both;
+    }
+
+    .form-topic {
+        float: left;
+    }
+
+    .form-detail {
+        float: left;
+        border-bottom: 1px solid #000;
+        font-size: 14px;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .form-time {
+        float: left;
+        border-bottom: 1px dashed #000;
+        font-size: 14px;
+        text-align: left;
+        padding-left: 10px;
+        height: 20px;
+    }
+
+    .table-data tr {
+        height: 35px;
+    }
+
+    .table-data td {
+        font-size: 13px;
+    }
+
+    .table-header {
+        width: 100%;
+        font-size: 13px !important;
+    }
+
+        .table-header td {
+            width: 14px !important;
+            height: 30px;
+        }
+
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+    }
+</style>
+
+<div class="page">
+    <div class="top-header">
+        @{
+            Html.RenderPartial("HeaderPdf");
+        }
+    </div>
+    <br />
+    <div class="clear-float"></div>
+    <div class="topic-name">
+        ใบสั่งปฏิบัติงาน / JOB ORDER
+    </div>
+    <br />
+    <div class="clear-float"></div>
+    <div>
+        <table class="table-header">
+            <tr>
+                <td colspan="5" style="text-align:right;">วันที่</td>
+                <td>
+                    <div class="form-detail" style="width:150px;">@Model.job_date.ToString("dd MMMM yyyy")</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:80px!important;">ทะเบียนหัว</td>
+                <td>
+                    <div class="form-detail" style="width:150px;">&nbsp;@license</div>
+                </td>
+                <td style="width:60px!important;">ทะเบียนหาง</td>
+                <td>
+                    <div class="form-detail" style="width:150px;">&nbsp;</div>
+                </td>
+                <td style="text-align:right;">พขร.</td>
+                <td>
+                    <div class="form-detail" style="width:150px;">&nbsp;@driver</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:80px!important;">AVA Booking</td>
+                <td colspan="5">
+                    <div class="form-detail" style="width:350px;">@Model.job_detail_code</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:80px!important;">Size / ขนาดตู้</td>
+                <td>
+                    <div class="form-detail" style="width:110px;">@Model.container_size</div>
+                </td>
+                <td style="width:65px!important;">ประเภทงาน</td>
+                <td colspan="2">
+                    <div class="form-detail" style="width:200px;">@Model.job_type</div>
+                </td>
+            </tr>
+        </table>
+        <div class="form-data" style="margin-top:10px;">
+            <div>
+                <div class="form-topic">สถานที่รับสินค้า / ส่งสินค้า</div>
+                <div class="form-detail" style="width: 60%;">@Model.mission_name (@Model.port_no)</div>
+            </div>
+            <div style="clear: both;"></div>
+            <div style="width:550px;padding-left:150px;font-size:14px;">@Model.industry&nbsp;&nbsp;&nbsp;@Model.zone_name</div>
+        </div>
+    </div>
+
+    <div class="form-data" style="margin-top: 10px;">
+        <span style="font-style:italic;font-size:14px;font-weight:bold;">ที่อยู่ออกใบเสร็จ</span>
+        <div style="padding:10px;width:95%;border:1px solid #000000;background-color:#e4e4e4">
+            <div style="width:655px;font-size:14px;font-weight:bold;">
+                <div>
+                    @Model.receipt_name
+                </div>
+                <div>
+                    @Model.receipt_address
+                </div>
+                <div style="margin-top:10px;">
+                    TAX ID. @Model.receipt_tax
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clear-float"></div>
+    @if (Model.other_address != null)
+    {
+        <div style="margin-top: 20px;">
+            <div style="width:600px;">@Model.other_address</div>
+        </div>
+        <div class="clear-float"></div>
+    }
+    <br />
+    <div class="form-data">
+        <table class="table-data" style="margin-left:20px;">
+            <tr>
+                <td><div class="form-topic">Booking No.</div></td>
+                <td>
+                    <div class="form-detail" style="width:200px;">@Model.booking_no</div>
+                </td>
+                <td style="text-align:right;padding-left:30px;width:70px;">Agent / เอเย่น</td>
+                <td>
+                    <div class="form-detail" style="width:100%;">@Model.agent_code</div>
+                </td>
+            </tr>
+            <tr>
+                <td><div class="form-topic">สถานที่รับตู้</div></td>
+                <td>
+                    <div class="form-detail" style="width:200px;">@Model.start_name</div>
+                </td>
+                <td style="text-align:right;padding-left:30px;width:70px;">สถานที่คืนตู้</td>
+                <td>
+                    <div class="form-detail" style="width:100%;">@Model.finish_name</div>
+                </td>
+            </tr>
+            <tr>
+                <td>Container no. / เบอร์ตู้</td>
+                <td>
+                    <div class="form-detail" style="width:200px;">&nbsp;</div>
+                </td>
+                <td style="text-align:right;padding-left:30px;">Seal no./เบอร์ซีล</td>
+                <td>
+                    <div class="form-detail" style="width:100%;">&nbsp;</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:180px;">Tare weight/น้ำหนักตู้เปล่า</td>
+                <td>
+                    <div class="form-detail" style="width:200px;">&nbsp;</div>
+                </td>
+                <td style="text-align:right;padding-left:30px;">Closing Time</td>
+                <td>
+                    <div class="form-detail" style="width:100%;">@Model.closing_time</div>
+                </td>
+            </tr>
+            <tr>
+                <td>เวลาโหลดสินค้า</td>
+                <td>
+                    <div class="form-detail" style="width:200px;">@Model.job_date.ToString("HH:mm")</div>
+                </td>
+                <td style="text-align:right;padding-left:30px;">Invoice</td>
+                <td>
+                    <div class="form-detail" style="width:100%;">@Model.job_invoice</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br />
+    <div class="form-data" style="margin-top: 10px;">
+        <div style="display:inline-block;">
+            <div class="form-topic">หมายเหตุ</div>
+            <div class="form-detail" style="width:600px;">@Model.job_remark</div>
+        </div>
+    </div>
+    <div class="clear-float"></div>
+    <div class="form-data" style="margin-top:20px;">
+        <div style="display:inline-block;">
+            <div class="form-topic">เวลาถึงโรงงาน</div>
+            <div class="form-time" style="width:120px;"></div>
+        </div>
+        <div style="display:inline-block;margin-left:20px;">
+            <div class="form-topic">เวลาเริ่มบรรจุ</div>
+            <div class="form-time" style="width:120px;"></div>
+        </div>
+        <div style="display:inline-block;margin-left:20px;">
+            <div class="form-topic">เวลาบรรจุเสร็จ</div>
+            <div class="form-time" style="width:120px;"></div>
+        </div>
+    </div>
+    <div class="clear-float"></div>
+    <br />
+    <table style="margin-top:20px;width:100%;">
+        <tr>
+            <td style="text-align:center;">
+                <div style="border-bottom:1px dashed #000;width:300px;display:inline-block"></div>
+                <div style="font-size:13px;">ลงชื่อผู้บรรจุสินค้า / รับสินค้า</div>
+            </td>
+            <td style="text-align:center;">
+                <div style="border-bottom:1px dashed #000;width:300px;display:inline-block"></div>
+                <div style="font-size:13px;">ลงชื่อพนักงานขับรถ</div>
+            </td>
+        </tr>
+    </table>
+
+    @if (Model.truck_typegroup_code != "04")
+    {
+        <div style="margin-top: 20px;">
+            <table style="font-size:13px!important;width:100%;">
+                <tr>
+                    <td>น้ำมัน</td>
+                    <td>
+                        <div class="form-detail" style="text-align:center;width:120px;height:20px;">@fuel_rate</div>
+                    </td>
+                    <td style="padding-left:30px">ค่ายก</td>
+                    <td>
+                        <div class="form-detail" style="text-align:center;width:120px;height:20px;">@lift</div>
+                    </td>
+                    <td style="padding-left:30px">ค่าทางด่วน</td>
+                    <td>
+                        <div class="form-detail" style="text-align:center;width:120px;height:20px;">@express</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="height:50px;">ผ่านท่า</td>
+                    <td>
+                        <div class="form-detail" style="text-align:center;width:120px;height:20px;">@port</div>
+                    </td>
+                    <td style="padding-left:30px">ผ่านลาน</td>
+                    <td>
+                        <div class="form-detail" style="text-align:center;width:120px;height:20px;">@yard</div>
+                    </td>
+                    <td style="padding-left:30px;font-weight:bold;">ยอดเบิก</td>
+                    <td>
+                        <div class="form-detail" style="text-align:center;width:120px;height:20px;font-weight:bold;">
+                            @total
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    }
+
+    <div style="display:inline-block;">
+        <img src="@Model.barcode" style="width:120px;" />
+    </div>
+
+    <div style="display:inline-block;float:right;padding-top:70px;">
+        <div style="display: inline-block;text-align:center;">
+            <div style="border-bottom:1px dashed #000;width:250px;display:inline-block"></div>
+            <div>ลงชื่อผู้รับเงิน</div>
+        </div>
+    </div>
+</div>

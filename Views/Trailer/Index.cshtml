@@ -1,0 +1,311 @@
+﻿@{
+    ViewBag.TopActive = "Truck";
+    ViewBag.MidActive = "trailerlist";
+    ViewBag.Title = "ข้อมูลรถ";
+}
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .btn-group-td {
+            text-align: center;
+            width: 80px;
+        }
+
+        .license-td {
+            width: 130px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+    </style>
+}
+
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลรถ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/trailer/">หาง</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการหาง</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right" role="form">
+                            <button type="button" class="btn btn-sm red" onclick="setAdd()">เพิ่มข้อมูล</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover order-column" id="table-trailer">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th> หมายเลขรถ</th>
+                            <th> ทะเบียน</th>
+                            <th> ทะเบียนหัว</th>
+                            <th> ประเภทเพลารถ</th>
+                            <th> ประเภทหาง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter"></th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterTrailer" />
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterTruck" />
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterLicense" />
+                            </th>
+                            <th class="filter"></th>
+                            <th class="filter"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @section scripts
+    {
+        <script type="text/javascript">
+                (function($) {
+                    var oTable = $('#table-trailer').DataTable({
+                        "processing": true,
+                        "serverSide": true,
+                        "iDisplayLength": 20,
+                        "scrollCollapse": false,
+                        "order": [
+                            [1, "asc"]
+                        ],
+                        "sAjaxSource": "../Trailer/GetTrailerDataList",
+                        "fnRowCallback": function(row, aData, index) {
+
+                        },
+                        "fnServerParams": function(aoData) {
+                            aoData.push({
+                                "name": "filterTruck",
+                                "value": $("#filterTruck").val()
+                            });
+                            aoData.push({
+                                "name": "filterTrailer",
+                                "value": $("#filterTrailer").val()
+                            });
+                            aoData.push({
+                                "name": "filterLicense",
+                                "value": $("#filterLicense").val()
+                            });
+                        },
+                        "oLanguage": {
+                            "sInfoFiltered": " ",
+                            "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                            "sSearch": "ค้นหา : ",
+                            "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                                '<option value="10">10</option>' +
+                                '<option value="20" selected>20</option>' +
+                                '<option value="30">30</option>' +
+                                '<option value="40">40</option>' +
+                                '<option value="50">50</option>' +
+                                '<option value="100">100</option>' +
+                                '</select> รายการ'
+                        },
+                        "columnDefs": [{
+                            className: "action-4-td text-center",
+                            targets: 0
+                        },
+                        {
+                            className: "license-td",
+                            targets: 1
+                        },
+                        {
+                            className: "license-td",
+                            targets: 2
+                        },
+                        {
+                            className: "license-td",
+                            targets: 3
+                        },
+                        {
+                            className: "name-td",
+                            targets: 4
+                        },
+                        {
+                            className: "name-td",
+                            targets: 5
+                        }
+                        ],
+                        "columns": [{
+                            "data": "trailer_code",
+                            "orderable": false,
+                            "render": function(data, type, row) {
+                                var modify =
+                                    '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' +
+                                    data + '")><i class="fad fa-pencil-alt"></i></a>';
+                                var remove =
+                                    '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' +
+                                    data + '")><i class="fad fa-trash-alt"></i></a>';
+                                var active =
+                                    '<a class="btn btn-xs green-jungle" href="javascript:;" data-title="เปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setActive("' +
+                                    data + '")><i class="fa fa-check"></i></a>';
+                                var inactive =
+                                    '<a class="btn btn-xs grey" href="javascript:;" data-title="ปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setInactive("' +
+                                    data + '")><i class="fa fa-times"></i></a>';
+                                var detail =
+                                    '<a class="btn btn-xs blue" href="javascript:;" data-title="รายละเอียด"  data-toggle="tooltip" data-trigger="hover" onclick=showDetail("' +
+                                    data + '")>&nbsp;<i class="fad fa-clipboard-list-check"></i>&nbsp;</a>';
+
+                                if (row.is_actived) {
+                                    return inactive + remove + modify + detail;
+                                } else {
+                                    return active + remove + detail;
+                                }
+                            }
+                        },
+                        {
+                            "data": "trailer_no"
+                        },
+                        {
+                            "data": "trailer_license"
+                        },
+                        {
+                            "data": "truck_license"
+                        },
+                        {
+                            "data": "trailer_type_name"
+                        },
+                        {
+                            "data": "trailer_floor_name"
+                        }
+                        ],
+                        "createdRow": function(row, data, dataIndex) {
+                            $(row).find('[data-toggle="tooltip"]').tooltip();
+                        }
+                    });
+
+                    $('#table-trailer tfoot tr').appendTo('#table-trailer thead');
+
+                    $('.filterText').keyup(function() {
+                        $('#table-trailer').dataTable()._fnAjaxUpdate();
+                    });
+                }(jQuery));
+
+                function reloadRow() {
+                    $("#table-trailer").DataTable().ajax.reload();
+                }
+
+                function setAdd() {
+                    var url = '../trailer/add';
+                    window.location = url;
+                }
+
+                function setEdit(code) {
+                    var url = '../trailer/edit?code=' + code;
+                    window.location = url;
+                }
+
+                function showDetail(trailer_license) {
+                    var url = '../Trailer/_TrailerDetail?license=' + trailer_license;
+                    var setting = 'width=1100,height=630';
+
+                    window.open(url, 'truck driver', setting);
+                }
+
+                function setDisabled(code) {
+                    $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                        if (r) {
+                            $.post("../Trailer/RemoveTrailer", {
+                                code: code
+                            }, function(data) {
+                                if (data.result == true) {
+                                    $.alert.open('info', "จัดการข้อมูลเรียบร้อยแล้ว", function(r) {
+                                        $('#table-trailer').dataTable()._fnAjaxUpdate();
+                                    });
+                                } else {
+                                    jAlert('ผลการทำงาน',
+                                        "<div>เกิดข้อผิดลพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>"
+                                    );
+                                }
+                            });
+                        }
+                    });
+                }
+
+                function setActive(code) {
+                    $.alert.open('confirm', 'คุณต้องการเปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                        if (r) {
+                            overLay();
+                            $.post("/Trailer/Active", {
+                                code: code
+                            }, function(data) {
+                                unoverLay();
+                                if (data.result == true) {
+                                    $.alert.open('info', data.resultMessage, function(r) {
+                                        $('#table-trailer').dataTable()._fnAjaxUpdate();
+                                    });
+                                } else {
+                                    $.alert.open('error', data.resultMessage);
+                                }
+                            });
+                        }
+                    });
+                }
+
+                function setInactive(code) {
+                    $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                        if (r) {
+                            overLay();
+                            $.post("/Trailer/Inactive", {
+                                code: code
+                            }, function(data) {
+                                unoverLay();
+                                if (data.result == true) {
+                                    $.alert.open('info', data.resultMessage, function(r) {
+                                        $('#table-trailer').dataTable()._fnAjaxUpdate();
+                                    });
+                                } else {
+                                    $.alert.open('error', data.resultMessage);
+                                }
+                            });
+                        }
+                    });
+                }
+        </script>
+    }

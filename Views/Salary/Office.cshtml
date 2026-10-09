@@ -1,0 +1,395 @@
+@{
+    ViewBag.TopActive = "Allowance";
+    ViewBag.MidActive = "salary";
+    ViewBag.SubActive = "officesalary";
+    ViewBag.Title = "รายการเงินเดือนพนักงาน";
+}
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        .action-td {
+            width: 30px !important;
+            text-align: center;
+        }
+
+        .name-td {
+            text-align: left;
+        }
+
+        .gender-td {
+            width: 40px !important;
+            text-align: center;
+        }
+
+        .age-td {
+            text-align: right;
+            width: 40px !important;
+        }
+
+        .currency {
+            text-align: right;
+        }
+
+        .date-td {
+            width: 90px !important;
+            text-align: center;
+        }
+
+        .phone-td {
+            width: 90px !important;
+            text-align: center;
+        }
+
+        td.details-control {
+            background: url('/images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+
+        tr.shown td.details-control {
+            background: url('/images/details_close.png') no-repeat center center;
+        }
+
+        .table-detail {
+            border-collapse: collapse;
+            border-bottom: 1px solid #ccc;
+            width: 100%;
+        }
+
+            .table-detail th {
+                text-align: center;
+            }
+
+            .table-detail td,
+            .table-detail th {
+                border: 1px solid #ccc;
+            }
+
+                .table-detail td.name {
+                    text-align: left;
+                }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        td.action {
+            width: 120px;
+            text-align: center;
+        }
+
+        td.approve-status {
+            width: 120px;
+            background-color: #2c8b01;
+            color: #fff;
+            text-align: center;
+            font-size: 11px !important;
+        }
+
+        td.pending-status {
+            width: 120px;
+            background-color: #d0bb02;
+            color: #fff;
+            text-align: center;
+            font-size: 11px !important;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลเงินเดือนพนักงาน</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-user-tie"></i>
+                    <span class="caption-subject bold uppercase"> รายการเงินเดือนพนักงานออฟฟิศ</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right" role="form">
+                            <div class="form-group">
+                                @Html.DropDownList("year", null, new
+                                {
+                                    @Class = "form-control dlListForm",
+                                    Style =
+                                "width:90px;"
+                                })
+                            </div>
+                            |
+                            <button type="button" class="btn btn-transparent red btn-outline btn-sm active"
+                                    onclick="setAdd()">
+                                ทำรายการ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-striped table-hover table-bordered" id="table-salary">
+                            <thead>
+                                <tr>
+                                    <th style="width:100px!important;"></th>
+                                    <th>วันที่ทำรายการ</th>
+                                    <th>เดือน/ปี</th>
+                                    <th>ยอดรวม</th>
+                                    <th>จำนวน</th>
+                                    <th>อนุมัติแล้ว</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        var oTable, itemRow;
+        $(document).ready(function() {
+            oTable = $('#table-salary').DataTable({
+                "processing": true,
+                "serverSide": true,
+                info: false,
+                ordering: false,
+                paging: false,
+                "sAjaxSource": "/salary/GetOfficeSalaryList",
+                "fnRowCallback": function(row, aData, index) {
+                    if (!aData.is_actived)
+                        $(row).addClass('inactive');
+
+                    $('td', row).eq(3).html(number_format(aData.payment_total));
+                    $('td', row).eq(2).html(changeMonth(aData.payment_month, aData.payment_year));
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "year", "value": $("#year").val() });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "action-4-td text-center", targets: 0 },
+                    { className: "code-td", targets: 1 },
+                    { className: "name-td", targets: 2 },
+                    { className: "dept-td", targets: 3 },
+                    { className: "currency-td", targets: 4 },
+                    { className: "currency-td", targets: 5 }
+                ],
+                "columns":
+                    [
+                        {
+                            "data": "payment_code", "orderable": false, "render": function(data, type, row) {
+                                var active = '<a class="btn btn-xs green-jungle" href="javascript:;" data-title="เปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setActive("' + data + '")><i class="fa fa-check"></i></a>';
+                                var inactive = '<a class="btn btn-xs grey" href="javascript:;" data-title="ปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setInactive("' + data + '")><i class="fa fa-times"></i></a>';
+
+                                var print = '<a  class="btn btn-xs grey" href="javascript:;" data-title="พิมพ์เอกสาร"  data-toggle="tooltip" data-trigger="hover" onclick=printItem("' + data + '")><i class="fad fa-print"></i></a>';
+                                var remove = '<a class="btn btn-xs red" href="javascript:;" data-title="ลบ"  data-toggle="tooltip" data-trigger="hover" onclick=removeItem("' + data + '")><i class="fad fa-trash"></i></a>';
+                                var detail = '<a class="btn btn-xs blue" href="/salary/listofficeitem?code=' + data + '" data-title="รายละเอียด"  data-toggle="tooltip" data-trigger="hover"><i class="fad fa-clipboard-list"></i></a>';
+
+                                if (row.is_actived) {
+                                    return inactive + remove + detail;
+                                } else {
+                                    return active + remove + detail;
+                                }
+                            }
+                        },
+                        { "data": "payment_date" },
+                        { "data": "payment_month" },
+                        { "data": "payment_total" },
+                        { "data": "amount" },
+                        { "data": "approved" }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('.dlListForm').change(function() {
+                $('#table-salary').dataTable()._fnAjaxUpdate();
+            });
+        });
+
+        function printAll(start, end) {
+            var url = '/form/officepaymentlist?start=' + start + '&end=' + end;
+            window.open(url, 'print allowance');
+        }
+
+        function removeItem(payment_code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Salary/RemoveAllItem",
+                        {
+                            payment_code: payment_code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                reloadRow();
+                            } else {
+                                $.alert.open('error', "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function setActive(payment_code) {
+            $.alert.open('confirm', 'คุณต้องการเผยแพร่รายการข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Salary/ActiveAllItem",
+                        {
+                            payment_code: payment_code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                reloadRow();
+                            } else {
+                                $.alert.open('error', "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function setInactive(payment_code) {
+            $.alert.open('confirm', 'คุณต้องหยุดเผยแพร่รายการข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Salary/InactiveAllItem",
+                        {
+                            payment_code: payment_code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                reloadRow();
+                            } else {
+                                $.alert.open('error', "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>");
+                            }
+                        });
+                }
+            });
+        }
+
+        function reloadRow() {
+            $("#table-salary").DataTable().ajax.reload();
+        }
+
+        function setAdd() {
+            var left = 500;
+            var top = 300;
+            var url = '/salary/addofficesalary';
+            var setting = "toolbar=no,scrollbars=yes,resizable=no,top=200,left=500,width=650,height=310";
+
+            window.open(url, 'add salary', setting);
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function changeMonth(month, year) {
+            switch (month) {
+                case "01":
+                    month = "January";
+                    break;
+                case "02":
+                    month = "Febuary";
+                    break;
+                case "03":
+                    month = "March";
+                    break;
+                case "04":
+                    month = "April";
+                    break;
+                case "05":
+                    month = "May";
+                    break;
+                case "06":
+                    month = "June";
+                    break;
+                case "07":
+                    month = "July";
+                    break;
+                case "08":
+                    month = "August";
+                    break;
+                case "09":
+                    month = "September";
+                    break;
+                case "10":
+                    month = "October";
+                    break;
+                case "11":
+                    month = "November";
+                    break;
+                case "12":
+                    month = "December";
+                    break;
+            }
+
+            return month + " " + year;
+        }
+    </script>
+}

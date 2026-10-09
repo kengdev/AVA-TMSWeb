@@ -1,0 +1,338 @@
+@{
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "quotation";
+    ViewBag.Title = "ข้อมูลเอกสารเสนอราคา";
+}
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .rate-td {
+            text-align: center;
+            width: 130px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลเอกสารอื่น ๆ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/quotation/">ข้อมูลเอกสารเสนอราคา</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการเอกสารเสนอราคา</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <button type="button" class="btn btn-sm red" onclick="setAdd()">ทำรายการ</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover table-checkable order-column"
+                       id="table-zone">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th> ลูกค้า</th>
+                            <th> เส้นทาง</th>
+                            <th> เรทน้ำมัน</th>
+                            <th style="display: none;"> </th>
+                            <th style="display: none;">dffd></th>
+                            <th style="display: none;"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter"></th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterNameTH" />
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterNameEN" />
+                            </th>
+                            <th class="filter"></th>
+                            <th class="filter" style="display: none;"></th>
+                            <th class="filter" style="display: none;"></th>
+                            <th class="filter" style="display: none;"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#table-zone').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [
+                    [1, "desc"]
+                ],
+                "sAjaxSource": "/Quotation/GetQuotationDataList",
+                "fnServerParams": function(aoData) {
+                    aoData.push({
+                        "name": "filterNameTH",
+                        "value": $("#filterNameTH").val()
+                    });
+                    aoData.push({
+                        "name": "filterNameEN",
+                        "value": $("#filterNameEN").val()
+                    });
+                },
+                "fnRowCallback": function(row, aData, index) {
+                    var c1 = aData.container1 != '-' ? ' (' + aData.container1 + ')' : '';
+                    var c2 = aData.container2 != '-' ? ' (' + aData.container2 + ')' : '';
+                    var c3 = aData.container3 != '-' ? ' (' + aData.container3 + ')' : '';
+
+                    $('td', row).eq(4).html(number_format(aData.active_detail.costValue1) + c1);
+                    $('td', row).eq(5).html(number_format(aData.active_detail.costValue2) + c2);
+                    $('td', row).eq(6).html(number_format(aData.active_detail.costValue3) + c3);
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [{
+                    className: "action-4-td text-center",
+                    targets: 0
+                },
+                {
+                    className: "name-td",
+                    targets: 1
+                },
+                {
+                    className: "name-td",
+                    targets: 2
+                },
+                {
+                    className: "rate-td",
+                    targets: 3
+                },
+                {
+                    className: "rate-size-td",
+                    targets: 4
+                },
+                {
+                    className: "rate-size-td",
+                    targets: 5
+                },
+                {
+                    className: "rate-size-td",
+                    targets: 6
+                }
+                ],
+                "columns": [{
+                    "data": "quotation_code",
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        var modify =
+                            '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' +
+                            data + '")><i class="fad fa-pencil-alt"></i></a>';
+                        var remove =
+                            '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' +
+                            data + '")><i class="fad fa-trash-alt"></i></a>';
+                        var active =
+                            '<a class="btn btn-xs green-jungle" href="javascript:;" data-title="เปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setActive("' +
+                            data + '")><i class="fa fa-check"></i></a>';
+                        var inactive =
+                            '<a class="btn btn-xs grey" href="javascript:;" data-title="ปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setInactive("' +
+                            data + '")><i class="fa fa-times"></i></a>';
+                        var print =
+                            '<a class="btn btn-xs grey" href="javascript:;" data-title="พิมพ์เอกสาร"  data-toggle="tooltip" data-trigger="hover" onclick=setPrint("' +
+                            data + '")><i class="fad fa-print"></i></a>';
+
+                        if (row.is_actived) {
+                            return inactive + remove + modify + print;
+                        } else {
+                            return active + remove;
+                        }
+                    }
+                },
+                {
+                    "data": "customer"
+                },
+                {
+                    "data": "route",
+                    "orderable": false
+                },
+                {
+                    "data": "active_detail.fuelRate",
+                    "orderable": false
+                },
+                {
+                    "data": "active_detail.costValue1",
+                    "orderable": false
+                },
+                {
+                    "data": "active_detail.costValue2",
+                    "orderable": false
+                },
+                {
+                    "data": "active_detail.costValue3",
+                    "orderable": false
+                }
+                ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-zone tfoot tr').appendTo('#table-zone thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-zone').dataTable()._fnAjaxUpdate();
+            });
+        }(jQuery));
+
+        function reloadRow() {
+            $("#table-zone").DataTable().ajax.reload();
+        }
+
+        function setAdd() {
+            var url = '/quotation/add';
+            window.location = url;
+        }
+
+        function setEdit(code) {
+            var url = '/quotation/edit?code=' + code;
+            window.location = url;
+        }
+
+        function setDisabled(code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Quotation/remove", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-zone').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        function setActive(code) {
+            $.alert.open('confirm', 'คุณต้องการเปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Quotation/Active", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-zone').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        function setInactive(code) {
+            $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Quotation/Inactive", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-zone').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        function setPrint(code) {
+            var url = '/form/quotation?code=' + code;
+            window.open(url, 'form receipt');
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}

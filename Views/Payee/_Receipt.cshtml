@@ -1,0 +1,154 @@
+﻿@{
+    Layout = null;
+}
+
+<div class="modal-wrapper-content-title">
+    <div style="width:800px">
+        <div class="title-modal">
+            ข้อมูลการชำระเงิน
+        </div>
+        @using (Html.BeginForm("Receipt", "Payee", FormMethod.Post, new { role = "form", id = "frmReceipt", onsubmit = "return OnValidate()" }))
+        {
+            @Html.Hidden("ReceivePaymentCode", null, ViewBag.ReceivePaymentCode)
+            <div class="form-content">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group" style="padding:0;margin:0">
+                            <label class="font-sm font-dark">วิธีการชำระเงิน</label>
+                            <div class="mt-radio-list">
+                                <label class="mt-radio mt-radio-outline font-dark">
+                                    เงินสด
+                                    <input type="radio" value="01" name="PaymentType" />
+                                    <span></span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding:0;margin:0">
+                            <div class="mt-radio-list">
+                                <label class="mt-radio mt-radio-outline font-dark">
+                                    โอนผ่านธนาคาร
+                                    <input type="radio" value="02" name="PaymentType" />
+                                    <span></span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            @Html.DropDownList("BankName", null, "-----เลือกธนาคาร-----", new { @Class = "form-control input-sm", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group" style="padding:0;margin:0">
+                            <div class="mt-radio-list">
+                                <label class="mt-radio mt-radio-outline font-dark">
+                                    เช็คธนาคาร
+                                    <input type="radio" value="03" name="PaymentType" />
+                                    <span></span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            @Html.DropDownList("CBankName", null, "-----เลือกธนาคาร-----", new { @Class = "form-control input-sm", disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            @Html.TextBox("BankBranchName", null, new { @Class = "form-control input-sm", disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            @Html.TextBox("ChequeNo", null, new { @Class = "form-control input-sm", autocomplete = "off", placeholder = "เลขที่เช็ค", Disabled = "Disabled" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label font-sm font-dark">วันที่</label>
+                    @Html.TextBox("ReceiptDate", null, new { @Class = "form-control input-sm datepicker", autocomplete = "off" })
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label font-sm font-dark">หมายเหตุ</label>
+                    @Html.TextBox("Remark", null, new { @Class = "form-control input-sm", autocomplete = "off" })
+                </div>
+            </div>
+            <div class="actions-modal pull-right">
+                <div id="wrapper-action-modal">
+                    <a onclick="closeModal()" href="javascript:;">ยกเลิก</a> |
+                    <button type="submit" class="btn btn-sm btn-info">บันทึกข้อมูล</button>
+                </div>
+                <div id="spin-item">
+                    <div class="loader09"></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    (function($) {
+        $("#frmReceipt").ajaxForm(function(data) {
+            $('#wrapper-action-modal').show();
+            $('#spin-item').hide();
+            if (data.result == true) {
+                $.alert.open('info', data.resultMessage, function(r) {
+                    $.modal.close();
+                    var code = $('#ReceivePaymentCode').val();
+                    var url = '/formava/payeereceipt?code=' + code;
+                    window.open(url, '_blank');
+                });
+            } else {
+                jAlert('ผลการทำงาน', data.resultMessage);
+            }
+        });
+
+        $('.datepicker').datetimepicker({
+            datepicker: true,
+            timepicker: false,
+            lang: 'th',
+            format: 'Y-m-d',
+            inline: false
+        });
+
+        $('input[name="PaymentType"]').on('change', function() {
+            const selectedValue = $(this).val();
+            console.log("เลือกประเภทการชำระเงิน:", selectedValue);
+
+            if (selectedValue === "01") {
+                $('#BankName').prop('disabled', true)
+                $('#CBankName').prop('disabled', true)
+                $('#BankBranchName').prop('disabled', true)
+                $('#ChequeNo').prop('disabled', true)
+            }
+            else if (selectedValue === "02") {
+                $('#BankName').prop('disabled', false)
+                $('#CBankName').prop('disabled', true)
+                $('#BankBranchName').prop('disabled', true)
+                $('#ChequeNo').prop('disabled', true)
+            }
+            else if (selectedValue === "03") {
+                $('#BankName').prop('disabled', true)
+                $('#CBankName').prop('disabled', false)
+                $('#BankBranchName').prop('disabled', false)
+                $('#ChequeNo').prop('disabled', false)
+            }
+        });
+    }(jQuery));
+</script>

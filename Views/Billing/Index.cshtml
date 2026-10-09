@@ -1,0 +1,370 @@
+﻿@{
+    ViewBag.TopActive = "Billing";
+    ViewBag.MidActive = "billing";
+    ViewBag.SubActive = "invoice";
+    ViewBag.Title = "ข้อมูลการวางบิล";
+}
+@section Styles {
+    <link href="~/css/modal/basic.css" rel="stylesheet" />
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 11px !important;
+        }
+
+        .type-td {
+            width: 70px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การวางบิล</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">รายการวางบิล</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/billing/">จัดการแจ้งหนี้</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> ข้อมูลการวางบิล</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right" role="form">
+                            <button type="button" class="btn btn-sm blue" style="width:70px"
+                                    onclick="setAddTransport()">
+                                ค่าเที่ยว
+                            </button>
+                            <button type="button" class="btn btn-sm red" style="width:70px"
+                                    onclick="setAddAdvance()">
+                                ค่าใช้จ่าย
+                            </button>
+                            <button type="button" class="btn btn-sm purple" style="width:70px"
+                                    onclick="setAddOther()">
+                                อื่น ๆ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover" id="table-billing">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center!important;"></th>
+                            <th> วันที่</th>
+                            <th> รหัส</th>
+                            <th> ชื่อลูกค้า</th>
+                            <th> สถานที่</th>
+                            <th> ยอดเงิน</th>
+                            <th> ประเภท</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter"></th>
+                            <th class="filter" style="text-align:right!important;padding-top:10px!important;">
+
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterCode" />
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterCustomer" />
+                            </th>
+                            <th class="filter">
+                                <input type="text" class="form-control filterText" id="filterMission" />
+                            </th>
+                            <th class="filter"></th>
+                            <th class="filter"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/modal/jquery.simplemodal.js"></script>
+    <script type="text/javascript">
+        (function($) {
+            var oTableBilling = $('#table-billing').DataTable({
+                "processing": true,
+                "searching": false,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [[2, "desc"]],
+                "sAjaxSource": "/Billing/GetBillingDataList",
+                "fnRowCallback": function(row, aData, index) {
+                    $('td', row).eq(5).html(number_format(aData.billing_total));
+                    if (aData.billing_type == "M") {
+                        $('td', row).eq(6).addClass('mix');
+                        $('td', row).eq(6).html('รวม');
+                    }
+                    else if (aData.billing_type == "T") {
+                        $('td', row).eq(6).addClass('transport');
+                        $('td', row).eq(6).html('ค่าเที่ยว');
+                    }
+                    else if (aData.billing_type == "A") {
+                        $('td', row).eq(6).addClass('advance');
+                        $('td', row).eq(6).html('ค่าใช้จ่าย');
+                    }
+                    else if (aData.billing_type == "O") {
+                        $('td', row).eq(6).addClass('other');
+                        $('td', row).eq(6).html('อื่น ๆ');
+                    }
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "filterCode", "value": $("#filterCode").val() });
+                    aoData.push({ "name": "filterMission", "value": $("#filterMission").val() });
+                    aoData.push({ "name": "filterCustomer", "value": $("#filterCustomer").val() });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "action-4-td text-center", targets: 0 },
+                    { className: "date-td", targets: 1 },
+                    { className: "code-td", targets: 2 },
+                    { className: "name-td", targets: 3 },
+                    { className: "name-td", targets: 4 },
+                    { className: "currency-td", targets: 5 },
+                    { className: "type-td", targets: 6 }
+                ],
+                "columns":
+                    [
+                        {
+                            "data": "billing_code", "orderable": false, "render": function(data, type, row) {
+                                var modify = '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล" data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' + data + '","' + row.billing_type + '")><i class="fad fa-pencil-alt"></i></a>';
+                                var remove = '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล" data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' + data + '")><i class="fad fa-trash-alt"></i></a>';
+                                var detail = '<a href="javascript:;" class="btn btn-xs blue" data-title="รายละเอียด" data-toggle="tooltip" data-trigger="hover" onclick=setDetail("' + data + '","' + row.billing_type + '")><i class="fad fa-clipboard-list"></i></a>';
+                                var print = '<a class="btn btn-xs grey" href="javascript:;" data-title="พิมพ์ใบแจ้งหนี้" data-toggle="tooltip" data-trigger="hover" onclick=expBill("' + data + '","' + row.billing_type + '")><i class="fad fa-print"></i></a>';
+
+                                if (row.is_clearing == false) {
+                                    return remove + modify + detail + print;
+                                }
+                                else {
+                                    return detail;
+                                }
+                            }
+                        },
+                        { "data": "billing_date" },
+                        { "data": "billing_code" },
+                        { "data": "customer_name" },
+                        { "data": "mission_name" },
+                        { "data": "billing_total", "orderable": false },
+                        { "data": "billing_type", "orderable": false }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-billing tfoot tr').appendTo('#table-billing thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-billing').dataTable()._fnAjaxUpdate();
+            });
+
+            $('#filterDateRangeStart').datetimepicker({
+                format: 'Y-m-d',
+                lang: 'th',
+                onShow: function(ct) {
+                    this.setOptions({
+                        maxDate: jQuery('#filterDateRangeEnd').val() ? jQuery('#filterDateRangeEnd').val() : false
+                    })
+                },
+                timepicker: false,
+                onSelectDate: function() {
+                    $('#table-billing').dataTable()._fnAjaxUpdate();
+                }
+            });
+
+            $('#filterDateRangeEnd').datetimepicker({
+                format: 'Y-m-d',
+                lang: 'th',
+                onShow: function(ct) {
+                    this.setOptions({
+                        minDate: jQuery('#filterDateRangeStart').val() ? jQuery('#filterDateRangeStart').val() : false
+                    })
+                },
+                timepicker: false,
+                onSelectDate: function() {
+                    $('#table-billing').dataTable()._fnAjaxUpdate();
+                }
+            });
+        }(jQuery));
+
+        function setAddTransport() {
+            var url = '/billing/transport';
+            var setting = 'width=1350,height=728';
+
+            window.open(url, 'add billing', setting);
+        }
+
+        function setAddAdvance() {
+            var url = '/billing/advance';
+            var setting = 'width=1350,height=728';
+
+            window.open(url, 'add billing', setting);
+        }
+
+        function setAddOther() {
+            var url = '/billing/other';
+            var setting = 'width=1350,height=728';
+
+            window.open(url, 'add billing', setting);
+        }
+
+        function setDetail(code, type) {
+            var url = "";
+            var setting = 'width=1200,height=634';
+            if (type == "O") {
+                url = '/billing/detailother?code=' + code;
+            }
+            else {
+                url = '/billing/detail?code=' + code;
+            }
+
+            window.open(url, 'Detail Billing', setting);
+        }
+
+        function setEdit(code, type) {
+            if (type == "A") {
+                var url = '/billing/editadvance?code=' + code;
+                var setting = 'width=1350,height=728';
+
+                window.open(url, 'edit billing', setting);
+            }
+            else if (type == "O") {
+                var url = '/billing/editadvanceother?code=' + code;
+                var setting = 'width=1350,height=728';
+
+                window.open(url, 'edit billing', setting);
+            }
+            else {
+                var url = '/billing/edittransport?code=' + code;
+                var setting = 'width=1350,height=728';
+
+                window.open(url, 'edit billing', setting);
+            }
+        }
+
+        function setDisabled(billing_code) {
+            $.alert.open('confirm', 'คุณต้องการยกเลิกข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Billing/RemoveBilling",
+                        {
+                            billing_code: billing_code,
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                $.alert.open('info', data.resultMessage, function(r) {
+                                    $('#table-billing').dataTable()._fnAjaxUpdate();
+                                });
+                            } else {
+                                jAlert('ผลการทำงาน', data.resultMessage);
+                            }
+                        });
+                }
+            });
+        }
+
+        function reloadRow() {
+            $("#table-billing").DataTable().ajax.reload();
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+
+        function expCharge(code, customer) {
+            var url = '/printform/_rptchargereport?code=' + code;
+            var setting = 'width=900,height=750,scrollbars=no';
+
+            window.open(url, 'Billing Report', setting);
+        }
+
+        function expBill(code, type) {
+            var url = "";
+            if (type == "M") {
+                url = '/formbilling/allpdf?code=' + code;
+            }
+            else if (type == "T") {
+                url = '/formbilling/transportpdf?code=' + code;
+            }
+            else if (type == "O") {
+                url = '/formbilling/otherpdf?code=' + code;
+            }
+            else {
+                url = '/formbilling/advancepdf?code=' + code;
+            }
+
+            window.open(url, 'form billing');
+        }
+    </script>
+}

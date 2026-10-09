@@ -1,0 +1,65 @@
+@{
+    Layout = null;
+}
+
+<div class="modal-wrapper-content-title">
+    <div class="text-center" style="width:550px">
+        <div class="title-modal">
+            รับยอดเงินสำรองจ่าย
+        </div>
+
+        <div class="form-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>ยอดเงิน</label>
+                        @Html.TextBox("amount", null, new
+                        {
+                            @Class = "form-control form-number input-sm",
+                            autocomplete = "off"
+                        })
+                    </div>
+
+                    <div class="form-group">
+                        <label>วันที่</label>
+                        @Html.TextBox("budget_date", null, new
+                        {
+                            @Class = "form-control input-sm datepicker",
+                            autocomplete = "off"
+                        })
+                    </div>
+
+                    <div class="form-group">
+                        <label>หมายเหตุ</label>
+                        @Html.TextBox("remark", null, new
+                        {
+                            @Class = "form-control input-sm",
+                            autocomplete = "off"
+                        })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-modal pull-right">
+            <div id="wrapper-action-modal">
+                <a onclick="closeModal()" href="javascript:;">ยกเลิก</a> |
+                <button type="button" onclick="setUpdate()" class="btn btn-sm btn-info">บันทึกข้อมูล</button>
+            </div>
+            <div id="spin-item">
+                <div class="loader09"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.datepicker').datetimepicker({
+        datepicker: true,
+        timepicker: false,
+        lang: 'th',
+        step: 30,
+        format: 'Y-m-d',
+        inline: false
+    });
+</script>

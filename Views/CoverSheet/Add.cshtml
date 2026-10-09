@@ -1,0 +1,439 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblCoversheet
+@{
+    ViewBag.Title = "Add";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "ทำรายการคุมใบวางบิล";
+    var data = (List<TMSWeb.Models.ViewModels.CoverSheetViewModel>)ViewBag.Data;
+}
+<link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+<style>
+    .bordered {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        visibility: hidden;
+    }
+
+    div.dataTables_wrapper {
+        margin: 0 auto;
+    }
+
+    .code {
+        text-align: center;
+        width: 150px;
+        font-size: 13px !important;
+    }
+
+    .date {
+        text-align: center;
+        width: 110px;
+        font-size: 13px !important;
+    }
+
+    .currency {
+        text-align: right;
+        width: 110px;
+        font-size: 13px !important;
+    }
+
+    .name {
+        font-size: 13px !important;
+    }
+
+    table.wrapper {
+        width: 100% !important;
+    }
+
+    .scrolltable {
+        height: 375px;
+        overflow-y: scroll;
+        overflow-x: scroll;
+        border-left: 1px solid #ccc;
+    }
+
+    th,
+    td {
+        font-size: 13px !important;
+    }
+
+    .table {
+        border-top: none !important;
+    }
+
+    .form-body {
+        padding-top: 0 !important;
+    }
+
+    .form-actions {
+        padding: 15px 0 0 0 !important;
+        margin: 0;
+    }
+</style>
+<div class="col-md-12 col-lg-12">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-plus-circle"></i>
+                <span class="caption-subject bold uppercase"> ทำรายการคุมการวางบิล</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("AddCoverSheet", "CoverSheet", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+        {
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <table id="list-billing" data-toggle="table" data-height="480" data-search="true">
+                                <thead>
+                                    <tr>
+                                        <th data-align="center" data-width="40">
+                                            <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                                <input type="checkbox" id="check-all" onclick="checkAll(this)" />
+                                                <span></span>
+                                            </label>
+                                        </th>
+                                        <th data-width="130"> รหัส</th>
+                                        <th> ชื่อลูกค้า</th>
+                                        <th data-width="90"> วันที่</th>
+                                        <th data-width="90"> ยอดเงิน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-billing">
+                                    @foreach (var item in data)
+                                    {
+                                        <tr>
+                                            <td style="text-align:center!important;">
+                                                <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
+                                                    <input type="checkbox" class="item-checkable item-checked"
+                                                           value="@item.billing_code"
+                                                           onclick="checkboxFunc('@item.billing_total', this)"
+                                                           autocomplete="off" />
+                                                    <input type="hidden" value="@item.billing_total" class="total-val" />
+                                                    <span></span>
+                                                </label>
+                                            </td>
+                                            <td class="code">@item.billing_code</td>
+                                            <td class="name">
+                                                <div style="width:100%;text-align:center;">@item.customer_name</div>
+                                            </td>
+                                            <td class="date">@item.billing_date</td>
+                                            <td class="currency">@item.billing_total.ToString("#,##0.00")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="pull-right" style="margin-top:25px;font-size:13px;">
+                                        <span>จำนวนที่เลือก : </span>
+                                        <span id="checked-count"> 0 </span>
+                                        <span> รายการ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-1">
+                            <div class="row" style="margin-top: 50px;">
+                                <div class="col-md-12 text-center">
+                                    <a href="javascript:;" class="btn btn-icon-only blue" id="append-job">
+                                        <i class="fad fa-angle-double-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 7px;">
+                                <div class="col-md-12 text-center">
+                                    <a href="javascript:;" class="btn btn-icon-only grey" id="remove-job">
+                                        <i class="fad fa-angle-double-left"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row" style="margin-top: 45px;padding:0!important">
+                                <div class="col-md-5">
+                                    <div class="form-group" style="margin: 0!important;padding:0!important;">
+                                        <label class="font-sm">
+                                            การคิดภาษี
+                                            <span class="required"> * </span>
+                                        </label>
+                                        <div class="mt-radio-inline" style="padding:0!important;margin:0!important;">
+                                            <label class="mt-radio">
+                                                <input type="radio" name="IsVat" value="false" checked /> ไม่คิดภาษี
+                                                <span></span>
+                                            </label>
+                                            <label class="mt-radio">
+                                                <input type="radio" name="IsVat" value="true" /> คิดภาษี 1%
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label class="font-sm">
+                                            วันที่
+                                            <span class="required"> * </span>
+                                        </label>
+                                        <input type="text" asp-for="CoversheetDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" Class="form-control input-sm datepicker" id="txtCoverSheetDate" autocomplete="off" />
+                                        <span class="help-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" style="padding:0!important;">
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin:0">
+                                        <label class="font-sm">หมายเหตุ</label>
+                                        @Html.TextBoxFor(m => m.CoversheetRemark, new { @Class = "form-control input-sm" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-hover" id="selected">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th style="width:150px"> รหัส</th>
+                                        <th style="width:190px;"> ชื่อลูกค้า</th>
+                                        <th style="width:110px;"> วันที่</th>
+                                        <th style="width:90px;"> ยอดเงิน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-body">
+                                </tbody>
+                            </table>
+                            <table style="width:100%;">
+                                <tbody>
+                                    <tr>
+                                        <td style="font-weight:bold;text-align:right;">จำนวนรายการ</td>
+                                        <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;">
+                                            <span id="list-count"> 0 </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;text-align:right;">ยอดเงินทั้งสิ้น</td>
+                                        <td style="width:120px;font-weight:bold;color:#ff0000;text-align:right;font-size:14px!important;">
+                                            <span id="total-display">0.00</span>
+                                            <input type="Hidden" name="CoversheetTotal" value="0" id="total-val" ,
+                                                   autocomplete="off" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="javascript:;" onclick="window.close();">ยกเลิก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            var sTable = $('#selected').DataTable({
+                scrollY: 258,
+                scrollCollapse: 0,
+                sorting: 0,
+                searching: false,
+                info: false,
+                "ordering": false,
+                "paging": false
+            });
+
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', "บันทึกข้อมูลเรียบร้อยแล้ว", function(r) {
+                        window.opener.reloadRow();
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error',
+                        "<div>เกิดข้อผิดพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>"
+                    );
+                }
+            });
+
+            $('#append-job').click(function() {
+                var net = 0;
+                var balance = parseFloat($('#total-val').val());
+                var row = $('#detail-body tr td').html();
+                if (row == "No data available in table") {
+                    $('#detail-body tr').remove();
+                }
+
+                $('input[type=checkbox]:checked.item-checked').each(function() {
+                    var code = $(this).val();
+                    $.post("/CoverSheet/_EntryCoverDetail", {
+                        code: code
+                    }, function(result) {
+                        $('#detail-body').append(result);
+                        countList();
+                    });
+
+                    $(this).closest('tr').remove();
+                    var cash = parseFloat($(this).next('.total-val').val());
+                    net += cash;
+                });
+
+                var total_val = net + balance;
+                $("#check-all").prop('checked', false);
+                $('#total-display').html(number_format(total_val));
+                $('#total-val').val(total_val.toFixed(2));
+            });
+
+            $('.item-checked').click(function() {
+                countSelect();
+            });
+
+            $('#remove-job').click(function() {
+                $('.billing_code').each(function() {
+                    var billing_code = $(this).val();
+                    var billing_date = $(this).next().val();
+                    var customer_name = $(this).next().next().val();
+                    var billing_total = $(this).next().next().next().val();
+
+                    removeFunc(billing_code, billing_total, billing_date, customer_name);
+                    $(this).parent().remove();
+                    countList();
+                });
+            });
+        }(jQuery));
+
+        function checkAll(e) {
+            $(".item-checked").prop('checked', $(e).prop("checked"));
+            countSelect();
+        }
+
+        function countSelect() {
+            var x = $('.item-checked').filter(':checked').length;
+            $('#checked-count').html(x);
+        }
+
+        function countList() {
+            var x = $('.billing_code').length;
+            $('#list-count').html(x);
+            $('#checked-count').html(0);
+        }
+
+        function checkboxFunc(e) {
+            var _tot = $(".item-checked").length
+            var _tot_checked = $(".item-checked:checked").length;
+            var x = $(e).closest('td').find('.total-val');
+            if ($(e).is(':checked')) {
+                x.prop('disabled', false);
+            } else {
+                x.prop('disabled', true);
+            }
+
+
+            if (_tot != _tot_checked) {
+                $("#check-all").prop('checked', false);
+            } else if (_tot == _tot_checked) {
+                $("#check-all").prop('checked', true);
+            }
+
+            countSelect();
+        }
+
+        function removeFunc(billing_code, billing_total, billing_date, customer_name) {
+            var tr_val = "<tr>";
+            var element_check = '<label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">';
+            element_check +=
+                '<input type="checkbox" class="item-checkable item-checked"  onclick="checkboxFunc()" value="' +
+                billing_code + '" />';
+            element_check += '<input type="hidden" value="' + billing_total + '" class="total-val"/>';
+            element_check += '<span></span></label>';
+
+            tr_val += "<td  style='text-align:center;'>" + element_check + "</td>";
+            tr_val += "<td style='text-align:center;'>" + billing_code + "</td>";
+            tr_val += "<td style='text-align:left;'>" + customer_name + "</td>";
+            tr_val += "<td style='text-align:center;'>" + billing_date + "</td>";
+            tr_val += "<td style='text-align:right;'>" + parseFloat(billing_total).toFixed(2) + "</td>";
+
+            $('#list-billing').append(tr_val);
+            setTotal(parseFloat(billing_total));
+            countList();
+        }
+
+        function setTotal(total) {
+            var net_total = $('#total-val').val();
+            var total_val = parseFloat(net_total) - total;
+
+            countList();
+            $('#total-display').html(number_format(total_val));
+            $('#total-val').val(total_val.toFixed(2));
+        }
+
+        function setTotal(total) {
+            var net_total = $('#total-val').val();
+            var total_val = parseFloat(net_total) - total;
+
+            $('#total-display').html(number_format(total_val));
+            $('#total-val').val(total_val.toFixed(2));
+        }
+
+        function OnValidate() {
+            var total = parseFloat($('#total-val').val());
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtCoverSheetDate: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์วันที่"
+                        }
+                    }
+                }
+            })
+
+            if (fn == true) {
+                if (total <= 0) {
+                    $.alert.open('error', "<div>กรุณาเลือกอย่างน้อย 1 รายการ</div>");
+                    return false;
+                } else {
+                    overLayForm();
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}

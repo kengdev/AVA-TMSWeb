@@ -1,0 +1,171 @@
+@model TMSWeb.Models.Entities.LOG.TblVatinvoice
+@{
+    var data = (TMSWeb.Models.Entities.LOG.TblSupplier)ViewBag.Supplier;
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "vat";
+    ViewBag.Title = "ข้อมูลเอกสารกำกับภาษี";
+}
+
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="/vatinvoice/">เอกสารหัก ณ ที่จ่าย</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/vatinvoice/edit?code=@Model.VatinvoiceCode">แก้ไข</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN Portlet PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-pencil"></i>
+                    <span class="caption-subject bold uppercase font-sm"> แก้ไขเอกสารหัก ณ ที่จ่าย</span>
+                    <span class="caption-helper">[เลขที่ @Model.VatinvoiceCode]</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                @using (Html.BeginForm("Edit", "VatInvoice", FormMethod.Post, new { role = "form", id = "frmPayment", onsubmit = "return OnValidate()" }))
+                {
+                    @Html.HiddenFor(m => m.VatinvoiceCode)
+                    @Html.HiddenFor(m => m.TruckCode)
+                    @Html.HiddenFor(m => m.IsEnabled)
+                    @Html.HiddenFor(m => m.CreateDate)
+                    @Html.HiddenFor(m => m.CreateBy)
+                    <div class="portlet-body form">
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>ชื่อ</label>
+                                                <span class="required"> * </span>
+                                                <div class="input-group">
+                                                    @Html.TextBoxFor(m => m.SupplierCode, new { id = "txtSupplierCode", @Class = "form-control", autocomplete = "off" })
+                                                    <span class="input-group-btn">
+                                                        <button class="btn red" type="button" onclick="searchSupplierFunc()">ค้นหา</button>
+                                                    </span>
+                                                </div>
+                                                <span class="help-block help-group"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label>&nbsp;</label>
+                                            @Html.TextBox("txtSupplierName", data.SupplierFullname, new { @Class = "form-control", disabled = "Disabled" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>วันที่</label>
+                                                @Html.TextBoxFor(m => m.VatinvoiceDate, "{0:yyyy-MM-dd}", new { @Class = "form-control datepicker", autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>รายการ</label>
+                                        @Html.DropDownList("VatinvoiceType", null, "-----เลือก-----", new { @Class = "form-control" })
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label>ยอดหักภาษี</label>
+                                        @Html.TextBoxFor(m => m.VatTotal, new { @Class = "form-control", autocomplete = "off" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label>ยอดจ่ายสุทธิ</label>
+                                        @Html.TextBoxFor(m => m.PaymentTotal, new { @Class = "form-control", autocomplete = "off" })
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>หมายเหตุ</label>
+                                        @Html.TextBoxFor(m => m.Remark, new { @Class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="tools-action">
+                                        <a href="/vatinvoice/">กลับหน้าหลัก</a> |
+                                        <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $("#frmPayment").ajaxForm(function(data) {
+            killOverlayForm();
+            if (data.result == true) {
+                $.alert.open('info', data.resultMessage, function(r) {
+                    window.location.reload();
+                    window.opener.reloadRow();
+                });
+            } else {
+                $.alert.open('error', data.resultMessage);
+            }
+        });
+
+        $('#txtSupplierCode').typeahead({
+            minLength: 1,
+            source: function(query, process) {
+                var list = [];
+                map = {};
+                return $.post('/AutoComplete/Supplier', { term: query }, function(data) {
+                    $.each(data, function(i, item) {
+                        map[item.title] = item;
+                        list.push(item.title);
+                    });
+                    process(list);
+                });
+            },
+            updater: function(item) {
+                var code = map[item].value;
+                setSupplierBox(code);
+                return item;
+            }
+        });
+
+        function setSupplierBox(code) {
+            $.post("../VatInvoice/GetSupplierByCode",
+                {
+                    code: code
+                }, function(data) {
+                    $('#txtSupplierCode').val(data.supplierCode);
+                    $('#txtSupplierName').val(data.supplierFullname);
+                });
+        }
+
+        function searchSupplierFunc() {
+            var url = '../search/supplier';
+            var setting = 'width=1100,height=665';
+            window.open(url, 'search supplier', setting);
+        }
+
+        function OnValidate() {
+            overLayForm();
+            return true;
+        }
+    </script>
+}

@@ -1,0 +1,661 @@
+@model List<TMSWeb.Models.ViewModels.OceanJobFormViewModel>
+@{
+    Layout = null;
+    int i = 0;
+}
+<link rel="stylesheet" type="text/css" href="~/css/print/printform.css" media="print">
+<style>
+    .page {
+        font: 13px "Tahoma", Times, serif;
+        padding: 0.5cm;
+    }
+
+    .header {
+        width: 100%;
+        text-align: center;
+        vertical-align: top !important;
+    }
+
+        .header .logo,
+        .header .topic {
+            display: inline-block;
+        }
+
+        .header .topic {
+            font-weight: bolder;
+            font-size: 19px;
+            width: 80%;
+        }
+
+    .wrap-content {
+        margin-top: 30px;
+        font-size: 11px;
+    }
+
+        .wrap-content .content {
+            padding-top: 10px;
+        }
+
+    .content .topic {
+        font-size: 11px;
+        font-weight: bolder;
+        width: 130px;
+        display: inline-block;
+    }
+
+    .content .col2 .topic {
+        width: 120px;
+    }
+
+    .content .text-content {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .font-red {
+        color: red;
+    }
+
+    .font-blue {
+        color: blue;
+    }
+
+    .bold {
+        font-weight: bolder;
+    }
+
+    .font-9 {
+        font-size: 9px;
+    }
+
+    .font-11 {
+        font-size: 11px;
+    }
+
+    .font-13 {
+        font-size: 13px;
+    }
+
+    .font-14 {
+        font-size: 14px;
+    }
+
+    .font-16 {
+        font-size: 16px;
+    }
+
+    .shipping-topic {
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .text-inline {
+        display: inline-block;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-after-box {
+        display: inline-block;
+        margin-left: 15px;
+    }
+
+    .underline {
+        border-bottom: 1px solid #000;
+        padding-left: 10px;
+        height: 15px;
+    }
+
+    .wrap-15 {
+        width: 15%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .wrap-25 {
+        width: 24%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .wrap-30 {
+        width: 30%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .wrap-50 {
+        width: 49%;
+        display: inline-block;
+    }
+
+    .wrap-60 {
+        width: 60%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .wrap-70 {
+        width: 69%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .wrap-75 {
+        width: 74%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .col1 {
+        width: 350px;
+    }
+
+    .col2 {
+    }
+
+    .left {
+        text-align: left;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    table.table-bordered {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #000;
+        font-size: 11px;
+    }
+
+        table.table-bordered th {
+            border: 1px solid #000;
+            padding: 7px;
+            font-size: 11px;
+        }
+
+        table.table-bordered td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+            vertical-align: top;
+            color: blue;
+            font-weight: bold;
+        }
+
+    .text-date {
+        margin-left: 50px;
+    }
+
+    .item-box {
+        border: 1px solid #000;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        float: left;
+    }
+
+    .wrap-footer {
+        margin-top: 25px;
+    }
+
+    .footer {
+        margin-top: 30px;
+    }
+
+    @@media all {
+        .page-break {
+        }
+    }
+
+    @@media print {
+
+        html,
+        body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            page-break-after: avoid;
+        }
+    }
+</style>
+@foreach (var item in Model)
+{
+    i++;
+    List<string> container = item.container.Split(",").ToList();
+    <div class="page">
+        <div class="header">
+            <div class="logo">
+                @{
+                    Html.RenderPartial("CevaHeaderPdf");
+                }
+            </div>
+            <div class="topic">
+                <div>
+                    BOOKING & DELIVERY ORDER
+                </div>
+                <div>
+                    (ใบจองรถ & ใบรับส่งสินค้า)
+                </div>
+            </div>
+        </div>
+
+        <div class="wrap-content">
+            <div class="content">
+                <div class="topic">
+                    <div>TYPE OF SHIPMENT :</div>
+                    <div>(ประเภทของงาน)</div>
+                </div>
+                <div class="text-content">
+                    <div class="bold">OCEAN IMPORT</div>
+                    <div class="font-red bold">@item.quantity<span> X </span>@item.container_type</div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="topic">
+                    <div>CONSIGNEE NAME :</div>
+                    <div>(ลูกค้า)</div>
+                </div>
+                <div class="text-content">
+                    <div class="font-blue bold">
+                        @item.consignee_name
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="topic">
+                    <div>SHIPPER NAME :</div>
+                </div>
+                <div class="text-content">
+                    <div class="bold">
+                        @item.shipper_name
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="topic">
+                    <div>ADDRESS :</div>
+                    <div>(สถานที่ส่ง)</div>
+                </div>
+                <div class="text-content">
+                    <div class="font-blue bold">
+                        @item.mission_address
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="topic">
+                    <div>TEL No :</div>
+                    <div>(เบอร์โทรติดต่อ)</div>
+                </div>
+                <div class="text-content">
+                    <div class="bold">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="text-inline col1">
+                    <div class="topic">
+                        <div>VESSEL :</div>
+                        <div>ชื่อเรือ</div>
+                    </div>
+                    <div class="text-content">
+                        <div>
+                            @item.vessel
+                        </div>
+                    </div>
+                </div>
+                <div class="text-inline col2">
+                    <div class="topic">
+                        <div>B/L NO.</div>
+                        <div>(ใบตราส่ง)</div>
+                    </div>
+                    <div class="text-content">
+                        <div>
+                            @item.bl_no
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="text-inline col1">
+                    <div class="topic">
+                        <div>ETA :</div>
+                        <div>(วันเรือเข้า)</div>
+                    </div>
+                    <div class="text-content">
+                        <div>
+                            @item.eta_date.ToString("dd-MM-yyyy")
+                        </div>
+                    </div>
+                </div>
+                <div class="text-inline col2">
+                    <div class="topic">
+                        <div>B/L CHANGE NO.</div>
+                        <div>&nbsp;</div>
+                    </div>
+                    <div class="text-content">
+                        <div>
+                            @item.change_no
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="topic">
+                    <div>DOSSIER :</div>
+                    <div>(เลขที่ชุดงาน-บัญชี)</div>
+                </div>
+                <div class="text-content">
+                    <div class="bold">
+                        @if (i == 1)
+                        {
+                            <span>@item.dossier</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="topic">
+                    <div>REQUEST BY :</div>
+                    <div>(แจ้งงานโดย)</div>
+                </div>
+                <div class="text-content">
+                    <div class="bold">
+                        @item.request_name
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>CONTAINER NO. (เบอร์ตู้)</th>
+                        <th>QUANTITY OF GOODS</th>
+                        <th>DESCRIPTION</th>
+                        <th colspan="2">WEIGHT (น้ำหนัก) / CBM</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            @foreach (var c in container)
+                            {
+                                <div style="margin-top:5px">@c</div>
+                            }
+                        </td>
+                        <td>
+                            @item.quantity_detail
+                        </td>
+                        <td>
+                            @item.description
+                        </td>
+                        <td>
+                            <div>@item.weight</div>
+                            <div>@item.cbm</div>
+                        </td>
+                        <td>
+                            <div>KGS</div>
+                            <div>CMB</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="content">
+                <div class="wrap-25">
+                    <div class="shipping-topic">
+                        <div>SHIPPING CONTACT :</div>
+                        <div>(ชิปปิ้งตรวจปล่อย)</div>
+                    </div>
+                </div>
+                <div class="wrap-75">
+                    <div class="shipping-text-content">
+                        <div class="bold underline">
+                            @item.shipping_name
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="wrap-25">
+                    <div class="shipping-topic">
+                        PICK UP AT / DATE :
+                    </div>
+                </div>
+                <div class="wrap-75">
+                    <div class="shipping-text-content">
+                        <div class="bold underline">
+                            <span class="font-blue">@item.start_address</span>
+                            <span class="text-date font-red">@item.pickup_date.ToString("dd-MM-yyyy")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="wrap-50">
+                    <div class="wrap-30">
+                        <div class="shipping-topic">
+                            <div>DELIVERY DATE :</div>
+                            <div>(วันที่ส่งของ)</div>
+                        </div>
+                    </div>
+                    <div class="wrap-60">
+                        <div class="shipping-text-content underline font-red bold">
+                            <div>@item.delivery_date.ToString("dd-MM-yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrap-50">
+                    <div class="wrap-25">
+                        <div class="shipping-topic">
+                            <div>TIME :</div>
+                            <div>(เวลา)</div>
+                        </div>
+                    </div>
+                    <div class="wrap-60">
+                        <div class="shipping-text-content underline font-red bold">
+                            <div>@item.delivery_date.ToString("HH:mm")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="wrap-50">
+                    <div class="wrap-30">
+                        <div class="shipping-topic">
+                            <div>DRIVER NAME :</div>
+                            <div>(พนักงานขับรถ)</div>
+                        </div>
+                    </div>
+                    <div class="wrap-60">
+                        <div class="shipping-text-content underline">
+                            <div>@item.driver_name</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrap-50">
+                    <div class="wrap-25">
+                        <div class="shipping-topic">
+                            <div>Tel :</div>
+                            <div>(เบอร์โทร)</div>
+                        </div>
+                    </div>
+                    <div class="wrap-60">
+                        <div class="shipping-text-content underline">
+                            <div>@item.driver_phone</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="wrap-50">
+                    <div class="wrap-30">
+                        <div class="shipping-topic">
+                            <div>LICENSE PALTE :</div>
+                            <div>(ทะเบียนรถ)</div>
+                        </div>
+                    </div>
+                    <div class="wrap-60">
+                        <div class="shipping-text-content underline">
+                            <div>@item.license</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrap-50">
+                    <div class="wrap-25">
+                        <div class="shipping-topic">
+                            <div>ประเภทรถ :</div>
+                        </div>
+                    </div>
+
+                    <div class="wrap-60">
+                        <div class="shipping-text-content">
+                            <div>
+                                <div class="wrap-50">
+                                    <div class="item-box"></div>
+                                    <div class="text-after-box">4 Wheel</div>
+                                </div>
+                                <div class="wrap-50">
+                                    <div class="item-box"></div>
+                                    <div class="text-after-box">6 Wheel</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 7px;">
+                                <div class="wrap-50">
+                                    <div class="item-box"></div>
+                                    <div class="text-after-box">10 Wheel</div>
+                                </div>
+                                <div class="wrap-50">
+                                    <div class="item-box">
+                                        <span>&#10004;</span>
+                                    </div>
+                                    <div class="text-after-box">Container</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wrap-footer">
+            <div class="footer">
+                <div class="wrap-50">
+                    <div class="wrap-sign text-center font-11">
+                        <div>....................................................................</div>
+                        <div class="bold">DRIVER NAME</div>
+                        <div class="bold">(พนักงานขับรถ)</div>
+                    </div>
+                </div>
+
+                <div class="wrap-50">
+                    <div class="wrap-sign text-center font-11">
+                        <div>....................................................................</div>
+                        <div class="bold">RECEIVER NAME</div>
+                        <div class="bold">(ผู้รับสินค้า ชื่อ/นามสกุลจริง)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="wrap-50">
+                    <div class="wrap-50 text-center font-9">
+                        <span class="bold">DATE/TIME IN</span><span>............................</span>
+                        <div class="font-11 bold">(เวลาเข้าประตู)</div>
+                    </div>
+                    <div class="wrap-50 text-center font-9">
+                        <span class="bold">DATE/TIME OUT</span><span>...........................</span>
+                        <div class="font-11 bold">(เวลาออกประตู)</div>
+                    </div>
+                </div>
+
+                <div class="wrap-50">
+                    <div class="wrap-50 text-center font-9">
+                        <span class="bold">DATE/TIME</span><span>...............................</span>
+                        <div class="font-11 bold">(เวลาเริ่มลงสินค้า)</div>
+                    </div>
+                    <div class="wrap-50 text-center font-9">
+                        <span class="bold">DATE/TIME</span><span>...............................</span>
+                        <div class="font-11 bold">(เวลาลงสินค้าเสร็จ)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    if (i < Model.Count)
+    {
+        <div style="page-break-after: always!important;width:100%;"></div>
+    }
+}
+
+@functions {
+    private string ChangeCurrencyToText(decimal val)
+    {
+        string bahtTxt, n, bahtTH = "";
+        double amount;
+        try { amount = Convert.ToDouble(val); }
+        catch { amount = 0; }
+        bahtTxt = amount.ToString("####.00");
+        string[] num = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ" };
+        string[] rank = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        string[] temp = bahtTxt.Split('.');
+        string intVal = temp[0];
+        string decVal = temp[1];
+        if (Convert.ToDouble(bahtTxt) == 0)
+            bahtTH = "ศูนย์บาทถ้วน";
+        else
+        {
+            for (int i = 0; i < intVal.Length; i++)
+            {
+                n = intVal.Substring(i, 1); if (n != "0")
+                {
+                    if ((i == (intVal.Length - 1)) &&
+                    (n == "1")) bahtTH += "เอ็ด";
+                    else if ((i == (intVal.Length - 2)) && (n == "2")) bahtTH += "ยี่";
+                    else if
+                    ((i == (intVal.Length - 2)) && (n == "1")) bahtTH += "";
+                    else bahtTH += num[Convert.ToInt32(n)]; bahtTH
+                    += rank[(intVal.Length - i) - 1];
+                }
+            }
+            bahtTH += "บาท"; if (decVal == "00") bahtTH += "ถ้วน";
+            else
+            {
+                for (int i = 0; i <
+                decVal.Length; i++)
+                {
+                    n = decVal.Substring(i, 1); if (n != "0")
+                    {
+                        if ((i == decVal.Length - 1) && (n == "1")) bahtTH
+                        += "เอ็ด";
+                        else if ((i == (decVal.Length - 2)) && (n == "2")) bahtTH += "ยี่";
+                        else if ((i == (decVal.Length - 2)) &&
+                        (n == "1")) bahtTH += "";
+                        else bahtTH += num[Convert.ToInt32(n)]; bahtTH += rank[(decVal.Length - i) - 1];
+                    }
+                }
+                bahtTH
+                += "สตางค์";
+            }
+        }
+        return bahtTH;
+    }
+}

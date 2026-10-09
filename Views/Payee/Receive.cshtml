@@ -1,0 +1,325 @@
+@{
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "payment";
+    ViewBag.SubActive = "receive";
+    ViewBag.Title = "รายการเบิกจ่ายเงินรายเดือน";
+}
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        .dropdown-menu {
+            left: auto, important !important;
+            right: 0 !important;
+        }
+
+        .form-content {
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-right: 15px;
+            padding-bottom: 20px;
+        }
+
+        .form-body {
+            padding-top: 0 !important;
+        }
+
+        .form-actions {
+            padding: 15px 0 0 0 !important;
+            margin: 0;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การเบิกจ่ายเงิน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/payment/monthlypayment">รับยอดรายเดือน</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการรับยอดรายเดือน </span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body table-both-scroll">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <div class="form-group">
+                                @Html.DropDownList("month", null, new
+                                {
+                                    @Class = "form-control dlListForm",
+                                    Style =
+                                "width:120px;"
+                                })
+                            </div>
+                            <div class="form-group">
+                                @Html.DropDownList("year", null, new
+                                {
+                                    @Class = "form-control dlListForm",
+                                    Style =
+                                "width:90px;"
+                                })
+                            </div>
+                            |
+                            <a href="/payee/addreceive" class="btn btn-transparent red btn-outline btn-sm active">ทำรายการ</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-striped table-bordered table-hover table-checkable order-column"
+                               id="table-receipt">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th> วันที่/เวลา</th>
+                                    <th> เลขที่</th>
+                                    <th> รายการ</th>
+                                    <th> ยอดเงิน</th>
+                                    <th>การชำระเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr role="row" class="heading">
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"><input type="text" class="form-control filterText" id="filterCode" /></th>
+                                    <th class="filter"><input type="text" class="form-control filterText" id="filterCustomer" /></th>
+                                    <th class="filter"></th>
+                                    <th class="filter"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form-content" style="display: none;">
+    <div id="form-content"></div>
+</div>
+@section scripts
+{
+    <script src="~/Scripts/default/jQuery.print.js"></script>
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#table-receipt').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [[2, "desc"]],
+                "sAjaxSource": "/Payee/GetReceivePaymentDataList",
+                "fnRowCallback": function(row, aData, index) {
+                    $('td', row).eq(5).html(number_format(aData.total));
+                    if (aData.payment_status != true) {
+                        $('td', row).eq(6).addClass('pending');
+                        $('td', row).eq(6).html('รอ');
+                    } else {
+                        $('td', row).eq(6).addClass('approved');
+                        $('td', row).eq(6).html('ชำระแล้ว');
+                    }
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "month", "value": $("#month").val() });
+                    aoData.push({ "name": "year", "value": $("#year").val() });
+                    aoData.push({ "name": "filterCode", "value": $("#filterCode").val() });
+                    aoData.push({ "name": "filterCustomer", "value": $("#filterCustomer").val() });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "action-td text-center", targets: 0 },
+                    { className: "dropdown-td text-left", targets: 1 },
+                    { className: "date-td", targets: 2 },
+                    { className: "date-td", targets: 3 },
+                    { className: "name-td", targets: 4 },
+                    { className: "currency-td", targets: 5 },
+                    { className: "code-td", targets: 6 }
+                ],
+                "columns":
+                    [
+                        {
+                            "data": "payment_id", "orderable": false, "render": function(data, type, row) {
+                                var remove = '<a class="btn btn-xs red" href="javascript:;" data-title="ลบ"  data-toggle="tooltip" data-trigger="hover" onclick=setRemove("' + data + '")><i class="fad fa-trash"></i></a>';
+                                var edit = '<a class="btn btn-xs yellow" href="/payee/editreceive?code=' + data + '" data-title="ลบ"  data-toggle="tooltip" data-trigger="hover"><i class="fad fa-pencil"></i></a>';
+
+                                return remove + edit;
+                            }
+                        },
+                        {
+                            "data": "payment_id", "orderable": false, "render": function(data, type, row) {
+                                var action = '<div class="btn-group dropup">';
+                                action += '<button class="btn blue btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> พิมพ์เอกสาร ';
+                                action += '<i class="fa fa-angle-down"></i>';
+                                action += '</button>';
+                                action += '<ul class="dropdown-menu pull-right" role="menu">';
+
+                                action += '<li><a href="javascript:;" onclick=printInvoice("' + data + '")><i class="fad fa-file-invoice"></i> ใบแจ้งหนี้ </a></li>';
+                                action += '<li><a href="javascript:;" onclick=printReceipt("' + data + '")><i class="fad fa-receipt"></i> ใบเสร็จรับเงิน </a></li>';
+                                action += '<li class="divider"> </li>';
+                                action += '</ul></div>';
+
+                                return action;
+                            }
+                        },
+                        { "data": "payment_date" },
+                        { "data": "payment_id" },
+                        { "data": "payment_name" },
+                        { "data": "total", "orderable": false },
+                        { "data": "payment_status", "orderable": false }
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-receipt tfoot tr').appendTo('#table-receipt thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-receipt').dataTable()._fnAjaxUpdate();
+            });
+
+            $('.dlListForm').change(function() {
+                $('#table-receipt').dataTable()._fnAjaxUpdate();
+            });
+        }(jQuery));
+
+        function printInvoice(code) {
+            var url = '/formava/receivepayment?code=' + code;
+
+            window.open(url, '_blank');
+        }
+
+        function printReceipt(code) {
+            $.post("/payee/ispaid", {
+                code: code
+            }, function(result) {
+                if (result) {
+                    var url = '/formava/payeereceipt?code=' + code;
+                    window.open(url, '_blank');
+                }
+                else {
+                    $.post("/payee/_receipt", {
+                        code: code
+                    }, function(result) {
+                        $('#form-content').html(result)
+                        $('#modal-form-content').modal();
+                    });
+                }
+            });
+        }
+
+        function setAddMonthlyPayment() {
+            var url = '/payment/addmonthlypayment';
+            var setting = 'width=1250,height=782';
+
+            window.open(url, 'add payment', setting);
+        }
+
+        function reloadRow() {
+            $("#table-receipt").DataTable().ajax.reload();
+        }
+
+        function setRemove(code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Payee/Remove",
+                        {
+                            code: code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                $.alert.open('info', data.resultMessage, function(r) {
+                                    $('#table-receipt').dataTable()._fnAjaxUpdate();
+                                });
+                            } else {
+                                jAlert('ผลการทำงาน', data.resultMessage);
+                            }
+                        });
+                }
+            });
+        }
+
+        function OnValidate() {
+            $('#wrapper-action-modal').hide();
+            $('#spin-item').show();
+            overLayDiv('.form-content');
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}

@@ -1,0 +1,742 @@
+@model List<TMSWeb.Models.ViewModels.PND50ViewModel>;
+@{
+    Layout = null;
+    int pg = 0;
+}
+<style>
+    body {
+        background: #fff;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+        width: 100%;
+        padding: 0.5px;
+    }
+
+    .pnd-50-form {
+        font-family: 'Angsana New';
+        font-size: 13pt;
+        border: 1px solid #000;
+        padding: 10px;
+    }
+
+    /*-----------------for top header-----------------------------*/
+    .topic label {
+        font-family: 'Angsana New';
+        font-weight: bolder;
+        font-size: 12pt;
+    }
+
+    .topic span {
+        font-family: 'Angsana New';
+        font-style: italic;
+        font-size: 13pt;
+    }
+
+    /*-----------------for border-----------------------*/
+    .outer-wrapper-1 {
+        font-family: 'Angsana New';
+        border: 1px solid #000;
+        padding-left: 15px;
+        padding-right: 15px;
+        border-radius: 5px !important;
+    }
+
+    /*-----------------for square box---------------------------*/
+    .block-square-id {
+        border: 1px solid #000;
+        width: 200px;
+        height: 20px;
+        display: inline-block;
+        margin-top: 2px;
+        text-align: center;
+        font-size: 13pt;
+    }
+
+    .block-square-blank {
+        border: 1px solid #000;
+        height: 20px;
+        display: inline-block;
+        margin-top: 2px;
+        text-align: center;
+        font-size: 14pt;
+    }
+
+    .block-square-check {
+        display: inline-block;
+        margin-left: 10px;
+        border: 1px solid #000;
+        width: 15px;
+        height: 15px;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .wrapper-square {
+        display: inline-block;
+    }
+
+    /*-----------------for detail (block 1)-----------------------*/
+    .header-wrapper-1 .header-1 {
+        width: 100%;
+        text-align: center;
+        font-size: 16pt;
+        font-weight: bold;
+        padding: 0;
+        display: inline-block;
+        margin-top: -10px
+    }
+
+    .header-wrapper-1 .header-2 {
+        text-align: center;
+        font-size: 13pt;
+        padding: 0;
+        font-weight: normal;
+        margin-top: -10px;
+    }
+
+    .header-wrapper-1 .header-no {
+        font-size: 13pt;
+        padding: 0;
+        font-weight: normal;
+        position: relative;
+        width: 100%;
+        text-align: right;
+        top: -40px
+    }
+
+    /*-----------------for detail (block 2)-----------------------*/
+    .content-block {
+        display: inline-block;
+    }
+
+        .content-block .topic {
+            font-size: 13pt;
+            font-weight: bolder;
+            display: inline-block;
+        }
+
+        .content-block .sub-topic {
+            font-size: 12pt;
+            font-weight: bolder;
+            display: inline-block;
+        }
+
+        .content-block .detail-1 {
+            display: inline-block;
+        }
+
+        .content-block .detail-1-line {
+            border: 1px dashed #000;
+            line-height: 22px;
+            display: inline-block;
+            text-align: left;
+            font-size: 13pt;
+            position: relative;
+            padding: 0;
+        }
+
+    .detail-1-line .detail-1-text {
+        position: absolute;
+        top: -18px;
+        bottom: 0;
+        left: 0;
+    }
+
+    .detail-help {
+        font-size: 12pt;
+        font-style: italic;
+        margin-left: 50px;
+        margin-top: -9px;
+    }
+
+    .sub-content .topic {
+        display: inline-block;
+        font-weight: bolder;
+        font-family: 'Angsana New';
+        font-size: 14pt;
+    }
+
+    .topic-help {
+        font-size: 12pt;
+        font-style: italic;
+        margin-top: -3px;
+    }
+
+    .sub-content {
+        margin-top: -7px;
+    }
+
+        .sub-content span {
+            font-size: 12pt;
+            padding-left: 10px;
+        }
+
+        .sub-content label {
+            font-size: 12pt;
+            font-weight: bolder;
+        }
+
+    /*--------------------for detail block 3--------------------*/
+    .content-break {
+        height: 3px;
+    }
+
+    .table-content {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table-content th {
+            border-bottom: 1px solid #000;
+            font-size: 12pt;
+            padding: 0;
+            text-align: center;
+            font-weight: bolder;
+        }
+
+        .table-content td {
+            font-family: 'Angsana New';
+            font-size: 12pt;
+            padding: 0 5px 0 5px !important;
+        }
+
+    .font-ang {
+        font-family: 'Angsana New';
+    }
+
+    /*--------------------footer---------------------*/
+    .footer-wrapper {
+        font-family: 'Angsana New';
+        border: 1px solid #000;
+        padding-top: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 3px;
+        border-radius: 5px !important;
+        display: inline-block;
+        height: 115px;
+    }
+
+    .date-sign {
+        width: 150px;
+        border-bottom: 1px dotted #000;
+        display: inline-block;
+    }
+
+    @@media all {
+        .page-break {
+            display: block;
+            page-break-after: always !important;
+        }
+    }
+
+    @@media print {
+        html, body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: block;
+            page-break-after: always !important;
+        }
+    }
+</style>
+@foreach (var item in Model)
+{
+    pg++;
+    var code = item.code;
+    string total = item.total_value.ToString("#,##0.00");
+    string vat = item.vat_value.ToString("#,##0.00");
+    <div class="page">
+        <div class="topic">
+            <div>
+                <label>ฉบับที่ 1 </label><span>(สำหรับผู้ถูกหักภาษี ณ ที่จ่าย ใช้แนบพร้อมกับแบบแสดงรายการภาษี)</span>
+            </div>
+            <div style="margin-top:-5px;">
+                <label>ฉบับที่ 2 </label><span>(สำหรับผู้ถูกหักภาษี ณ ที่จ่าย เก็บไว้เป็นหลักฐาน)</span>
+            </div>
+        </div>
+
+        <div class="pnd-50-form">
+            <div class="header-wrapper-1">
+                <div class="header-1">หนังสือรับรองการหักภาษี ณ ที่จ่าย</div>
+                <div class="header-2">
+                    <div>ตามมาตรา 50 ทวิ แห่งประมวลรัษฎากร</div>
+                </div>
+                <div class="header-no">
+                    <span>เลขที่ </span><span> @item.code</span>
+                </div>
+            </div>
+
+            <div class="outer-wrapper-1" style="margin-top:-27px;">
+                <div class="header-wrapper-2">
+                    <div class="content-block">
+                        <div class="topic">ผู้มีหน้าที่หักภาษี ณ ที่จ่าย : -</div>
+                        <div class="detail-1" style="width:130px;"></div>
+                        <div class="sub-topic">
+                            เลขประจำตัวผู้เสียภาษีอากร (13 หลัก)*
+                        </div>
+                        <div class="block-square-id">0205556020041</div>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="sub-topic">ชื่อ</div>
+                        <div class="detail-1-line" style="width:600px;">
+                            <div class="detail-1-text">AVA GLOBAL LOGISTICS CO.,LTD (HEAD OFFICE)</div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="sub-topic">ที่อยู่</div>
+                        <div class="detail-1-line" style="width:650px;">
+                            <div class="detail-1-text">9/1 M.2 T.PLUTALUANG A.SATTAHIP CHONBURI, THAILAND 20180</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outer-wrapper-1" style="margin-top:5px;">
+                <div class="header-wrapper-2">
+                    <div class="content-block">
+                        <div class="topic">ผู้ถูกหักภาษี ณ ที่จ่าย : -</div>
+                        <div class="detail-1" style="width:150px;"></div>
+                        <div class="sub-topic">
+                            เลขประจำตัวผู้เสียภาษีอากร (13 หลัก)*
+                        </div>
+                        <div class="block-square-id">@item.supplyer_vat_no</div>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="sub-topic">ชื่อ</div>
+                        <div class="detail-1-line" style="width:600px;">
+                            <div class="detail-1-text">@item.supplyer_name.ToUpper()</div>
+                        </div>
+                    </div>
+
+                    <div class="content-block">
+                        <div class="sub-topic">ที่อยู่</div>
+                        <div class="detail-1-line" style="width:650px;">
+                            <div class="detail-1-text">@item.supplyer_address.ToUpper()</div>
+                        </div>
+                    </div>
+                    <div class="content-block" style="display:inline-block;margin-top:10px;">
+                        <div class="sub-content">
+                            <div class="topic" style="margin-top:2px;">ลำดับที่</div>
+                            <div class="block-square-blank" style="width:70px;"></div>
+                            <div class="topic" style="font-weight:normal;">ในแบบ</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="topic-help">(ให้สามารถอ้างอิงหรือสอบยืนกันได้ระหว่างลำดับที่ตาม</div>
+                            <div class="topic-help">หนังสือรับรองฯ กับแบบยื่นรายการภาษีหักที่จ่าย)</div>
+                        </div>
+                    </div>
+                    <div class="content-block;" style="width:430px!important;display:inline-block;">
+                        <div class="sub-content">
+                            <div class="wrapper-square" style="width:100px;">
+                                <div class="block-square-check">&nbsp;</div><span>(1) </span><label>
+                                ภ.ง.ด.1ก
+                            </label>
+                        </div>
+                        <div class="wrapper-square" style="width:140px;">
+                            <div class="block-square-check">&nbsp;</div><span>(2) </span><label>
+                            ภ.ง.ด.1ก&nbsp;&nbsp;&nbsp;พิเศษ
+                        </label>
+                    </div>
+                    <div class="wrapper-square">
+                        <div class="block-square-check">&nbsp;</div><span>(3) </span><label>
+                        ภ.ง.ด.2
+                    </label>
+                </div>
+                <div class="wrapper-square">
+                    @if (item.supplyer_type == "1")
+                    {
+                        <div class="block-square-check">
+                            &#10004;
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="block-square-check">
+                        </div>
+                    }
+                    <span>(4) </span><label>ภ.ง.ด.3</label>
+                </div>
+                <br />
+                <div class="wrapper-square" style="width:100px;">
+                    <div class="block-square-check">&nbsp;</div><span>(5) </span><label>
+                    ภ.ง.ด.2ก
+                </label>
+            </div>
+            <div class="wrapper-square" style="width:140px;">
+                <div class="block-square-check">&nbsp;</div><span>(6) </span><label>
+                ภ.ง.ด.3ก
+            </label>
+        </div>
+        <div class="wrapper-square">
+
+            @if (item.supplyer_type != "1")
+            {
+                <div class="block-square-check">
+                    &#10004;
+                </div>
+            }
+            else
+            {
+                <div class="block-square-check">
+                </div>
+            }
+            <span>(7)</span><label> ภ.ง.ด.53</label>
+        </div>
+        <div class="wrapper-square"></div>
+    </div>
+</div>
+</div>
+</div>
+<div class="content-break"></div>
+
+<div style="border:1px solid #000;border-radius:5px;">
+    <table class="table-content">
+        <tr>
+            <th>ประเภทเงินได้พึงประเมินที่จ่าย</th>
+            <th style="border-left:1px solid #000;">
+                <div>วัน เดือน</div>
+                <div style="margin-top:-10px;">หรือปีภาษี ที่จ่าย</div>
+            </th>
+            <th style="border-left:1px solid #000;">จำนวนเงินที่จ่าย</th>
+            <th style="border-left:1px solid #000;border-right:1px solid #000;">
+                <div>ภาษีที่หัก</div>
+                <div style="margin-top:-10px;">และนำส่งไว้</div>
+            </th>
+        </tr>
+
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                1. เงินเดือน ค่าจ้าง เบี้ยเลี้ยง โบนัส ฯลฯ ตามมาตรา 40 (1)
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;border-right:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                2. ค่าธรรมเนียม ค่านายหน้า ฯลฯ ตามมาตรา 40 (2)
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                3. ค่าแห่งลิขสิทธิ์ ฯลฯ ตามมาตรา 40 (3)
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                4. (ก) ดอกเบี้ย ฯลฯ ตามมาตรา 40 (4) (ก)
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;(ข) เงินปันผล เงินส่วนแบ่งกำไร<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)
+                กรณีผู้ได้รับเงินปันผลได้รับเครดิตภาษี โดยจ่ายจาก<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;กำไรสุทธิของกิจการที่ต้องเสียภาษีเงินได้นิติบุคคลในอัตราดังนี้
+            </td>
+            <td style="width:100px;text-align:center;"> </td>
+            <td style="width:80px;text-align:center;border-left:1px solid #000;"> </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-left:1px solid #000;"> </td>
+        </tr>
+
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (1.1) อัตราร้อยละ 30 ของกำไรสุทธิ
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (1.2) อัตราร้อยละ 30 ของกำไรสุทธิ
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (1.3) อัตราร้อยละ 30 ของกำไรสุทธิ
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (1.4) อัตราอื่น ๆ (ระบุ)...........................ของกำไรสุทธิ
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)
+                กรณีผู้ได้รับเงินปันผลไม่ได้รับเครดิตภาษี เนื่องจากจ่ายจาก
+            </td>
+            <td style="width:100px;text-align:center;"> </td>
+            <td style="width:80px;text-align:center;border-left:1px solid #000;"> </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-left:1px solid #000;"> </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (2.1) กำไรสุทธิของกิจการที่ได้รับยกเว้นภาษีเงินได้นิติบุคคล
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (2.2) เงินปันผลหรือเงินส่วนแบ่งของกำไรที่ได้รับยกเว้นไม่ต้องนำมารวม<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;คำนวณเป็นรายได้เพื่อเสียภาษีเงินได้นิติบุคคล
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (2.3) กำไรสุทธิส่วนที่ได้หักผลขาดทุนสุทธิยกมาไม่เกิน 5 ปี<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ก่อนรอบระยะเวลาบัญชีปีปัจจุบัน
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (2.4) กำไรที่รับรู้ทางบัญชีโดยวิธีส่วนได้เสีย (equity method)
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;"> </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+            <td style="border-right:1px solid #000;width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border-right:1px solid #000;padding-left:5px;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                (2.5) อื่น ๆ (ระบุ)
+                <div style="margin-left:5px;padding-left:5px;display:inline-block;width:200px;border-bottom:1px dashed #000;">
+                    @item.invoice_type
+                </div>
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:1px dotted #000;">@item.invoice_date.ToString("dd-MM-yyyy")</td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;">
+                @total
+            </td>
+            <td style="width:80px;text-align:center;border-bottom:1px dotted #000;border-left:1px solid #000;border-right:1px solid #000;">
+                @vat
+            </td>
+        </tr>
+        <tr>
+            <td style="border-bottom:1px solid #000;border-right:1px solid #000;height:5px;"></td>
+            <td colspan="3" style="border-bottom:1px solid #000;border-right:1px solid #000;border-left:1px solid #000;height:5px;">
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align:right;padding-right:10px;font-weight:bold;">
+                <span class="font-ang">รวมเงินที่จ่ายและภาษีที่หักนำส่ง</span>
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:3px double #000;border-left:1px solid #000;">
+                @total
+            </td>
+            <td style="width:100px;text-align:center;border-bottom:3px double #000;border-left:1px solid #000;">
+                @vat
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="padding:5px 5px 5px 10px;">
+                <div style="display:inline-block;font-weight:bolder;">รวมเงินภาษีที่หักนำส่ง</div>
+                <div style="display:inline-block;font-style:italic;"> (ตัวอักษร)</div>
+                <div style="display:inline-block;width:530px;background:#ccc;height:25px;padding:3px 0px 0px 20px;margin:3px; 0px 3px 0px">
+                    @this.ChangeCurrencyToText(item.vat_value)
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="outer-wrapper-1" style="margin-top:2px;font-size:12pt;">
+    <label style="font-weight:bolder;font-size:12pt;">เงินที่จ่ายเข้า</label>
+    <span>กบข./กสจ./กองทุนสงเคราะห์ครูโรงเรียนเอกชน................บาท&nbsp;&nbsp;&nbsp;กองทุนประกันสังคม................บาท&nbsp;&nbsp;&nbsp;กองทุนสำรองเลี้ยงชีพ................บาท</span>
+</div>
+
+<div class="outer-wrapper-1" style="margin-top:2px;font-size:12pt;">
+    <div class="sub-content" style="padding-top:10px;">
+        <label style="font-weight:bold;font-size:12pt;">ผู้จ่ายเงิน</label>
+        <div class="wrapper-square" style="width:130px;font-size:12pt;">
+            <div class="block-square-check">&#10004;</div><span>(1) </span><label>
+            หัก ณ
+            ที่จ่าย
+        </label>
+    </div>
+    <div class="wrapper-square" style="width:150px;font-size:12pt;">
+        <div class="block-square-check"><i class="fal fa-check-square"></i></div><span>
+        (2)
+    </span><label>ออกให้ตลอดไป</label>
+</div>
+<div class="wrapper-square" style="width:150px;font-size:12pt;">
+    <div class="block-square-check"><i class="fal fa-square"></i></div><span>
+    (3)
+</span><label>ออกให้ครั้งเดียว</label>
+</div>
+<div class="wrapper-square" style="font-size:12pt;">
+    <div class="block-square-check"><i class="fal fa-square"></i></div><span>(4) </span><label>
+    อื่น ๆ
+    (ระบุ)...............................
+</label>
+</div>
+</div>
+</div>
+
+<div class="content-break"></div>
+
+<div>
+    <div class="footer-wrapper" style="display: inline-block;font-size:12pt;">
+        <div style="font-weight:bold;">คำเตือน</div>
+        <div style="padding-left:20px;">
+            <div>ผู้มีหน้าที่ออกหนังสือรับรองการหักภาษี ณ ที่จ่าย</div>
+            <div>ฝ่าฝืนไม่ปฏิบัติตามมาตรา&nbsp; 50 &nbsp;ทวิ &nbsp;&nbsp;แห่งประมวล</div>
+            <div>รัษฎากร&nbsp;&nbsp;&nbsp;ต้องรับโทษทางอาญาตามมาตรา &nbsp;&nbsp;&nbsp;35</div>
+            <div>แห่งประมวลรัษฎากร</div>
+        </div>
+    </div>
+    <div class="footer-wrapper" style="display: inline-block;font-size:12pt;width:440px">
+        <div style="font-weight:bold;">&nbsp;</div>
+        <div style="text-align:center;">
+            <div>ขอรับรองว่าข้อความและตัวเลขดังกล่าวข้างต้นถูกต้องตรงกับความจริงทุกประการ</div>
+            <div>ลงชื่อ....................................................................ผู้จ่ายเงิน</div>
+            <div class="date-sign"> @item.invoice_date.ToString("dd") / @item.invoice_date.ToString("MM") / @item.invoice_date.ToString("yyyy")</div>
+            <div style="font-weight:bolder">(วัน เดือน ปี ที่ออกหนังสือรับรองฯ)</div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+    if (pg < Model.Count())
+{
+    <div class="page-break"></div>
+}
+}
+
+@functions {
+    private string ChangeCurrencyToText(decimal val)
+    {
+        string bahtTxt, n, bahtTH = "";
+        double amount;
+        try { amount = Convert.ToDouble(val); }
+        catch { amount = 0; }
+        bahtTxt = amount.ToString("####.00");
+        string[] num = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ" };
+        string[] rank = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        string[] temp = bahtTxt.Split('.');
+        string intVal = temp[0];
+        string decVal = temp[1];
+        if (Convert.ToDouble(bahtTxt) == 0)
+            bahtTH = "ศูนย์บาทถ้วน";
+        else
+        {
+            for (int i = 0; i < intVal.Length; i++)
+            {
+                n = intVal.Substring(i, 1);
+                if (n != "0")
+                {
+                    if ((i == (intVal.Length - 1)) && (n == "1"))
+                        bahtTH += "เอ็ด";
+                    else if ((i == (intVal.Length - 2)) && (n == "2"))
+                        bahtTH += "ยี่";
+                    else if ((i == (intVal.Length - 2)) && (n == "1"))
+                        bahtTH += "";
+                    else
+                        bahtTH += num[Convert.ToInt32(n)];
+                    bahtTH += rank[(intVal.Length - i) - 1];
+                }
+            }
+            bahtTH += "บาท";
+            if (decVal == "00")
+                bahtTH += "ถ้วน";
+            else
+            {
+                for (int i = 0; i < decVal.Length; i++)
+                {
+                    n = decVal.Substring(i, 1);
+                    if (n != "0")
+                    {
+                        if ((i == decVal.Length - 1) && (n == "1"))
+                            bahtTH += "เอ็ด";
+                        else if ((i == (decVal.Length - 2)) && (n == "2"))
+                            bahtTH += "ยี่";
+                        else if ((i == (decVal.Length - 2)) && (n == "1"))
+                            bahtTH += "";
+                        else
+                            bahtTH += num[Convert.ToInt32(n)];
+                        bahtTH += rank[(decVal.Length - i) - 1];
+                    }
+                }
+                bahtTH += "สตางค์";
+            }
+        }
+        return bahtTH;
+    }
+}

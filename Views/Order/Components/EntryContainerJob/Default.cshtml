@@ -1,0 +1,328 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblJobMaster
+@using (Html.BeginForm("AddContainer", "Order", FormMethod.Post, new { id = "frmAddContainer", onsubmit = "return OnValidate()" }))
+{
+    @Html.HiddenFor(m => m.JobCode)
+    @Html.HiddenFor(m => m.CustomerCode, new { id = "txtCustomerCode" })
+    @Html.Hidden("acronym")
+    @Html.Hidden("valueChange")
+    <div class="form-body">
+        <div class="row">
+            <div class="col-md-5">
+                <label>ประเภทงาน</label>
+                <div class="mt-radio-inline">
+                    <label class="mt-radio">
+                        <input type="radio" name="JobType" class="rdoJobType" value="IMPORT" checked> Import
+                        <span></span>
+                    </label>
+                    <label class="mt-radio">
+                        @Html.RadioButtonFor(m => m.JobType, "EXPORT", new { @Class = "rdoJobType", Id = "rdoExport" }) Export
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>
+                                ค้นหาลูกค้า
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="input-group">
+                                @Html.TextBoxFor(m => m.CostCode, new
+                                {
+                                    @Class = "form-control customer-cost",
+                                    id =
+                                "txtCostCode",
+                                    autocomplete = "off"
+                                })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button"
+                                            onclick="searchCustomerFunc('cont')">
+                                        ค้นหา
+                                    </button>
+                                </span>
+                            </div>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label>ชื่อลูกค้า</label>
+                        @Html.TextBox("txtCustomerName", null, new { @Class = "form-control", disabled = "Disabled" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>รหัสสถานที่รับตู้</label>
+                            <span class="required"> * </span>
+                            <div class="input-group">
+                                @Html.TextBox("txtStartCode", null, new { @Class = "form-control", autocomplete = "off" })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button" onclick="searchPlaceFunc('S')">ค้นหา</button>
+                                </span>
+                            </div>
+                            <span class="help-block help-group"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label>ชื่อสถานที่รับตู้</label>
+                        @Html.TextBox("txtDisStartName", null, new { @Class = "form-control", disabled = "Disabled" })
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label> </label>
+                            <div class="mt-checkbox-list" style="padding-bottom:0!important;">
+                                <label class="mt-checkbox mt-checkbox-outline font-sm">
+                                    ค่าผ่านลาน/ท่า
+                                    <input type="checkbox" value="TRUE" name="chkStartPortYard" checked />
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>สถานที่คืนตู้</label>
+                            <div class="input-group">
+                                @Html.TextBox("txtFinishCode", null, new { @Class = "form-control", autocomplete = "off" })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button" onclick="searchPlaceFunc('F')">ค้นหา</button>
+                                </span>
+                            </div>
+                            <span class="help-block help-group"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label>ชื่อสถานที่คืนตู้</label>
+                        @Html.TextBox("txtDisFinishName", null, new { @Class = "form-control", disabled = "Disabled" })
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label> </label>
+                            <div class="mt-checkbox-list">
+                                <label class="mt-checkbox mt-checkbox-outline" style="font-size:13px!important">
+                                    ค่าผ่านลาน/ท่า
+                                    <input type="checkbox" value="TRUE" name="chkFinishPortYard" checked />
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9">
+                        <label>ชื่อสถานที่เปิด/บรรจุ/ลงท่า</label>
+                        @Html.Hidden("txtMissionCode", null, new { @Class = "form-control", autocomplete = "off" })
+                        @Html.TextBox("txtDisMissionName", null, new { @Class = "form-control", disabled = "Disabled" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ขนาดตู้
+                                <span class="required"> * </span>
+                            </label>
+                            <br />
+                            @Html.DropDownList("ContainerSizeCode", null, "-----เลือก-----", new
+                            {
+                                @Class = "form-control",
+                                id = "container_kind"
+                            })
+                            <span class="help-block help-filter"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>อื่น ๆ ระบุ</label>
+                                @Html.TextBox("txtOther", null, new
+                                {
+                                    @Class = "form-control",
+                                    id = "txtOther",
+                                    Disabled =
+                                "Disabled",
+                                    autocomplete = "off"
+                                })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                วันที่เริ่มงาน
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.JobDate, new
+                            {
+                                @Class = "form-control datetimepicker",
+                                id =
+                            "txtJobDate",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Closing Time
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.ClosingTime, new
+                            {
+                                @Class = "form-control datetimepicker",
+                                id =
+                            "txtClosing",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Invoice/Job No.
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.JobInvoice, new
+                            {
+                                @Class = "form-control",
+                                id = "txtInvoice",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                จำนวนตู้
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.ContainerAmount, new
+                            {
+                                @Class = "form-control form-number",
+                                id =
+                            "txtAmount",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Booking No
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.BookingNo, new
+                            {
+                                @Class = "form-control",
+                                id = "txtBookingNo",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Agent
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.DropDownList("AgentCode", null, "-----เลือก-----", new
+                            {
+                                @Class = "form-control",
+                                id =
+                            "agent_no"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ประเภทรถ
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.DropDownList("TruckTypegroupCode", null, "-----เลือก-----", new
+                            {
+                                @Class = "form-control",
+                                id = "truck_type"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ค่าทางด่วน
+                            </label>
+                            @Html.TextBox("expressway", null, new
+                            {
+                                @Class = "form-control",
+                                id = "txtExpressway",
+                                autocomplete = "off"
+                            })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>ที่อยู่อื่น</label>
+                        @Html.TextBoxFor(m => m.OtherAddress, new
+                        {
+                            @Class = "form-control",
+                            autocomplete = "off"
+                        })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>หมายเหตุ</label>
+                        @Html.TextBoxFor(m => m.JobRemark, new
+                        {
+                            @Class = "form-control",
+                            autocomplete = "off"
+                        })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <div class="row pull-right">
+            <div class="col-md-12">
+                <div class="tools-action">
+                    <a href="/order/">กลับหน้าหลัก</a> |
+                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

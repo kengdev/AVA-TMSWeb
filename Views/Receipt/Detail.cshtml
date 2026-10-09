@@ -1,0 +1,575 @@
+@model TMSWeb.Models.Entities.LOG.TblReceipt
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    ViewBag.Title = "รายละเอียดใบเสร็จรับเงิน";
+    var enCulture = new System.Globalization.CultureInfo("en-US", false);
+    var customer = (TMSWeb.Models.Entities.LOG.TblCustomer)ViewBag.Customer;
+    var detail = (List<TMSWeb.Models.ViewModels.ReceiptDetailFormViewModel>)ViewBag.Detail;
+    var rule = (TMSWeb.Models.Entities.LOG.TblCustomerRule)ViewBag.Rule;
+}
+<link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+<style>
+    .caption-action-name {
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .caption-action-license {
+        margin: 0;
+    }
+
+    .caption-action-img {
+        display: inline-block;
+        text-align: :center;
+        ;
+    }
+
+        .caption-action-img i {
+            width: 40px;
+            height: 40px;
+            font-size: 30px;
+        }
+
+    .caption-action-info {
+        display: inline-block !important;
+    }
+
+    .body-profile {
+        height: 200px;
+        border-right: 1px solid #ccc;
+    }
+
+    .profile-topic {
+        font-weight: bold;
+        color: #2c6289;
+        height: 25px;
+    }
+
+    .profile-content {
+        font-size: 13px;
+        margin-top: 10px;
+    }
+
+        .profile-content .topic {
+            display: inline-block;
+            font-weight: bold;
+            width: 70px;
+            text-align: right;
+            padding-right: 10px;
+            color: #6c6c6c;
+            vertical-align: top !important;
+        }
+
+        .profile-content .detail {
+            display: inline-block;
+            width: 70%;
+        }
+
+        .profile-content .payment {
+            display: inline-block;
+            width: 100%;
+        }
+
+    .table td {
+        font-size: 13px !important;
+    }
+
+    .table th {
+        font-size: 13px !important;
+        font-weight: bold !important;
+        text-align: left !important;
+    }
+
+    .action-td {
+        text-align: center;
+        width: 120px;
+    }
+
+    .btnEdit {
+        color: #c4b505;
+    }
+
+    .btnSave {
+        display: none;
+    }
+
+    .btnCancel {
+        display: none;
+        color: red;
+        font-weight: bold;
+    }
+
+    .form-control {
+        height: 25px;
+        font-size: 11px;
+        padding: 2px;
+    }
+
+    .address {
+        width: 85%;
+    }
+
+    .action {
+        display: inline-block;
+        vertical-align: top !important;
+    }
+
+    #edit-name,
+    #edit-tax {
+        display: none;
+    }
+
+    .edit-address {
+        width: 85%;
+        resize: none;
+        display: none;
+    }
+
+    .text-receipt-name {
+        font-size: 12px;
+        margin-right: 5px;
+        margin-left: 5px;
+    }
+
+    #receipt-name {
+        border: 1px solid #ccc;
+        font-size: 12px;
+        font-weight: normal;
+        padding: 3px;
+        display: none;
+    }
+
+        #receipt-name:visited,
+        #receipt-name:focus {
+            outline: none;
+        }
+
+    .spin-loader {
+        margin-left: 30px;
+        display: inline-block;
+    }
+</style>
+<div class="col-md-12 ">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <div class="caption-action-img">
+                    <i class="fad fa-file-invoice"></i>
+                </div>
+                <div class="caption-action-info ">
+                    <div class="caption-action-details ">
+                        <span class="caption-action-name font-purple">รายละเอียดใบเสร็จรับเงิน</span>
+                        <p class="caption-action-license font-xs font-grey-silver">@Model.ReceiptCode</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="portlet-body form">
+            <div class="row">
+                <div class=" col-md-12">
+                    <div class="row">
+                        <div class="col-lg-5 col-md-5 col-sm-5">
+                            <div class="body-profile">
+                                <div class="profile-topic">รายละเอียดใบเสร็จรับเงิน</div>
+                                <div class="profile-content">
+                                    <div class="topic">เลขที่</div>
+                                    <div class="detail">@Model.ReceiptCode</div>
+                                </div>
+
+                                <div class="profile-content">
+                                    <div class="topic">วันที่</div>
+                                    <div class="detail">@Model.CreateDate.ToString("dd MMMM yyyy")</div>
+                                </div>
+
+                                <div class="profile-content">
+                                    <div class="topic">ลูกค้า</div>
+                                    <div class="detail">
+                                        <span class="text-name text-receipt-name" id="text-name">@Model.CustomerName</span>
+                                        <input type="text" class="form-control" id="edit-name" value="@Model.CustomerName" />
+                                        <div class="spin-loader" style="display: none;"><div class="loader10-sm"></div></div>
+                                    </div>
+                                    <a href="javascript:;" class="btnEdit" onclick="editCustomerName(this)">
+                                        <i class='fad fa-pencil'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnSave"
+                                       onclick="saveCustomerName(this, '@Model.ReceiptCode')">
+                                        <i class='fad fa-save'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnCancel"
+                                       onclick="cancelCustomerName(this)"><i class="fa fa-times"></i></a>
+                                </div>
+
+                                <div class="profile-content">
+                                    <div class="topic">Tax ID</div>
+                                    <div class="detail">
+                                        <span class="text-tax text-receipt-name" id="text-tax">@Model.CustomerTax</span>
+                                        <input type="text" class="form-control" id="edit-tax" value="@Model.CustomerTax" />
+                                        <div class="spin-loader" style="display: none;"><div class="loader10-sm"></div></div>
+                                    </div>
+                                    <a href="javascript:;" class="btnEdit" onclick="editTax(this)">
+                                        <i class='fad fa-pencil'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnSave"
+                                       onclick="saveTax(this, '@Model.ReceiptCode')">
+                                        <i class='fad fa-save'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnCancel"
+                                       onclick="cancelTax(this)"><i class="fa fa-times"></i></a>
+                                </div>
+
+                                <div class="profile-content">
+                                    <div class="topic">ที่อยู่</div>
+                                    <div class="detail address">
+                                        <span class="text-address text-receipt-name">@Model.CustomerAddress</span>
+                                        <textarea class="edit-address form-control" rows="3">@Model.CustomerAddress</textarea>
+                                        <div class="spin-loader" style="display: none;"><div class="loader10-sm"></div></div>
+                                    </div>
+                                    <a href="javascript:;" class="btnEdit" onclick="editAddress(this)">
+                                        <i class='fad fa-pencil'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnSave"
+                                       onclick="saveAddress(this, '@Model.ReceiptCode')">
+                                        <i class='fad fa-save'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnCancel"
+                                       onclick="cancelAddress(this)"><i class="fa fa-times"></i></a>
+                                </div>
+
+                                <div class="profile-content">
+                                    <div class="detail bold">หมายเหตุ : </div>
+                                    <div class="detail">@Model.ReceiptRemark</div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="body-profile" style="margin-top: 50px;">
+                                <div class="profile-content">
+                                    <div class="topic">ชำระโดย</div>
+                                    <div class="detail">
+                                        @if (Model.ReceiptType == "01")
+                                        {
+                                            <span>เงินสด</span>
+                                        }
+                                        else if (Model.ReceiptType == "02")
+                                        {
+                                            <span>โอนเงิน</span>
+                                        }
+                                        else if (Model.ReceiptType == "03")
+                                        {
+                                            <span>เช็คธนาคาร</span>
+                                        }
+                                    </div>
+                                </div>
+                                @if (Model.ReceiptType == "02")
+                                {
+                                    <div class="profile-content">
+                                        <div class="topic">วันที่</div>
+                                        <div class="detail">@Model.ReceiptDate.ToString("dd MMMM yyyy", enCulture)</div>
+                                    </div>
+                                }
+                                else if (Model.ReceiptType == "03")
+                                {
+                                    <div class="profile-content">
+                                        <div class="payment">
+                                            <span style="margin-left:10px;">
+                                                ธนาคาร
+                                            </span>
+                                            <div style="display:inline-block;border-bottom:1px dashed #000;width:200px;padding-left:10px">
+                                                @Model.BankName
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="profile-content">
+                                        <div class="payment">
+                                            <span style="margin-left:10px;">
+                                                สาขา
+                                            </span>
+                                            <div style="display:inline-block;border-bottom:1px dashed #000;width:213px;padding-left:10px">
+                                                @Model.BankBranchName
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="profile-content">
+                                        <div class="payment">
+                                            <span style="margin-left:10px;">
+                                                เลขที่
+                                            </span>
+                                            <div style="display:inline-block;border-bottom:1px dashed #000;width:120px;padding-left:10px;">
+                                                @Model.ChequeNo
+                                            </div>
+
+                                            <span style="margin-left:10px;">
+                                                ลงวันที่
+                                            </span>
+                                            <div style="display:inline-block;border-bottom:1px dashed #000;width:120px;padding-left:10px">
+                                                @Model.ReceiptDate.ToString("dd MMMM yyyy", enCulture)
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-7 col-sm-7">
+                            <div class="body-truck">
+                                <div class="profile-topic" style="margin-bottom:5px;">
+                                    รายการ <span class="font-dark text-receipt-name">@Model.ReceiptName</span>
+                                    <input type="text" value="@Model.ReceiptName" id="receipt-name" />
+                                    <div class="spin-loader" style="display: none;"><div class="loader10-sm"></div></div>
+                                    <a href="javascript:;" class="btnEdit" onclick="editReceiptName(this)">
+                                        <i class='fad fa-pencil'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnSave"
+                                       onclick="saveReceiptName(this, '@Model.ReceiptCode')">
+                                        <i class='fad fa-save'></i>
+                                    </a>
+                                    <a href="javascript:;" style="margin-left:5px;" class="btnCancel"
+                                       onclick="cancelReceiptName(this)"><i class="fa fa-times"></i></a>
+                                </div>
+
+                                <table class="table" data-toggle="table" data-height="271">
+                                    <thead>
+                                        <tr>
+                                            <th data-width="70" data-align="center"></th>
+                                            <th data-align="center">เลขที่ใบวางบิล</th>
+                                            <th data-width="90" data-align="center">ประเภท</th>
+                                            <th data-width="90">สำรองจ่าย</th>
+                                            <th data-width="90">ค่าเที่ยว</th>
+                                            <th data-width="90">ยอดรวม</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in detail)
+                                        {
+                                            <tr>
+                                                <td style="text-align: center;">
+                                                    @if (item.billing_type != "M")
+                                                    {
+                                                        <a href="javascript:;" class="btnEdit" onclick="edit(this)">
+                                                            <i class='fad fa-pencil'></i>
+                                                        </a>
+                                                        <a href="javascript:;" style="margin-left:5px;" class="btnSave"
+                                                           onclick="save(this, '@item.billing_code', '@item.receipt_code')">
+                                                            <i class='fad fa-save'></i>
+                                                        </a>
+                                                        <a href="javascript:;" style="margin-left:5px;" class="btnCancel"
+                                                           onclick="cancel(this)"><i class="fa fa-times"></i></a>
+                                                    }
+                                                </td>
+                                                <td>@item.billing_code</td>
+                                                <td>
+                                                    <div class="display-type">
+                                                        @if (item.billing_type == "M")
+                                                        {
+                                                            <span class="bold font-blue">รวม</span>
+                                                        }
+                                                        else if (item.billing_type == "T")
+                                                        {
+                                                            <span class="bold font-green">ค่าเที่ยว</span>
+                                                        }
+                                                        else if (item.billing_type == "A")
+                                                        {
+                                                            <span class="bold font-red">สำรองจ่าย</span>
+                                                        }
+                                                        else if (item.billing_type == "O")
+                                                        {
+                                                            <span class="bold font-purple">อื่น ๆ</span>
+                                                        }
+                                                    </div>
+                                                    <div class="display-tool" style="display:none">
+                                                        <select class="form-control select-type">
+                                                            <option value="T">ค่าขนส่ง</option>
+                                                            <option value="A">สำรองจ่าย</option>
+                                                            <option value="O">อื่น ๆ</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="currency-td">
+                                                    @item.advance_value
+                                                </td>
+                                                <td class="currency-td">
+                                                    @item.transport_value
+                                                </td>
+                                                <td class="currency-td">@item.receipt_total.ToString("#,##0.00")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                                <div class="profile-content text-right" style="padding-right:20px;margin-top:20px;width:100%">
+                                    <div class="topic text-right" style="width:110px;">ยอดเงินทั้งสิ้น</div>
+                                    <div class="detail font-red bold" style="width:110px;">@Model.ReceiptTotal.ToString("#,##0.00")</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function editCustomerName(item) {
+            $('#text-name').hide();
+            $('#edit-name').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function cancelCustomerName(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $('#text-name').show();
+            $('#edit-name').hide();
+        }
+
+        function editTax(item) {
+            $('#text-tax').hide();
+            $('#edit-tax').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function cancelTax(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $('#text-tax').show();
+            $('#edit-tax').hide();
+        }
+
+        function editReceiptName(item) {
+            $(item).closest('div').find('.text-receipt-name').hide();
+            $('#receipt-name').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function cancelReceiptName(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $('#text-receipt-name').show();
+            $('#receipt-name').hide();
+        }
+
+        function editAddress(item) {
+            $('.text-address').hide();
+            $('.edit-address').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function cancelAddress(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $('.text-address').show();
+            $('.edit-address').hide();
+        }
+
+        function cancel(item) {
+            $(item).hide();
+            $(item).prev().hide();
+            $(item).prev().prev().show();
+            $(item).closest('td').next('td').next('td').find('.display-type').show();
+            $(item).closest('td').next('td').next('td').find('.display-tool').hide();
+        }
+
+        function edit(item) {
+            $(item).closest('td').next('td').next('td').find('.display-type').hide();
+            $(item).closest('td').next('td').next('td').find('.display-tool').show();
+            $(item).hide();
+            $(item).next().show();
+            $(item).next().next().show();
+        }
+
+        function save(item, billing_code, receipt_code) {
+            var type = $(item).closest('td').next('td').next('td').find('.select-type').val();
+            $(item).closest('td').next('td').next('td').find('.select-type').hide();
+            $(item).closest('td').next('td').next('td').html('<div class="spin-item"><div class="loader10-sm"></div></div>');
+            $.post("/receipt/editbillingtype", {
+                type: type,
+                billing_code: billing_code,
+                receipt_code: receipt_code
+            }, function(data) {
+                window.location.reload();
+            });
+        }
+
+        function saveCustomerName(item, receipt_code) {
+            var name = $('#edit-name').val();
+            loadingChange(item, 'input');
+            $.post("/receipt/editcustomername", {
+                code: receipt_code,
+                name: name
+            }, function(data) {
+                valueChange(item, name, 'input');
+            });
+        }
+
+        function saveTax(item, receipt_code) {
+            var tax = $('#edit-tax').val();
+            loadingChange(item, 'input');
+            $.post("/receipt/edittax", {
+                code: receipt_code,
+                tax_id: tax
+            }, function(data) {
+                valueChange(item, tax, 'input');
+            });
+        }
+
+        function saveReceiptName(item, receipt_code) {
+            var name = $('#receipt-name').val();
+            loadingChange(item, 'input');
+            $.post("/receipt/editname", {
+                code: receipt_code,
+                name: name
+            }, function(data) {
+                valueChange(item, name, 'input');
+            });
+        }
+
+        function saveAddress(item, receipt_code) {
+            var address = $('.edit-address').val();
+            loadingChange(item, 'textarea');
+            $.post("/receipt/editaddress", {
+                code: receipt_code,
+                address: address
+            }, function(data) {
+                valueChange(item, address, 'text-area');
+            });
+        }
+
+        function valueChange(item, value, control) {
+            $(item).parent().find(control).hide();
+            $(item).parent().find('.text-receipt-name').html(value);
+            $(item).parent().find('.text-receipt-name').show();
+            $(item).parent().find('.btnEdit').show();
+            $(item).parent().find('.spin-loader').hide();
+        }
+
+        function loadingChange(item, control) {
+            $(item).parent().find(control).hide();
+            $(item).parent().find('.text-receipt-name').show();
+            $(item).parent().find('.btnSave').hide();
+            $(item).parent().find('.btnCancel').hide();
+            $(item).parent().find('.spin-loader').show();
+        }
+
+        function prove(receipt_code) {
+            $.post("/receipt/ProveData", {
+                receipt_code: receipt_code
+            }, function(data) {
+                window.location.reload();
+            });
+        }
+    </script>
+}

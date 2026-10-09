@@ -1,0 +1,418 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblCustomerCost
+@{
+    ViewBag.TopActive = "Rate";
+    ViewBag.MidActive = "triprate";
+    ViewBag.Title = "ข้อมูลการคิดเงินลูกค้า";
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">การคำนวณเงิน</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/transportrate/">ข้อมูลการคิดเงินลูกค้า</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/transportrate/add">เพิ่ม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> เพิ่มรายการ</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("AddCost", "TransportRate", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+            {
+                @Html.Hidden("checkDuplicate")
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>
+                                        ค้นหาลูกค้า
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="input-group">
+                                        @Html.TextBoxFor(m => m.CustomerCode, new
+                                        {
+                                            @Class = "form-control",
+                                            id = "txtCustomer",
+                                            autocomplete = "off"
+                                        })
+                                        <span class="input-group-btn">
+                                            <button class="btn red" type="button" onclick="searchCustomerFunc()">ค้นหา</button>
+                                        </span>
+                                    </div>
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-9">
+                                <label>ชื่อลูกค้า</label>
+                                @Html.TextBox("txtCustomerName", null, new { @Class = "form-control", disabled = "Disabled" })
+                                @Html.Hidden("txtCustomerAddress")
+                                @Html.Hidden("txtCustomerTax")
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>
+                                        ค้นหาสถานที่ส่งสินค้า
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="input-group">
+                                        @Html.TextBoxFor(m => m.MissionCode, new
+                                        {
+                                            @Class = "form-control",
+                                            id =
+                                        "txtMission",
+                                            autocomplete = "off"
+                                        })
+                                        <span class="input-group-btn">
+                                            <button class="btn red" type="button" onclick="searchPlaceFunc()">ค้นหา</button>
+                                        </span>
+                                    </div>
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-9">
+                                <label>ชื่อสถานที่ส่งสินค้า</label>
+                                @Html.TextBox("txtPlaceName", null, new
+                                {
+                                    @Class = "form-control",
+                                    disabled = "Disabled"
+                                })
+                                @Html.Hidden("txtPlaceAddress")
+                                @Html.Hidden("txtPlaceTax")
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>
+                                        ราคา
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.CostValue, new { id = "cost_value", @Class = "form-control form-number" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>
+                                        ค่าเที่ยว AVA
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBox("supplyer_cost", null, new { @Class = "form-control form-number" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>
+                                        ค่าเที่ยวพนักงานขับรถ
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBox("driver_cost", null, new { @Class = "form-control form-number" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label>การออกใบเสร็จ</label>
+                                    <select class="form-control" id="sltBill">
+                                        <option value="0" selected>----เลือก----</option>
+                                        <option value="1">ออกใบเสร็จตามที่อยู่ลูกค้า</option>
+                                        <option value="2">ออกใบเสร็จตามสถานที่ส่งสินค้า</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        ชื่อ (สำหรับออกใบเสร็จ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ReceiptName, new { @Class = "form-control", id = "receipt_name" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>
+                                        เลขประจำตัวผู้เสียภาษี (สำหรับออกใบเสร็จ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ReceiptTax, new { @Class = "form-control", id = "receipt_tax" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>
+                                        ที่อยู่ (สำหรับออกใบเสร็จ)
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.ReceiptAddress, new
+                                    {
+                                        @Class = "form-control",
+                                        id =
+                                    "receipt_address"
+                                    })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>หมายเหตุ</label>
+                                @Html.TextBoxFor(m => m.CostRemark, new { @Class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/transportrate/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#txtCustomer').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Customer', {
+                        term: query
+                    }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    var name = map[item].name;
+                    setCustomerBox(code);
+                    return item;
+                }
+            });
+
+            $('#txtMission').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Place', {
+                        term: query
+                    }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    var name = map[item].name;
+                    setPlaceBox(code);
+                    return item;
+                }
+            });
+
+            $('#sltBill').change(function() {
+                var x = $(this).val();
+                var name = '';
+                var address = '';
+                var tax = '';
+                if (x == '1') {
+                    name = $('#txtCustomerName').val();
+                    address = $('#txtCustomerAddress').val();
+                    tax = $('#txtCustomerTax').val();
+                } else if (x == '2') {
+                    name = $('#txtPlaceName').val();
+                    address = $('#txtPlaceAddress').val();
+                    tax = $('#txtPlaceTax').val();
+                }
+
+                $('#receipt_name').val(name);
+                $('#receipt_tax').val(tax);
+                $('#receipt_address').val(address);
+            });
+        }(jQuery));
+
+        function searchCustomerFunc() {
+            var url = '/search/customer';
+            var setting = 'width=1100,height=700';
+            window.open(url, 'search customer', setting);
+        }
+
+        function searchPlaceFunc() {
+            var url = '/search/place';
+            var setting = 'width=1100,height=700';
+            window.open(url, 'search customer', setting);
+        }
+
+        function setCustomerBox(code) {
+            $.post("/Customer/GetCustomerDataByCode", {
+                code: code
+            }, function(result) {
+                var code = result.data.customer_code;
+                var name = result.data.customer_name_th;
+                var address = result.data.customer_address;
+                var tax = result.data.customer_tax;
+
+                $('#txtCustomer').val(code);
+                $('#txtCustomerName').val(name);
+                $('#txtCustomerAddress').val(address);
+                $('#txtCustomerTax').val(tax);
+            });
+        }
+
+        function setPlaceBox(code) {
+            $.post("/Place/GetPlaceDataByCode", {
+                code: code
+            }, function(result) {
+                var code = result.data.place_code;
+                var name = result.data.place_name;
+                var address = result.data.place_address;
+                var tax = result.data.place_tax;
+
+                $('#txtMission').val(code);
+                $('#txtPlaceName').val(name);
+                $('#txtPlaceAddress').val(address);
+                $('#txtPlaceTax').val(tax);
+            });
+        }
+
+        function checkDuplicate() {
+            var customer = $('#txtCustomer').val();
+            var place = $('#txtMission').val();
+            if (customer != '' && place != '') {
+                $.post("/TransportRate/IsDuplicate", {
+                    customer_code: customer,
+                    place_code: place
+                }, function(result) {
+                    if (result == true) {
+                        $.alert.open('warning',
+                            "<div>ลูกค้า และสถานที่ส่งสินค้าดังกล่าว ถูกบันทึกในระบบก่อนหน้านี้แล้ว</div><div style='margin-top:-30px'> กรุณาตรวจสอบความถูกต้อง หรือติดต่อผู้ดูแลระบบ</div>"
+                        );
+                        $('#checkDuplicate').val('1');
+                    } else {
+                        $('#checkDuplicate').val('0');
+                    }
+                });
+            }
+        }
+
+        function OnValidate() {
+            checkDuplicate()
+            var fn = false;
+            var dup = $('#checkDuplicate').val();
+            if (dup == false) {
+                fn = $('#frmAdd').myfunction({
+                    rules: {
+                        txtCustomer: {
+                            text_button: {
+                                message: "กรุณาพิมพ์รหัสลูกค้า"
+                            }
+                        },
+                        txtMission: {
+                            text_button: {
+                                message: "กรุณาพิมพ์รหัสสถานที่ส่งสินค้า"
+                            }
+                        },
+                        cost_value: {
+                            require: {
+                                value: true,
+                                message: "กรุณาพิมพ์ราคา"
+                            }
+                        },
+                        supplyer_cost: {
+                            require: {
+                                value: true,
+                                message: "กรุณาพิมพ์ราคา"
+                            }
+                        },
+                        driver_cost: {
+                            require: {
+                                value: true,
+                                message: "กรุณาพิมพ์ราคา"
+                            }
+                        },
+                        receipt_name: {
+                            require: {
+                                value: true,
+                                message: "กรุณาพิมพ์ชื่อที่ใช้ออกใบเสร็จ"
+                            }
+                        },
+                        receipt_tax: {
+                            require: {
+                                value: true,
+                                message: "กรุณาพิมพ์เลขประจำตัวผู้เสียภาษี"
+                            }
+                        },
+                        receipt_address: {
+                            require: {
+                                value: true,
+                                message: "กรุณาพิมพ์ที่อยู่ออกใบเสร็จ"
+                            }
+                        }
+                    }
+                })
+            }
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}

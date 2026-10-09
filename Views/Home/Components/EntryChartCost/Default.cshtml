@@ -1,0 +1,41 @@
+@model List<TMSWeb.Models.ViewModels.GraphViewModel>
+@{
+    var total = Model.Sum(s => s.id_sum);
+    var other = Model.Sum(s => s.other_sum);
+}
+<div class="row">
+    <div class="scroller" style="height: 300px;" data-always-visible="1" data-rail-visible="0">
+        <div class="table-scrollable table-scrollable-borderless">
+            <table class="table table-hover table-light">
+                <thead>
+                    <tr>
+                        <th style="border: none;"></th>
+                        <th style="border: none;text-align:right">ค่าขนส่ง</th>
+                        <th style="border: none;text-align:right">อื่น ๆ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><a href="javascript:;" onclick="detail_total('@item.code')" class="desc-link">@item.name</a></td>
+                            <td class="currency-td">
+                                @item.id_sum.ToString("#,##0.00")
+                            </td>
+                            <td class="currency-td">
+                                @item.other_sum.ToString("#,##0.00")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <table class="table table-light">
+        <tr>
+            <td style="font-weight: bold;text-align:right;padding-right:30px">ยอดรวม</td>
+            <td class="currency-td" style="color:red;padding-right:20px;"><div>@total.ToString("#,##0.00")</div></td>
+            <td class="currency-td" style="color:red;padding-right:20px;"><div>@other.ToString("#,##0.00")</div></td>
+        </tr>
+    </table>
+</div>

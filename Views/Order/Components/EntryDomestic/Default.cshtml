@@ -1,0 +1,171 @@
+@model TMSWeb.Models.Entities.LOG.TblJobMaster
+@using (Html.BeginForm("AddDomestic", "Order", FormMethod.Post, new { id = "frmAddDomestic", onsubmit = "return OnValidateDomestic()" }))
+{
+    @Html.HiddenFor(m => m.JobCode)
+    @Html.HiddenFor(m => m.CustomerCode, new { id = "txtDomesticCustomerCode" })
+    @Html.Hidden("domesticacronym")
+    <div class="form-body">
+        <div class="row">
+            <div class="col-md-12">
+                <label>ประเภทงาน</label>
+                <div class="mt-radio-inline">
+                    <label class="mt-radio">
+                        <input type="radio" name="JobType" class="rdoJobType" value="IMPORT" checked> Import
+                        <span></span>
+                    </label>
+                    <label class="mt-radio">
+                        @Html.RadioButtonFor(m => m.JobType, "EXPORT", new { @Class = "rdoJobType" }) Export
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>
+                                ค้นหาลูกค้า
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="input-group input-group-sm">
+                                @Html.TextBox("txtDomesticCostCode", null, new { @Class = "form-control customer-code", id = "txtDomesticCostCode", autocomplete = "off" })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button" onclick="searchCustomerFunc('dom')">ค้นหา</button>
+                                </span>
+                            </div>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label>ชื่อลูกค้า</label>
+                        @Html.TextBox("txtDomesticCustomerName", null, new { @Class = "form-control input-sm", disabled = "Disabled" })
+                        @Html.Hidden("route_code")
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>สถานที่รับสินค้า</label>
+                            <div class="input-group  input-group-sm">
+                                @Html.TextBox("txtDomesticStartCode", null, new { @Class = "form-control", autocomplete = "off" })
+                                <span class="input-group-btn">
+                                    <button class="btn red" type="button" onclick="searchYardPortFunc()">ค้นหา</button>
+                                </span>
+                            </div>
+                            <span class="help-block help-group"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label>ชื่อสถานที่รับสินค้า</label>
+                        @Html.Hidden("txtStartType")
+                        @Html.TextBox("txtDomesticStartName", null, new { @Class = "form-control input-sm", disabled = "Disabled" })
+                    </div>
+                </div>
+                <hr />
+                <div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span>สถานที่ส่งสินค้า</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span id="txtDomesticRouteName" class=" font-red bold" style="margin-left:20px;"></span>
+                            @Html.Hidden("txtDomesticMissionCode")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                วันที่เริ่มงาน
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.JobDate, new { @Class = "form-control datetimepicker input-sm", id = "txtDomJobDate", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Closing Time
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.ClosingTime, new { @Class = "form-control datetimepicker input-sm", id = "txtDomClosing", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Invoice/Job No.
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.JobInvoice, new { @Class = "form-control input-sm", id = "txtDomInvoice", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                จำนวนงาน
+                                <span class="required"> * </span>
+                            </label>
+                            @Html.TextBoxFor(m => m.ContainerAmount, new { @Class = "form-control form-number input-sm", id = "txtDomAmount", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                น้ำมัน
+                            </label>
+                            @Html.TextBox("fuel", null, new { @Class = "form-control input-sm form-number", id = "txtDomFuel", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                ค่าทางด่วน
+                            </label>
+                            @Html.TextBox("expressway", null, new { @Class = "form-control input-sm form-number", id = "txtDomExpressway", autocomplete = "off" })
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>หมายเหตุ</label>
+                        @Html.TextBoxFor(m => m.JobRemark, new { @Class = "form-control input-sm", rows = "3", autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <div class="row pull-right">
+            <div class="col-md-12">
+                <div class="tools-action">
+                    <a href="/order/">กลับหน้าหลัก</a> |
+                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

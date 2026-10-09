@@ -1,0 +1,188 @@
+@model TMSWeb.Models.Entities.LOG.ViewTransportBudgetTransaction
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+    var list = (List<TMSWeb.Models.Entities.LOG.LogBudgetTransaction>)ViewBag.List;
+    decimal total_advance = list.Where(w => w.PaymentType == "A").Sum(s => s.Amount);
+    decimal total_cashing = list.Where(w => w.PaymentType == "C").Sum(s => s.Amount);
+}
+@section Styles {
+    <style>
+        th {
+            font-size: 13px !important;
+        }
+
+        td {
+            font-size: 13px !important;
+        }
+
+        .type-td {
+            font-size: 13px !important;
+            width: 150px !important;
+        }
+
+        .currency-td {
+            font-size: 13px !important;
+            width: 110px !important;
+            padding-right: 5px !important;
+        }
+
+        .budget label {
+            font-size: 13px;
+            font-weight: bold;
+            width: 130px;
+        }
+
+        .budget span {
+            color: #95A5A6
+        }
+
+        .total {
+            margin-top: 20px;
+        }
+
+            .total label, .total span {
+                font-size: 13px;
+            }
+    </style>
+}
+<div class="col-md-12 ">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <span class="caption-subject bold font-small"> รายละเอียดการเบิก - จ่าย</span>
+                <span class="caption-helper">[เลขที่ @Model.TransactionCode]</span>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="budget">
+                        <label>ประจำงานเลขที่</label>
+                        <span>@Model.JobDetailCode</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="budget">
+                                <label>ลูกค้า</label>
+                                <span>
+                                    @Model.CustomerAcronym
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-5 col-md-5">
+                            <div class="budget">
+                                <label>งาน</label>
+                                <span>
+                                    @Model.JobType
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="budget">
+                                <label>รับตู้</label>
+                                <span>@Model.Start</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="budget">
+                                <label>เปิดตู้/บรรจุ</label>
+                                <span>@Model.Mission</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="budget">
+                                <label>Booking</label>
+                                <span>@Model.BookingNo</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="budget">
+                                <label>เบอร์ตู้</label>
+                                <span>@Model.ContainerNo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="budget">
+                        <label>วัน-เวลา</label>
+                        <span>@Model.CreateDate.ToString("dd-MM-yyyy HH:mm")</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                        </div>
+                        <div class="col-sm-6 col-md-6 text-right">
+                            <div class="row">
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="total font-yellow-gold">
+                                        <label>ยอดสำรองจ่าย</label>
+                                        <span class="bold">@total_advance.ToString("#,##0.00")</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-6">
+                                    <div class="total font-blue">
+                                        <label>ยอดค่าใช้จ่าย</label>
+                                        <span class="bold">@total_advance.ToString("#,##0.00")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped table-hover" id="transaction">
+                        <thead>
+                            <tr>
+                                <th>รายการ</th>
+                                <th>ประเภท</th>
+                                <th>ยอดเงิน</th>
+                            </tr>
+                        </thead>
+                        @foreach (var item in list)
+                        {
+                            <tr>
+                                <td class="font-sm">
+                                    <span style="padding-left: 7px;">@item.TransactionName</span>
+                                </td>
+                                <td class="type-td">
+                                    @if (item.PaymentType == "A")
+                                    {
+                                        <div class="font-yellow-gold bold">สำรองจ่าย</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="font-blue bold">ค่าใช้จ่าย</div>
+                                    }
+                                </td>
+                                <td class="currency-td">@item.Amount.ToString("#,##0.00") บาท</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            var sTable = $('#transaction').DataTable({
+                scrollY: 180,
+                scrollCollapse: 0,
+                sorting: 0,
+                searching: false,
+                info: false,
+                "ordering": false,
+                "paging": false
+            });
+        }(jQuery));
+    </script>
+}

@@ -1,0 +1,497 @@
+@model List<TMSWeb.Models.ViewModels.TempReceiptViewModel>
+@{
+    ViewBag.Title = "Upload";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+}
+
+@section Styles {
+    <link href="/css/upload/jquery.fileupload.css" rel="stylesheet" type="text/css" />
+    <link href="/css/upload/jquery.fileupload-ui.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="~/css/bootstrap/bootstrap-table.min.css" />
+    <style>
+        th {
+            font-size: 13px !important;
+        }
+
+        td {
+            font-size: 11px !important;
+        }
+
+        .progress {
+            background: #f0f0f0;
+            position: relative;
+        }
+
+            .progress .bar {
+                background: green;
+                width: 0%;
+                height: 30px;
+            }
+
+            .progress .label {
+                font-size: 13px;
+                line-height: 13px;
+                text-align: center;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 15px;
+            }
+
+            .progress #readingBar {
+                background: #941603;
+                width: 0%;
+                height: 30px;
+            }
+
+            .progress #readingLabel {
+                font-size: 13px;
+                line-height: 13px;
+                text-align: center;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 15px;
+            }
+
+        td.adv, td.trans, td.total {
+            background-color: #f8f8d0;
+        }
+
+        td.tmp_adv, td.tmp_trans, td.tmp_total {
+            background-color: rgb(255, 235, 241);
+        }
+
+        td.adv, td.trans, td.total, td.tmp_adv, td.tmp_trans, td.tmp_total {
+            border-left: 1px solid #E7ECF1;
+        }
+
+        td.adv, td.tmp_adv {
+            border-left: 2px solid #E7ECF1;
+        }
+
+        td.total {
+            font-weight: bold;
+            color: #941603;
+        }
+
+        td.tmp_total {
+            border-right: 2px solid #E7ECF1;
+            font-weight: bold;
+            color: #941603;
+        }
+
+        span.status-pending {
+            font-size: 9px !important;
+        }
+
+        span.status-done {
+            font-size: 9px !important;
+        }
+    </style>
+}
+
+<div class="col-md-12 ">
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <span class="caption-subject bold uppercase"> นำเข้ารายการจ่ายเงิน</span>
+                <span class="caption-helper"></span>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <span class="btn btn-sm blue fileinput-button">
+                            <i class="fa fa-plus"></i>
+                            <span> เลือกไฟล์</span>
+                            <input id="files" name="files" type="file" size="1" multiple />
+                        </span>
+
+                        <button type="button" onclick="uploadFiles('files')" class="btn btn-sm yellow start">เริ่มทำงาน</button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table role="presentation" class="table table-striped clearfix" id="file-content">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>ชื่อไฟล์</th>
+                                    <th>ขนาด</th>
+                                    <th>สถานะอัพโหลด</th>
+                                    <th>สถานะอ่านไฟล์</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="width:150px;padding-left:30px;"></td>
+                                    <td style="vertical-align:middle!important;">
+                                        <span id="filename"></span>
+                                    </td>
+                                    <td style="vertical-align:middle!important;">
+                                        <span id="filesize"></span>
+                                    </td>
+                                    <td style="vertical-align:bottom!important;width:150px;">
+                                        <div id="progress" class="progress">
+                                            <div id="bar" class="bar"></div>
+                                            <div id="label" class="label">0%</div>
+                                        </div>
+                                    </td>
+                                    <td style="vertical-align:bottom!important;width:150px;">
+                                        <div id="readingProgress" class="progress">
+                                            <div id="readingBar" class="bar"></div>
+                                            <div id="readingLabel" class="label">0%</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="font-sm">วันที่ <span class="required"> * </span></label>
+                            <input type="text" id="receiptdate" class="input-sm form-control datepicker" placeholder="วันที่ออกใบเสร็จ">
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="pull-right" style="margin-top:25px;">
+                            <button type="button" onclick="clearData()" class="btn btn-sm red-flamingo">เคลียร์ข้อมูล</button>
+                            <button type="button" onclick="confirmData()" class="btn btn-sm green">ยืนยันข้อมูล</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-hover" id="temp">
+                            <thead>
+                                <tr>
+                                    <th>เลขที่</th>
+                                    <th>สำรองจ่าย</th>
+                                    <th>ค่าขนส่ง</th>
+                                    <th>ยอดรวม</th>
+                                    <th>สำรองจ่าย (ไฟล์)</th>
+                                    <th>ค่าขนส่ง (ไฟล์)</th>
+                                    <th>ยอดรวม (ไฟล์)</th>
+                                    <th>สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th></th>
+                                    <th style="text-align: right!important;"></th>
+                                    <th style="text-align: right!important;"></th>
+                                    <th style="text-align: right!important;color:darkred;"></th>
+                                    <th style="text-align: right!important;"></th>
+                                    <th style="text-align: right!important;"></th>
+                                    <th style="text-align: right!important;color:darkred;"></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/bootstrap/bootstrap-table.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            var sTable = $('#temp').DataTable({
+                scrollY: 289,
+                scrollCollapse: 0,
+                sorting: 0,
+                searching: false,
+                info: false,
+                "ordering": false,
+                "paging": false,
+                "sAjaxSource": "/Receipt/GetTemp",
+                "fnRowCallback": function(row, aData, index) {
+                    $('td', row).eq(1).html(number_format(aData.advance_total));
+                    $('td', row).eq(2).html(number_format(aData.transport_total));
+                    $('td', row).eq(3).html(number_format(aData.total));
+                    $('td', row).eq(4).html(number_format(aData.tmp_advance_total));
+                    $('td', row).eq(5).html(number_format(aData.tmp_transport_total));
+                    $('td', row).eq(6).html(number_format(aData.tmp_total));
+
+                    if (aData.status) {
+                        $('td', row).eq(7).addClass('done');
+                        $('td', row).eq(7).html('<span class="status-complete">PENDING</span>');
+                    }
+                    else {
+                        $('td', row).eq(7).addClass('PN');
+                        $('td', row).eq(7).html('<span class="status-pending">PENDING</span>');
+                    }
+                },
+                "columnDefs": [
+                    { className: "action-4-td text-center", targets: 0 },
+                    { className: "currency-td adv", targets: 1 },
+                    { className: "currency-td trans", targets: 2 },
+                    { className: "currency-td total", targets: 3 },
+                    { className: "currency-td tmp_adv", targets: 4 },
+                    { className: "currency-td tmp_trans", targets: 5 },
+                    { className: "currency-td tmp_total", targets: 6 },
+                    { className: "status-td", targets: 7 },
+                ],
+                "columns":
+                    [
+                        { "data": "billing_code" },
+                        { "data": "advance_total" },
+                        { "data": "transport_total", "orderable": false },
+                        { "data": "total", "orderable": false },
+                        { "data": "tmp_advance_total" },
+                        { "data": "tmp_transport_total", "orderable": false },
+                        { "data": "tmp_total", "orderable": false },
+                        { "data": "status", "orderable": false }
+                    ],
+                "footerCallback": function(row, data, start, end, display) {
+                    var api = this.api(), data;
+                    var intVal = function(i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    var net_advance = api
+                        .column(1)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    $(api.column(1).footer()).html(number_format(net_advance));
+                    var net_transport = api
+                        .column(2)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    $(api.column(2).footer()).html(number_format(net_transport));
+                    var net_total = api
+                        .column(3)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    $(api.column(3).footer()).html(number_format(net_total));
+
+                    var net_tmp_advance = api
+                        .column(4)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    $(api.column(4).footer()).html(number_format(net_tmp_advance));
+                    var net_tmp_transport = api
+                        .column(5)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    $(api.column(5).footer()).html(number_format(net_tmp_transport));
+                    var net_tmp_total = api
+                        .column(6)
+                        .data()
+                        .reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+                    $(api.column(6).footer()).html(number_format(net_tmp_total));
+
+                    var pageTotal = api
+                        .column(1, { page: 'current' })
+                        .data()
+                        .reduce((a, b) => intVal(a) + intVal(b), 0);
+                    $(api.column(0).footer()).html('จำนวนข้อมูล : ' + api.rows().count() + ' รายการ');
+                }
+            });
+
+            $('#files').change(function() {
+                var filename = $(this).val().split('\\').pop();
+                var size = (this.files[0].size) / 1024;
+                var kb_size = size.toString().split('.');
+
+                $('#filesize').html(kb_size[0] + ' KB');
+                $('#filename').html(filename);
+                $('#file-content').show();
+            });
+        }(jQuery));
+
+        var isUpload = true;
+        var isRead = true;
+        var uploadingId;
+        var readingId;
+
+        function uploadFiles(inputId) {
+            isUpload = false;
+            var input = document.getElementById(inputId);
+            var files = input.files;
+            var formData = new FormData();
+            var filename = $('#files').val().split('\\').pop();
+            for (var i = 0; i != files.length; i++) {
+                formData.append("files", files[i]);
+            }
+            startUpdateUploadingProgress();
+            $.ajax({
+                url: "/Upload/ReceiptExcelFile",
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                success: function(data) {
+                    if (data['message'] === "Data Uploaded Successfully!") {
+                        stopUpdateUploadingProgress();
+                        startUpdateReadingProgress();
+                        $.post("/Upload/ReceiptReadingExcel", {
+                            filename: filename
+                        }, function(data) {
+                            if (data.result === true) {
+                                stopUpdateReadingProgress();
+                                $.alert.open('info', data.message);
+                                $('#temp').dataTable()._fnAjaxUpdate();
+                            } else {
+                                stopUpdateReadingProgress();
+                                $.alert.open('error', "<div>" + data.message +
+                                    "</div><div style='margin-top:-30px'> กรุณาตรวจสอบความถูกต้อง</div>",
+                                    function(r) {
+                                        $.each(data.list, function(key, item) {
+                                            $('#list-error > tbody').append('<tr><td>' +
+                                                item.stock_code + '</td><td>' + item
+                                                    .product_name + '</td></tr>');
+                                        });
+                                    });
+                            }
+                            isRead = true;
+                        });
+                    } else {
+                        stopUpdateUploadingProgress();
+                    }
+                    isUpload = true;
+                }
+            });
+        }
+
+        function startUpdateUploadingProgress() {
+            $("#progress").show();
+            uploadingId = setInterval(
+                function() {
+                    // We use the POST requests here to avoid caching problems (we could use the GET requests and disable the cache instead)
+                    $.post(
+                        "/Upload/ReceiptProgress",
+                        function(progressUpload) {
+                            //$("#bar").css({ width: progress + "%" });
+                            $("#bar").css({
+                                width: progressUpload + "%"
+                            });
+                            $("#label").html(progressUpload + "%");
+                        }
+                    );
+                },
+                10
+            );
+        }
+
+        function startUpdateReadingProgress() {
+            $("#progress").show();
+            readingId = setInterval(
+                function() {
+                    // We use the POST requests here to avoid caching problems (we could use the GET requests and disable the cache instead)
+                    $.post(
+                        "/Upload/ReceiptProgress",
+                        function(progressReading) {
+                            //$("#bar").css({ width: progress + "%" });
+                            $("#readingBar").css({
+                                width: progressReading + "%"
+                            });
+                            $("#readingLabel").html(progressReading + "%");
+                        }
+                    );
+                },
+                10
+            );
+        }
+
+        function stopUpdateUploadingProgress() {
+            clearInterval(uploadingId);
+        }
+
+        function stopUpdateReadingProgress() {
+            clearInterval(readingId);
+        }
+
+        function clearData() {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Upload/ClearTemp",
+                        {
+
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                $.alert.open('info', data.resultMessage, function(r) {
+                                    $('#temp').dataTable()._fnAjaxUpdate();
+                                });
+                            } else {
+                                jAlert('ผลการทำงาน', data.resultMessage);
+                            }
+                        });
+                }
+            });
+        }
+
+        function confirmData() {
+            var dateReceipt = $('#receiptdate').val();
+            if (dateReceipt != '') {
+                $.alert.open('confirm', 'คุณต้องการยืนยันข้อมูลนี้ ใช่หรือไม่ ?', function(r) {
+                    if (r) {
+                        overLayPage();
+                        $.post("/Receipt/ConfirmTemp",
+                            {
+                                receiptdate: $('#receiptdate').val()
+                            }, function(data) {
+                                killOverlayPage();
+                                if (data.result == true) {
+                                    $.alert.open('info', data.resultMessage, function(r) {
+                                        $('#temp').dataTable()._fnAjaxUpdate();
+                                        window.opener.reloadRow();
+                                    });
+                                } else {
+                                    jAlert('ผลการทำงาน', data.resultMessage);
+                                }
+                            });
+                    }
+                });
+            }
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}

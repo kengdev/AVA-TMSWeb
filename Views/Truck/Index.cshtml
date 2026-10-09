@@ -1,0 +1,308 @@
+﻿@{
+    ViewBag.TopActive = "Truck";
+    ViewBag.MidActive = "trucklist";
+    ViewBag.Title = "ข้อมูลรถ";
+}
+@section Styles {
+    <style>
+        table.dataTable td, table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        .btn-detail {
+            width: 80px;
+        }
+
+        a.linked:hover {
+            text-decoration: none;
+            opacity: 0.7;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลรถ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">หัวลาก</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="bold small"> รายการรถหัวลาก</span>
+                </div>
+                <div class="actions">
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right">
+                            <button type="button" class="btn btn-sm red" onclick="setAdd()">เพิ่มข้อมูล</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover order-column" id="table-truck">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th> เลขรถ</th>
+                            <th> ทะเบียน</th>
+                            <th> ประเภทรถ</th>
+                            <th> แบรนด์</th>
+                            <th> หมายเลขตัวถัง</th>
+                            <th> สังกัด</th>
+                            <th> พนักงานขับรถ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter"></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterNameTH" /></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterLicense" /></th>
+                            <th class="filter">
+                                @Html.DropDownList("truck_type_code", null, "-----เลือก-----", new { @Class = "form-control filterDropdown" })
+                            </th>
+                            <th class="filter">
+                                @Html.DropDownList("brand_code", null, "-----เลือก-----", new { @Class = "form-control filterDropdown" })
+                            </th>
+                            <th class="filter"></th>
+                            <th class="filter">
+                                @Html.DropDownList("supplier_code", null, "-----เลือก-----", new { @Class = "form-control filterDropdown" })
+                            </th>
+                            <th class="filter"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            var oTable = $('#table-truck').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [[1, "asc"]],
+                "sAjaxSource": "/Truck/GetTruckDataList",
+                "fnRowCallback": function(row, aData, index) {
+                    if (!aData.is_actived)
+                        $(row).addClass('inactive');
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({ "name": "filterLicense", "value": $("#filterLicense").val() });
+                    aoData.push({ "name": "filterNameTH", "value": $("#filterNameTH").val() });
+                    aoData.push({ "name": "filterNameEN", "value": $("#filterNameEN").val() });
+                    aoData.push({ "name": "filterTruckGroup", "value": $("#truck_type_code").val() });
+                    aoData.push({ "name": "filterBrand", "value": $("#brand_code").val() });
+                    aoData.push({ "name": "filterSupplier", "value": $("#supplier_code").val() });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [
+                    { className: "action-4-td text-center", targets: 0 },
+                    { className: "code-td", targets: 1 },
+                    { className: "code-td", targets: 2 },
+                    { className: "code-td", targets: 3 },
+                    { className: "code-td", targets: 4 },
+                    { className: "name-td", targets: 5 },
+                    { className: "name-td", targets: 6 },
+                    { className: "name-td", targets: 7 }
+                ],
+                "columns":
+                    [
+                        {
+                            "data": "truck_code", "orderable": false, "render": function(data, type, row) {
+                                var modify =
+                                    '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' +
+                                    data + '")><i class="fad fa-pencil-alt"></i></a>';
+                                var remove =
+                                    '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล"  data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' +
+                                    data + '")><i class="fad fa-trash-alt"></i></a>';
+                                var active =
+                                    '<a class="btn btn-xs green-jungle" href="javascript:;" data-title="เปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setActive("' +
+                                    data + '")><i class="fa fa-check"></i></a>';
+                                var inactive =
+                                    '<a class="btn btn-xs grey" href="javascript:;" data-title="ปิดใช้งาน"  data-toggle="tooltip" data-trigger="hover" onclick=setInactive("' +
+                                    data + '")><i class="fa fa-times"></i></a>';
+                                var detail =
+                                    '<a class="btn btn-xs blue" href="javascript:;" data-title="รายละเอียด"  data-toggle="tooltip" data-trigger="hover" onclick=showDetail("' +
+                                    data + '")>&nbsp;<i class="fad fa-clipboard-list-check"></i>&nbsp;</a>';
+
+                                if (row.is_actived) {
+                                    return inactive + remove + modify + detail;
+                                } else {
+                                    return active + remove + detail;
+                                }
+                            }
+                        },
+                        { "data": "truck_no" },
+                        { "data": "truck_license" },
+                        { "data": "truck_type_name" },
+                        { "data": "brand_name" },
+                        { "data": "truck_chassis_number", "orderable": false },
+                        { "data": "supplier_name" },
+                        {
+                            "data": "driver_name", "orderable": false, "render": function(data, type, row) {
+
+                                if (row.is_actived) {
+                                    var dv = '<a href="javascript:;" data-title="จัดการพนักงานขับรถ"  data-toggle="tooltip" data-trigger="hover" class="font-yellow linked" onclick=editDriver("' + row.truck_code + '")><i class="fas fa-pencil"></i> &nbsp;</a><span class="font-blue bold">' + data + '</span>'
+
+                                    if (row.driver_code != null) {
+                                        return dv;
+                                    }
+                                    else {
+                                        return '<button class="btn btn-circle btn-xs red-flamingo" onclick=editDriver("' + row.truck_code + '")>เพิ่มพนักงานขับรถ</button>';
+                                    }
+                                }
+                                else {
+                                    return '<span>' + row.driver_name + '</span>';
+                                }
+                            }
+                        },
+                    ],
+                "createdRow": function(row, data, dataIndex) {
+
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-truck tfoot tr').appendTo('#table-truck thead');
+        }(jQuery));
+
+        function reloadRow() {
+            $("#table-truck").DataTable().ajax.reload();
+        }
+
+        function setAdd() {
+            var url = '/truck/add';
+            window.location = url;
+        }
+
+        function setEdit(code) {
+            var url = '/truck/edit?code=' + code;
+            window.location = url;
+        }
+
+        function showDetail(code) {
+            var url = '/truck/truckdetail?code=' + code;
+            var setting = 'width=1100,height=610';
+
+            window.open(url, 'truck detail', setting);
+        }
+
+        function editDriver(code) {
+            var url = "/truck/editdriver?code=" + code;
+            var setting = 'width=1100,height=610';
+
+            window.open(url, 'truck detail', setting);
+        }
+
+        function setDisabled(code) {
+            $.alert.open('confirm', 'คุณต้องการลบข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Truck/Remove",
+                        {
+                            code: code
+                        }, function(data) {
+                            killOverlayPage();
+                            if (data.result == true) {
+                                $.alert.open('info', data.resultMessage, function(r) {
+                                    $('#table-truck').dataTable()._fnAjaxUpdate();
+                                });
+                            } else {
+                                $.alert.open('error', data.resultMessage);
+                            }
+                        });
+                }
+            });
+        }
+
+        function setActive(code) {
+            $.alert.open('confirm', 'คุณต้องการเปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Truck/Active", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-truck').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        function setInactive(code) {
+            $.alert.open('confirm', 'คุณต้องการปิดใช้งานข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Truck/Inactive", {
+                        code: code
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', data.resultMessage, function(r) {
+                                $('#table-truck').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error', data.resultMessage);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

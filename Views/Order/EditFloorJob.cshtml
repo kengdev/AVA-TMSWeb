@@ -1,0 +1,439 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblJobMaster
+@{
+    ViewBag.Title = "ทำรายการงานประจำวัน";
+    ViewBag.TopActive = "Job";
+    ViewBag.MidActive = "daily";
+    ViewBag.Title01 = "ข้อมูลงาน";
+    ViewBag.Link01 = "javascript:;";
+    ViewBag.Title02 = "งานประจำวัน";
+    var data = (TMSWeb.Models.OrderPlaceModel)ViewBag.Job;
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <li>
+                <a href="javascript:;">ข้อมูลงาน</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="/order/">งานประจำวัน</a>
+                <i class="fa fa-circle"></i>
+            </li>
+            <li>
+                <a href="/order/add">แก้ไข</a>
+            </li>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-pencil"></i>
+                    <span class="caption-subject bold uppercase"> แก้ไขรายการ [วางพื้น]</span>
+                    <span class="caption-helper">[เลขที่ @Model.JobCode]</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("EditOrder", "Order", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+            {
+                @Html.HiddenFor(m => m.JobIncoterm)
+                @Html.HiddenFor(m => m.CustomerCode, new { id = "txtCustomerCode" })
+                @Html.HiddenFor(m => m.ContainerType)
+                @Html.HiddenFor(m => m.ContainerSizeCode)
+                @Html.HiddenFor(m => m.ContainerSizeName)
+                @Html.HiddenFor(m => m.AgentCode)
+                @Html.HiddenFor(m => m.JobType)
+                @Html.HiddenFor(m => m.JobCode)
+                @Html.HiddenFor(m => m.IsEnabled)
+                @Html.HiddenFor(m => m.CreateDate)
+                @Html.HiddenFor(m => m.CreateBy)
+                @Html.Hidden("valueChange")
+                <div class="portlet-body form">
+                    <div class="scroller" style="height:470px" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label>
+                                                    ค้นหาลูกค้า
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                <div class="input-group">
+                                                    @Html.TextBoxFor(m => m.CostCode, new { @Class = "form-control customer-cost", id = "txtFloorCostCode", autocomplete = "off" })
+                                                    <span class="input-group-btn">
+                                                        <button class="btn red" type="button" onclick="searchCustomerFunc('flr')">ค้นหา</button>
+                                                    </span>
+                                                </div>
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-8">
+                                            <label>ชื่อลูกค้า</label>
+                                            @Html.TextBox("txtFloorCustomerName", data.txtCustomerName, new { @Class = "form-control", disabled = "Disabled" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>รหัสสถานที่รับสินค้า</label>
+                                                <div class="input-group">
+                                                    @Html.TextBox("txtFloorStartCode", data.txtStartCode, new { @Class = "form-control", autocomplete = "off" })
+                                                    <span class="input-group-btn">
+                                                        <button class="btn red" type="button" onclick="searchYardPortFunc()">ค้นหา</button>
+                                                    </span>
+                                                </div>
+                                                <span class="help-block help-group"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label>ชื่อสถานที่รับสินค้า</label>
+                                            @Html.Hidden("txtStartType", data.txtStartType)
+                                            @Html.TextBox("txtFloorDisStartName", data.StartName, new { @Class = "form-control", disabled = "Disabled" })
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label>ชื่อสถานที่ส่งสินค้า</label>
+                                            @Html.Hidden("txtMissionType", data.txtMissionType)
+                                            @Html.Hidden("txtFloorMissionCode", data.txtMissionCode, new { @Class = "form-control", autocomplete = "off" })
+                                            @Html.TextBox("txtFloorDisMissionName", data.MissionName, new { @Class = "form-control", disabled = "Disabled" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    วันที่เริ่มงาน
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.JobDate, "{0:yyyy-MM-dd HH:mm}", new { @Class = "form-control datetimepicker", id = "txtJobDate", autocomplete = "off" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Closing Time
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.ClosingTime, new { @Class = "form-control datetimepicker", id = "txtClosing", autocomplete = "off" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Invoice/Job No.
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.JobInvoice, new { @Class = "form-control", id = "txtInvoice", autocomplete = "off" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    จำนวนงาน
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.ContainerAmount, new { @Class = "form-control form-number", id = "txtAmount", autocomplete = "off", disabled = "disabled" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    Booking No
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.TextBoxFor(m => m.BookingNo, new { @Class = "form-control", id = "txtBookingNo" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    ประเภทรถ
+                                                    <span class="required"> * </span>
+                                                </label>
+                                                @Html.DropDownList("TruckTypegroupCode", null, "-----เลือก-----", new { @Class = "form-control", id = "truck_type" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>
+                                                    ค่าทางด่วน
+                                                </label>
+                                                @Html.TextBox("expressway", data.expressway, new { @Class = "form-control", id = "txtExpressway", autocomplete = "off" })
+                                                <span class="help-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label>หมายเหตุ</label>
+                                            @Html.TextBoxFor(m => m.JobRemark, new { @Class = "form-control", rows = "3" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/order/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result === true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#txtFloorCostCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('../AutoComplete/CustomerCost', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setCustomerBox(code);
+                    return item;
+                }
+            });
+
+            $('#txtFloorStartCode').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Place', { term: query }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    setYardPortBox(code, 'flr');
+                    return item;
+                }
+            });
+
+            $('#container_kind').change(function() {
+                var val = $(this).val();
+                if (val == '99') {
+                    $('#txtOther').prop('disabled', false);
+                    $('#txtOther').focus();
+                }
+                else {
+                    $('#txtOther').val('');
+                    $('#txtOther').prop('disabled', true);
+                }
+            });
+
+            $('.rdoJobType').change(function() {
+                var x = $(this).val();
+                $('#txtStartCode').val('');
+                $('#txtDisStartName').val('');
+                $('#txtFinishCode').val('');
+                $('#txtDisFinishName').val('');
+
+                if (x == "IMPORT") {
+                    $('input:radio[name="container_type"][value="LADEN"]').prop("checked", true);
+                } else {
+                    $('input:radio[name="container_type"][value="EMPTY"]').prop("checked", true);
+                }
+            });
+        }(jQuery));
+
+        function searchYardPortFunc() {
+            var url = '';
+            var setting = 'width=1100,height=665';
+            url = '/search/_searchyardport?ev=flr';
+
+            window.open(url, 'search place', setting);
+        }
+
+        function searchPlaceFunc(action) {
+            var url = '';
+            var setting = 'width=800,height=550';
+            var type = $('.rdoJobType:checked').val();
+            $('#valueChange').val(action)
+
+            if (action == 'S') {
+                if (type == "IMPORT") {
+                    url = '/search/port';
+                }
+                else if (type == "EXPORT") {
+                    url = '/search/yard';
+                }
+            }
+            else if (action == 'F') {
+                if (type == "IMPORT") {
+                    url = '/search/yard';
+                }
+                else if (type == "EXPORT") {
+                    url = '/search/port';
+                }
+            }
+            else {
+                url = '/search/place'
+            }
+
+            window.open(url, 'search', setting);
+        }
+
+        function searchCustomerFunc(e) {
+            var url = '/search/transportrate?ev=' + e;
+            var setting = 'width=800,height=550';
+            window.open(url, 'search', setting);
+        }
+
+        function setYardPortBox(code, event) {
+            var action = $('#valueChange').val();
+            $.post("../Order/GetYardPort",
+                {
+                    code: code
+                }, function(data) {
+                    var code = data.place_code;
+                    var name = data.place_name;
+                    var type = data.place_type;
+                    if (event == 'flr') {
+                        $('#txtFloorStartCode').val(code);
+                        $('#txtFloorDisStartName').val(name);
+                        $('#txtStartType').val(type);
+                    }
+                    else {
+                        if (action === 'S') {
+                            $('#txtStartCode').val(code);
+                            $('#txtDisStartName').val(name);
+                        }
+                        else if (action === 'F') {
+                            $('#txtFinishCode').val(code);
+                            $('#txtDisFinishName').val(name);
+                        }
+                    }
+                });
+        }
+
+        function setCustomerBox(code) {
+            $.post("../Order/GetCustomerCost",
+                {
+                    code: code
+                }, function(data) {
+                    $('#txtCostCode').val(data.cost_code);
+                    $('#txtCustomerCode').val(data.customer_code);
+                    $('#txtCustomerName').val(data.customer_name_th);
+                    $('#txtMissionCode').val(data.mission_code);
+                    $('#txtDisMissionName').val(data.mission_name);
+                    $('#acronym').val(data.customer_acronym);
+                });
+            $('#txtSearchCustomer').val('');
+        }
+
+        function OnValidate() {
+            var fn = false;
+            fn = $('#frmEdit').myfunction({
+                rules: {
+                    txtFloorCostCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสลูกค้า"
+                        }
+                    },
+                    txtFloorStartCode: {
+                        text_button: {
+                            message: "กรุณาพิมพ์รหัสสถานที่รับตู้"
+                        }
+                    },
+                    txtJobDate: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์วันที่เริ่มงาน"
+                        }
+                    },
+                    txtInvoice: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Invoice/Job No"
+                        }
+                    },
+                    txtAmount: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์จำนวนตู้"
+                        }
+                    },
+                    truck_type: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtBookingNo: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขที่ Booking"
+                        }
+                    }
+                }
+            });
+
+            if (fn)
+                overLayForm();
+
+            return fn;
+        }
+    </script>
+}

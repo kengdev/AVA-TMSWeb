@@ -1,0 +1,514 @@
+@model TMSWeb.Models.Entities.LOG.TblQuotation
+@{
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "quotation";
+    ViewBag.Title = "ข้อมูลเอกสารเสนอราคา";
+}
+@section Styles {
+    <style>
+        th {
+            text-align: center;
+            font-size: 13px !important;
+            background-color: #f1f4f7
+        }
+
+        .action-td {
+            width: 90px !important;
+            vertical-align: middle !important;
+            text-align: center;
+        }
+
+        .rate-td {
+            text-align: center;
+        }
+
+        .cost-td {
+            width: 110px !important;
+            text-align: center;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลเอกสารอื่น ๆ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/quotation/">ข้อมูลเอกสารเสนอราคา</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/add/">เพิ่ม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title tabbable-line">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> ทำรายการ</span>
+                </div>
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#portlet_tab1" data-toggle="tab"> Content </a>
+                    </li>
+                    <li>
+                        <a href="#portlet_tab2" data-toggle="tab">Other Terms & Conditions </a>
+                    </li>
+                </ul>
+            </div>
+            @using (Html.BeginForm("AddData", "Quotation", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+            {
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="portlet_tab1">
+                                <div class="row">
+                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label>
+                                                        Search
+                                                        <span class="required"> * </span>
+                                                    </label>
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="text" name="CustomerCode" class="form-control"
+                                                               id="txtCustomer" autocomplete="off" />
+                                                        <span class="input-group-btn">
+                                                            <button class="btn red" type="button"
+                                                                    onclick="searchCustomerFunc()">
+                                                                ค้นหา
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                    <span class="help-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <label>Customer</label>
+                                                @Html.TextBoxFor(m => m.CustomerName, new { @Class = "form-control input-sm", id = "txtCustomerName", Readonly = "readonly", AutoComplete = "Off" })
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-3"></div>
+                                            <div class="col-sm-9">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Contact</label>
+                                                            @Html.TextBoxFor(m => m.ContactName, new { @Class = "form-control input-sm", id = "txtContact", AutoComplete = "Off" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Phone</label>
+                                                            @Html.TextBoxFor(m => m.ContactLine, new { @Class = "form-control input-sm", id = "txtContactLine", AutoComplete = "Off" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-3"></div>
+                                            <div class="col-sm-9">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Effective</label>
+                                                            @Html.TextBoxFor(m => m.StartDate, new { @Class = "form-control input-sm datepicker", id = "txtContact", AutoComplete = "Off" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Expire</label>
+                                                            @Html.TextBoxFor(m => m.ExpireDate, new { @Class = "form-control input-sm datepicker", id = "txtContactLine", AutoComplete = "Off" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Commodity</label>
+                                                    @Html.TextBoxFor(m => m.Commodity, new
+                                                    {
+                                                        @Class = "form-control input-sm",
+                                                        id = "txtCommodity",
+                                                        AutoComplete = "Off"
+                                                    })
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Scope of work</label>
+                                                    @Html.TextBoxFor(m => m.Scope, new
+                                                    {
+                                                        @Class = "form-control input-sm",
+                                                        id = "txtScope",
+                                                        AutoComplete = "Off"
+                                                    })
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Route</label>
+                                                    @Html.TextBoxFor(m => m.Route, new
+                                                    {
+                                                        @Class = "form-control input-sm",
+                                                        id = "txtRoute",
+                                                        AutoComplete = "Off"
+                                                    })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Hour</label>
+                                                    @Html.TextBoxFor(m => m.ConditionHour, new { @Class = "form-control input-sm", id = "txtContact", AutoComplete = "Off" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Charged</label>
+                                                    @Html.TextBoxFor(m => m.ConditionCharged, new { @Class = "form-control input-sm", id = "txtContactLine", AutoComplete = "Off" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Mininum rate</label>
+                                                    <input type="text" class="form-control input-sm" value="27" name="MinimumRate" id="minimum" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Price increase</label>
+                                                    <input type="text" class="form-control input-sm" name="PriceIncrease" id="priceincrease" value="1" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Cut chassis</label>
+                                                    <input type="text" class="form-control input-sm" name="ChargeCutchassis" id="cutchassis" value="1500" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Insurance</label>
+                                                    <input type="text" class="form-control input-sm" name="InsuranceRate" id="insurancerate" value="1000000" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Item Amount</label>
+                                                    <input type="text" class="form-control input-sm" id="length" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Start rate</label>
+                                                    <input type="text" class="form-control input-sm" name="StartRate" id="start" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Start price</label>
+                                                    <input type="text" class="form-control input-sm" name="StartPrice" id="cost-value" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Price length</label>
+                                                    <input type="text" class="form-control input-sm" name="PriceLength" id="cost-length" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="">
+                                                    <div class="scroller" style="height:350px" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="2">
+
+                                                                    </th>
+                                                                    <th>
+                                                                        <input type="text" class="form-control input-sm" name="ContainerSize1" id="ContainerSize1" placeholder="container size" autocomplete="off" />
+                                                                    </th>
+                                                                    <th>
+                                                                        <input type="text" class="form-control input-sm" name="ContainerSize2" id="ContainerSize2" placeholder="container size" autocomplete="off" />
+                                                                    </th>
+                                                                    <th>
+                                                                        <input type="text" class="form-control input-sm" name="ContainerSize3" id="ContainerSize3" placeholder="container size" autocomplete="off" />
+                                                                    </th>
+                                                                    <th>
+                                                                        <button type="button" id="calculate" class="btn btn-sm yellow">Calculate</button>
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="body-detail">
+                                                                <tr>
+                                                                    <td colspan="7">&nbsp;</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label>remark</label>
+                                        @Html.TextBoxFor(m => m.Remark, new { @Class = "form-control input-sm", id = "txtCustomerName", AutoComplete = "Off" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="portlet_tab2">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-left">
+                                                รายการ
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="list-condition">
+                                        <tr>
+                                            <td class="action-td">
+                                                <a href='javascript:;' onclick='addCondition()'><i class='fa fa-plus-circle font-blue'></i></a>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control input-sm" name="condition[]" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/quotation/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#txtCustomer').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Customer', {
+                        term: query
+                    }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    var name = map[item].name;
+                    setCustomerBox(code);
+                    return item;
+                }
+            });
+
+            $('#calculate').click(function() {
+                var priceincrease = parseInt($('#priceincrease').val());
+                var amount = parseInt($('#length').val());
+                var start = parseInt($('#start').val()) + 0.01;
+                var end = start + (priceincrease - 0.01);
+
+                var length = parseInt($('#cost-length').val());
+                var cost = parseInt($('#cost-value').val());
+
+                var cost1 = $('#ContainerSize1').val() != '' ? cost : 0;
+                var cost2 = $('#ContainerSize2').val() != '' ? cost : 0;
+                var cost3 = $('#ContainerSize3').val() != '' ? cost : 0;
+                $('#body-detail tr').remove();
+                for (let i = 0; i < amount; i++) {
+                    var token = getToken();
+                    var rate_value = 0;
+                    if (i > 0) {
+                        start = end + 0.01;
+                        end = start + (priceincrease - 0.01);
+                        rate_value = start.toFixed(2) + "  -  " + end.toFixed(2);
+                    }
+                    else {
+                        rate_value = start.toFixed(2) + "  -  " + end.toFixed(2);
+                    }
+
+                    var radio_td =
+                        "<tr><td class='action-td text-center'> <input type='radio' class='rdoActive' name='rdoActive' value='" +
+                        token + "' /><input type='hidden' name='token[]' value='" + token + "' /></td>";
+                    var rate_td =
+                        "<td class='rate-td'><input type='text' name='rate[]' class='form-control input-sm' value='" + rate_value + "' /></td>";
+
+                    var cost_1_td =
+                        "<td class='cost-td'><input type='text' name='cost1[]' class='form-control input-sm' value='" +
+                        cost1 + "' /></td>";
+
+                    var cost_2_td =
+                        "<td class='cost-td'><input type='text' name='cost2[]' class='form-control input-sm' value='" +
+                        cost2 + "' /></td>";
+
+                    var cost_3_td =
+                        "<td class='cost-td'><input type='text' name='cost3[]' class='form-control input-sm' value='" +
+                        cost3 + "' /></td>";
+
+                    var remove_td =
+                        "<td class='action-td text-center'> <a href='javascript:;' onclick='$(this).parent().parent().remove()'><i class='fa fa-times font-red'></i></a></td></tr>";
+                    var add_td =
+                        "<td class='action-td text-center'> <a href='javascript:;' onclick='addRow()'><i class='fa fa-plus-circle font-blue'></i></a></td></tr>";
+                    var row = "";
+
+                    if (i == 0) {
+                        row = radio_td + rate_td + cost_1_td + cost_2_td + cost_3_td + add_td;
+                    }
+                    else {
+                        row = radio_td + rate_td + cost_1_td + cost_2_td + cost_3_td + remove_td;
+                    }
+
+
+                    cost1 = cost1 > 0 ? cost1 + length : 0;
+                    cost2 = cost2 > 0 ? cost2 + length : 0;
+                    cost3 = cost3 > 0 ? cost3 + length : 0;
+                    $('#body-detail').append(row)
+                }
+            });
+        }(jQuery))
+
+        function addCondition() {
+            var list = "<tr><td class='action-td'><a href='javascript:;' onclick='$(this).parent().parent().remove()'><i class='fa fa-times font-red'></i></a></td>";
+            list += "<td><input type='text' class='form-control input-sm' name='condition[]' /></td></tr>"
+            $('#list-condition').append(list)
+        }
+
+        function addRow() {
+            var token = getToken();
+            var radio_td =
+                "<tr><td class='action-td text-center'> <input type='radio' class='rdoActive' name='rdoActive' value='" + token + "' /><input type='hidden' name='token[]' value='" + token + "' /></td>";
+            var rate_td =
+                "<td class='rate-td'><input type='text' name='rate[]' class='form-control input-sm' value='' /></td>";
+            var cost_1_td =
+                "<td class='cost-td'><input type='text' name='cost1[]' class='form-control input-sm' value='' /></td>";
+            var cost_2_td =
+                "<td class='cost-td'><input type='text' name='cost2[]' class='form-control input-sm' value='' /></td>";
+            var cost_3_td =
+                "<td class='cost-td'><input type='text' name='cost3[]' class='form-control input-sm' value='' /></td>";
+            var action_td =
+                "<td class='action-td text-center'> <a href='javascript:;' onclick='$(this).parent().parent().remove()'><i class='fa fa-times font-red'></i></a></td></tr>";
+
+            var row = radio_td + rate_td + cost_1_td + cost_2_td + cost_3_td + action_td;
+            $('#body-detail').append(row)
+        }
+
+        function searchCustomerFunc() {
+            var url = '/search/customer';
+            var setting = 'width=1100,height=700';
+            window.open(url, 'search customer', setting);
+        }
+
+        function setCustomerBox(code) {
+            $.post("/Customer/GetCustomerDataByCode", {
+                code: code
+            }, function(result) {
+                var code = result.data.customer_code;
+                var name = result.data.customer_name_th;
+
+                $('#txtCustomer').val(code);
+                $('#txtCustomerName').val(name);
+            });
+        }
+
+        function getToken() {
+            var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            var token = '';
+            for (var i = 0; i < 30; i++) {
+                token += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return token;
+        }
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtName: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์โซน"
+                        }
+                    }
+                }
+            })
+
+            var rd = $(".rdoActive").is(":checked")
+
+            if (fn == true && rd == true) {
+                overLayForm();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    </script>
+}

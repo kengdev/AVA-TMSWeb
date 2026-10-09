@@ -1,0 +1,39 @@
+@model TMSWeb.Models.Entities.LOG.TblAllowanceDetail
+@using HtmlHelpers.BeginCollectionItemCore
+<tr>
+    @using (Html.BeginCollectionItem("TblAllowanceDetails"))
+    {
+        @Html.HiddenFor(m => m.JobDetailCode)
+        @Html.HiddenFor(m => m.AllowanceDate)
+        @Html.HiddenFor(m => m.TripType)
+        <td style="width:50px;border-left:none;text-align:center;">
+            <a href="#" class="closed" onclick="$(this).parent().parent().remove(), removeFunc('@ViewBag.Code')">
+                <i class="fa fa-times"></i>
+            </a>
+        </td>
+        <td style="width:130px;text-align:center;">@Model.AllowanceDate.ToString("ddd, dd MMM yyyy")</td>
+        <td style="width:140px;">@ViewBag.MissionName</td>
+        <td style="width:130px;">
+            @ViewBag.ContainerNo
+            @if (Model.JobDetailCode != "-")
+            {
+                if (Model.TripType == "B")
+                {
+                    <span class="font-red bold"> [ทอยตู้]</span>
+                }
+            }
+        </td>
+        <td>
+            @Html.TextBoxFor(m => m.TripValue, new { @class = "form-control form-subtract" })
+        </td>
+        <td>
+            @Html.TextBoxFor(m => m.FuelValue, new { @class = "form-control form-subtract" })
+        </td>
+        <td>
+            @Html.TextBoxFor(m => m.WasteValue, new { @class = "form-control form-subtract" })
+        </td>
+        <td>
+            @Html.TextBoxFor(m => m.OtherValue, new { @class = "form-control form-subtract" })
+        </td>
+    }
+</tr>

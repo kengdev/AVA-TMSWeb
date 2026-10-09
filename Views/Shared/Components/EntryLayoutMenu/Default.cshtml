@@ -1,0 +1,80 @@
+@model List<TMSWeb.Models.UserPriviledgeModel>
+@{
+    var theme = ViewBag.Theme;
+    var pic = ViewBag.Code;
+    var level1 = (ViewBag.Top == "Home" ? "active open" : "");
+    var level2 = "";
+    var level3 = "";
+}
+<link href="~/css/themes/light2.min.css" rel="stylesheet" type="text/css" id="style_color" />
+<ul class="page-sidebar-menu  page-header-fixed page-sidebar-menu-closed" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+    <li class="nav-item start @level1">
+        <a href="/" class="nav-link nav-toggle">
+            <i class="fad fa-home"></i>
+            <span class="title">หน้าหลัก</span>
+        </a>
+    </li>
+    @foreach (var item in Model)
+    {
+        level1 = (ViewBag.Top == item.priviledge_active ? "active open" : "");
+        <li class="nav-item @level1">
+            <a href="@item.priviledge_link" class="nav-link nav-toggle">
+                <i class="@item.priviledge_icon"></i>
+                <span class="title">@item.priviledge_name</span>
+                @if (item.sub_level.Count > 0)
+                {
+                    if (ViewBag.Top == item.priviledge_active)
+                    {
+                        <span class="arrow open"></span>
+                    }
+                    else
+                    {
+                        <span class="arrow"></span>
+                    }
+                }
+            </a>
+            @if (item.sub_level.Count > 0)
+            {
+                <ul class="sub-menu">
+                    @foreach (var sub_item in item.sub_level)
+                    {
+                        level2 = (ViewBag.Mid == sub_item.priviledge_active ? "active open" : "");
+                        <li class="nav-item @level2">
+                            <a href="@sub_item.priviledge_link" class="nav-link nav-toggle">
+                                <span class="title">@sub_item.priviledge_name</span>
+                                
+                                @if (sub_item.sub_level.Count > 0)
+                                {
+                                    if (ViewBag.Mid == sub_item.priviledge_active)
+                                    {
+                                        <span class="arrow open"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="arrow"></span>
+                                    }
+
+                                }
+                            </a>
+                            @if (sub_item.sub_level.Count > 0)
+                            {
+                                <ul class="sub-menu">
+                                    @foreach (var last_item in sub_item.sub_level)
+                                    {
+                                        level3 = (ViewBag.Sub == last_item.priviledge_active ? "active open" : "");
+                                        <li class="nav-item @level3">
+                                            <a href="@last_item.priviledge_link" class="nav-link ">
+                                                @*<i class="icon-bar-chart"></i>*@
+                                                <span class="title">@last_item.priviledge_name</span>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </li>
+    }
+</ul>

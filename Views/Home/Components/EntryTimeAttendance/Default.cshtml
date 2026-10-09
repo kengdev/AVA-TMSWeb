@@ -1,0 +1,36 @@
+﻿@model List<TMSWeb.Models.TimeAttendanceViewModel>
+@{
+    var tH = new System.Globalization.CultureInfo("th-TH");
+}
+
+<div class="scroller" style="height: 300px;" data-always-visible="1" data-rail-visible="0">
+    <div class="mt-comments">
+        <div class="mt-actions">
+            @foreach (var item in Model)
+            {
+                string status = item.status == "Late" ? "bg-red" : "bg-green";
+                <div class="mt-action">
+                    <div class="mt-action-img">
+                        <img src="@item.emp_img" />
+                    </div>
+                    <div class="mt-action-body">
+                        <div class="mt-action-row">
+                            <div class="mt-action-info ">
+                                <div class="mt-action-details ">
+                                    <span class="mt-action-author">@item.emp_name</span>
+                                    <span class="font-green">@item.emp_code</span>
+                                    <p class="mt-action-desc">@item.area_alias</p>
+                                </div>
+                            </div>
+                            <div class="mt-action-datetime ">
+                                <span class="mt-action-date">@item.punchtime.ToString("dd MMM", tH)</span>
+                                <span class="mt-action-dot @status"></span>
+                                <span class="mt=action-time">@item.punchtime.ToString("HH:mm")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,396 @@
+﻿@model TMSWeb.Models.Entities.LOG.TblCustomer
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.TopActive = "Base";
+    ViewBag.MidActive = "customer";
+    ViewBag.Title = "ข้อมูลลูกค้า";
+    var rule = (TMSWeb.Models.Entities.LOG.TblCustomerRule)ViewBag.Rule;
+
+    var lifton = rule.IsLifton == true ? "Checked" : "";
+    var liftoff = rule.IsLiftoff == true ? "Checked" : "";
+    var port = rule.IsPort == true ? "Checked" : "";
+    var yard = rule.IsYard == true ? "Checked" : "";
+}
+@section Styles {
+    <style>
+        #simplemodal-container {
+            height: 600px;
+            width: 800px;
+        }
+
+        #map {
+            height: 550px;
+            width: 800px;
+        }
+
+        .action {
+            width: 100%;
+            padding-top: 8px;
+            padding-right: 10px;
+            text-align: right;
+        }
+
+        .checkbox-lable {
+            display: inline-block;
+            width: 110px;
+            font-size: 13px;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลหลัก</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/customer/">ข้อมูลลูกค้า</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/customer/edit?code=@Model.CustomerCode">แก้ไข</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="col-md-12 ">
+    <!-- BEGIN SAMPLE FORM PORTLET-->
+    <div class="portlet light bordered">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fad fa-pencil"></i>
+                <span class="caption-subject bold uppercase"> แก้ไขรายการ</span>
+                <span class="caption-helper">[รหัส @Model.CustomerCode]</span>
+            </div>
+        </div>
+        @using (Html.BeginForm("EditCustomer", "Customer", FormMethod.Post, new { id = "frmEdit", onsubmit = "return OnValidate()" }))
+        {
+            @Html.HiddenFor(m => m.CustomerCode)
+            @Html.HiddenFor(m => m.CustomerTypeCode)
+            @Html.HiddenFor(m => m.IsActived)
+            @Html.HiddenFor(m => m.IsEnabled)
+            @Html.HiddenFor(m => m.CreateDate)
+            @Html.HiddenFor(m => m.CreateBy)
+            <div class="portlet-body form">
+                <div class="form-body">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>
+                                    เลขประจำตัวผู้เสียภาษี
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.TextBoxFor(m => m.CustomerVatNo, new { id = "txtVatNo", Class = "form-control form-number", autocomplete = "Off", @readonly = "Readonly" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>
+                                    อักษรย่อ 3 ตัวอักษร
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.TextBoxFor(m => m.CustomerAcronym, new { id = "txtAcronym", @Class = "form-control dlList", @readonly = "Readonly" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>
+                                    Vendor Code
+                                    <span class="required"> * </span>
+                                </label>
+                                <div class="input-icon right">
+                                    <i></i>
+                                    @Html.TextBoxFor(m => m.VendorCode, new { id = "txtVendor", @Class = "form-control", autocomplete = "Off" })
+                                    <span class="help-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>
+                                    ระบุสำนักงานใหญ่/สาขา
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.DropDownList("branch_type", null, "-----เลือก-----", new { @Class = "form-control dlList" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>
+                                    สาขา
+                                </label>
+                                @if (Model.CustomerExten == "HEAD OFFICE")
+                                {
+                                    @Html.TextBoxFor(m => m.CustomerExten, new { id = "txtExten", Class = "form-control", autocomplete = "Off", Disabled = "disabled", Value = "" })
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(m => m.CustomerExten, new { id = "txtExten", Class = "form-control", autocomplete = "Off" })
+                                }
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label>
+                                    ชื่อ (ภาษาไทย)
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.TextBoxFor(m => m.CustomerNameTh, new { id = "txtNameTh", Class = "form-control" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label>
+                                    ชื่อ (ภาษาอังกฤษ)
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.TextBoxFor(m => m.CustomerNameEn, new { id = "txtNameEn", Class = "form-control form-en" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>
+                                    ที่อยู่
+                                    <span class="required"> * </span>
+                                </label>
+                                @Html.TextBoxFor(m => m.CustomerAddress, new { id = "txtAddress", Class = "form-control" })
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>หัวข้อสำหรับเอกสาร</label>
+                                <div class="mt-radio-inline">
+                                    <label class="mt-radio">
+                                        @Html.RadioButtonFor(m => m.DocType, "JN", new { @Class = "rdoDocType" }) Job No
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-radio">
+                                        @Html.RadioButtonFor(m => m.DocType, "BN", new { @Class = "rdoDocType" }) Booking No
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>การสำรองจ่ายภาระค่าขนส่ง</label>
+                                <div class="mt-checkbox-inline">
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsLifton)
+                                        {
+                                            <input type="checkbox" id="chkLiftOn" value="TRUE" name="IsLiftOn" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkLiftOn" value="TRUE" name="IsLiftOn" />
+                                        }
+                                        <div class="checkbox-lable">Lift On</div>
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsLiftoff)
+                                        {
+                                            <input type="checkbox" id="chkLiftOff" value="TRUE" name="IsLiftOff" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkLiftOff" value="TRUE" name="IsLiftOff" />
+                                        }
+                                        <div class="checkbox-lable">Lift Off</div>
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsYard)
+                                        {
+                                            <input type="checkbox" id="chkYard" value="TRUE" name="IsYard" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkYard" value="TRUE" name="IsYard" />
+                                        }
+                                        <div class="checkbox-lable">ค่าผ่านลาน</div>
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsPort)
+                                        {
+                                            <input type="checkbox" id="chkPort" value="TRUE" name="IsPort" checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkPort" value="TRUE" name="IsPort" />
+                                        }
+                                        <div class="checkbox-lable">ค่าผ่านท่า</div>
+                                        <span></span>
+                                    </label>
+                                    <br />
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsTransportOther)
+                                        {
+                                            <input type="checkbox" id="chkPort" value="TRUE" name="IsTransportOther"
+                                                   checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkPort" value="TRUE" name="IsTransportOther" />
+                                        }
+                                        <div class="checkbox-lable">รวมค่าใช้จ่ายอื่น ๆ</div>
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsBypassTripcost)
+                                        {
+                                            <input type="checkbox" id="chkPort" value="TRUE" name="IsBypassTripcost"
+                                                   checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkPort" value="TRUE" name="IsBypassTripcost" />
+                                        }
+                                        <div class="checkbox-lable">บายพาสการวางบิล</div>
+                                        <span></span>
+                                    </label>
+                                    <label class="mt-checkbox mt-checkbox-outline">
+                                        @if (rule.IsLiftCashing)
+                                        {
+                                            <input type="checkbox" id="chkCashing" value="TRUE" name="IsLiftCashing"
+                                                   checked />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" id="chkCashing" value="TRUE" name="IsLiftCashing" />
+                                        }
+                                        <div class="checkbox-lable">จ่ายค่ายกเป็นเงินสด</div>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="row pull-right">
+                        <div class="col-md-12">
+                            <div class="tools-action">
+                                <a href="/customer/">กลับหน้าหลัก</a> |
+                                <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        (function($) {
+            $("#frmEdit").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+
+            $('#branch_type').change(function() {
+                var val = $(this).val();
+                if (val == '2') {
+                    $('#txtExten').prop('disabled', false)
+                } else {
+                    $('#txtExten').val('');
+                    $('#txtExten').prop('disabled', true)
+                }
+            });
+        }(jQuery));
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtNameTh: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อลูกค้า (ภาษาไทย)"
+                        },
+                        minlength: {
+                            value: 6,
+                            message: "กรุณาพิมพ์ข้อความอย่างน้อย 6 ตัวอักษร"
+                        }
+                    },
+                    txtNameEn: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อลูกค้า (ภาษาอังกฤษ) หากไม่มีพิมพ์ -"
+                        }
+                    },
+                    txtAddress: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์ที่อยู่ หากไม่มีพิมพ์ -"
+                        }
+                    },
+                    branch_type: {
+                        selected: {
+                            value: true,
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    txtExten: {
+                        other_text: {
+                            value: true,
+                            message: "กรุณาพิมพ์ชื่อสาขา"
+                        }
+                    }
+                }
+            })
+
+            if (fn) {
+                if (isDuplicateAcronym == false && isDuplicateVat == false) {
+                    overLayForm();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+
+        }
+    </script>
+}

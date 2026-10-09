@@ -1,0 +1,542 @@
+@model TMSWeb.Models.ViewModels.CoverSheetPdfFormViewModel
+@{
+    Layout = null;
+    var enCulture = new System.Globalization.CultureInfo("en-US", false);
+    var data = (List<TMSWeb.Models.ViewModels.CoverSheetFormViewModel>)Model.coversheet;
+    var customer = (TMSWeb.Models.Entities.LOG.TblCustomer)Model.customer;
+    var aData = data.FirstOrDefault();
+
+    var total = data.Sum(s => s.coversheet_value);
+    var vat = (total * 1) / 100;
+    var grand = (aData.is_vat == true ? total - vat : total);
+    string text_total = this.ChangeCurrencyToText(grand);
+
+    decimal row = data.Count;
+    int pg = (int)Math.Ceiling(row / 20);
+    pg = (row >= 41 && row <= 50 ? pg - 1 : pg);
+    pg = (row >= 61 && row <= 100 ? pg - 1 : pg);
+    pg = (row >= 101 && row <= 160 ? pg - 2 : pg);
+    pg = (row >= 151 && row <= 170 ? pg - 3 : pg);
+}
+<link rel="stylesheet" type="text/css" href="~/css/print/printform.css" media="print">
+<style>
+    body {
+        background: #fff;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    .page {
+        font: 10pt "Tahoma", Times, serif;
+        z-index: 1000;
+    }
+
+    .form-wrap {
+        padding: 7px;
+    }
+
+    .form-detail {
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .header-col-1 {
+        width: 150px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-6 {
+        width: 400px;
+        float: left;
+        display: inline-block;
+    }
+
+    .header-col-3 {
+        float: right;
+        text-align: center;
+        display: inline-block
+    }
+
+    .company-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .company-detail {
+        font-size: 13px !important;
+    }
+
+    .topic-name {
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .topic-date {
+        text-align: right;
+    }
+
+    .clear-float {
+        clear: both;
+    }
+
+    .form-topic {
+        float: left;
+    }
+
+    .form-detail {
+        float: left;
+        border-bottom: 1px solid #ccc;
+        font-size: 14px;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .form-time {
+        float: left;
+        border-bottom: 1px dashed #000;
+        font-size: 14px;
+        text-align: left;
+        padding-left: 10px;
+        height: 20px;
+    }
+
+    .table-invoice {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table-invoice th {
+            font-size: 11px;
+            border: 1px solid #000 !important;
+            text-align: center !important;
+            padding: 7px;
+        }
+
+        .table-invoice td {
+            font-size: 11px;
+            border: 1px solid #000 !important;
+            padding: 5px;
+        }
+
+    .topic-customer-name, .topic-customer-tax {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .topic-customer-tax {
+        margin-top: 10px;
+    }
+
+    .topic-customer-address {
+        font-size: 13px;
+        width: 350px;
+        height: 40px;
+    }
+
+    .topic-attention {
+        font-weight: bold;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .topic-date, .topic-invoice {
+        font-weight: bold;
+        display: inline-block;
+        width: 120px;
+        text-align: right;
+        padding-right: 30px;
+    }
+
+    .content-topic {
+        font-weight: bold;
+        font-size: 15px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .table th {
+        font-size: 11px;
+        border: 1px solid #000 !important;
+        text-align: center !important;
+    }
+
+    .table td {
+        font-size: 11px;
+        border: 1px solid #000 !important;
+    }
+
+    td.col-index {
+        text-align: center !important;
+    }
+
+    td.col-center {
+        text-align: center !important;
+    }
+
+    td.currency {
+        text-align: right !important;
+    }
+
+    td.text-currency {
+        text-align: center !important;
+        font-weight: bold;
+        background: #D3D3D3
+    }
+
+    .footer-doc {
+        width: 100%;
+        text-align: center;
+        font-size: 9pt !important;
+        margin-top: 7px;
+    }
+
+    .stamp {
+        text-align: center;
+        position: relative;
+        top: -35px !important;
+        left: -30px !important;
+    }
+
+    .stamp-img {
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+    .page-break {
+        page-break-after: always
+    }
+
+    @@media all {
+        .page-break {
+            page-break-after: always
+        }
+    }
+
+    @@media print {
+        html, body {
+            height: 99%;
+        }
+    }
+
+    @@media print {
+        .page-break {
+            display: block;
+            page-break-after: always;
+        }
+    }
+</style>
+@for (int y = 0; y < 2; y++)
+{
+    var pindex = 0;
+    int index = 1;
+    int item = 0;
+    for (int c = 0; c < pg; c++)
+    {
+        pindex++;
+        <div class="page">
+            <div class="form-content">
+                <div class="top-header">
+                    @{
+                        Html.RenderPartial("HeaderPdf");
+                    }
+                    <div class="header-col-3">
+                        <div>
+                            หน้า @pindex.ToString() จาก @pg
+                        </div>
+                        @if (y == 0)
+                        {
+                            <div style="text-align:center!important;font-weight:bold;font-size:18px;color:#ea3333;margin-top:20px;">
+                                <div>ต้นฉบับ</div>
+                                <div>ORIGINAL</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="text-align:center!important;font-weight:bold;font-size:18px;color:#ea3333;margin-top:20px;">
+                                <div>สำเนา</div>
+                                <div>COPY</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <br />
+                <div class="clear-float"></div>
+                <div class="topic-name">
+                    ใบคุมแจ้งหนี้ / Cover Invoice
+                </div>
+
+                <div style="width:390px;margin-top:10px;display:inline-block">
+                    <div class="topic-customer-name">
+                        @customer.CustomerNameEn
+                    </div>
+                    <div class="topic-customer-address">
+                        @customer.CustomerAddress
+                    </div>
+                    <div class="topic-customer-tax">
+                        TAX ID : @customer.CustomerVatNo
+                    </div>
+                    <div class="topic-attention">
+                        Attention : Account Payable
+                    </div>
+                </div>
+
+                <div style="vertical-align:top;text-align:left;float:right;">
+                    <div style="text-align:left;">
+                        <div class="topic-date">Date</div>
+                        <span>@aData.coversheet_date.ToString("dd MMMM yyyy", enCulture)</span>
+                    </div>
+                    <div style="text-align:left;margin-top:10px;">
+                        <div class="topic-invoice">Invoice No.</div>
+                        <span>@aData.coversheet_code</span>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <table class="table-invoice">
+                        <tr>
+                            <th colspan="4">CoverSheet</th>
+                        </tr>
+                        <tr>
+                            <th>NO.</th>
+                            <th>AVA GlOBAL LOGISTICS <br />INVOICE NO.</th>
+                            <th colspan="2">Total amount</th>
+                        </tr>
+                        @{
+                            var rowcontrol = 30;
+                            if (pindex == pg)
+                            {
+                                rowcontrol = 20;
+                            }
+                        }
+                        @for (int i = 0; i < rowcontrol; i++)
+                        {
+                            if (item < data.Count)
+                            {
+                                <tr>
+                                    <td class="col-index" style="font-size:11px;font-weight:bold;">@index.ToString().</td>
+                                    <td class="col-center" style="width:300px;font-size:11px!important;font-weight:bold;">@data[item].billing_code</td>
+                                    <td colspan="2" style="text-align:right;font-size:11px;font-weight:bold;">
+                                        @if (data[item].coversheet_value != data[item].billing_value)
+                                        {
+                                            <span style="color:red;font-weight:bold;">@data[item].coversheet_value.ToString("#,##0.00")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@data[item].coversheet_value.ToString("#,##0.00")</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td class="col-index">&nbsp;</td>
+                                    <td></td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            }
+                            index++;
+                            item++;
+                        }
+                        @if (pindex == pg)
+                        {
+                            if (!aData.is_vat)
+                            {
+                                <tr>
+                                    <td colspan="2" style="text-align:center;font-weight:bold;font-size:13px;">@text_total</td>
+                                    <td style="text-align:center;font-weight:bold;font-size:14px;">Grand Total</td>
+                                    <td style="text-align:right;font-weight:bold;font-size:14px;">@total.ToString("#,##0.00")</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" rowspan="2"></td>
+                                    <td style="text-align:center;font-weight:bold;font-size:14px;">TOTAL</td>
+                                    <td style="text-align:right;font-weight:bold;font-size:14px;">@total.ToString("#,##0.00")</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center;font-weight:bold;font-size:14px;">หักภาษี ณ ที่จ่าย 1%</td>
+                                    <td style="text-align:right;font-weight:bold;font-size:14px;">@vat.ToString("#,##0.00")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="text-align:center;font-weight:bold;font-size:13px;">@text_total</td>
+                                    <td style="text-align:center;font-weight:bold;font-size:14px;">Grand Total</td>
+                                    <td style="text-align:right;font-weight:bold;font-size:14px;">@grand.ToString("#,##0.00")</td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                    @if (pindex == pg)
+                    {
+                        <div class="stamp">
+                            @{
+                                Html.RenderPartial("StampPdf");
+                            }
+                        </div>
+                        @if (aData.is_vat)
+                        {
+                            <div style="width:100%;text-align:center;margin-top:-240px;">
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <div style="font-weight:bold;">AVA GLOBAL LOGISTICS CO., LTD</div>
+                                    <div class="sign">
+                                        <div class="sign-img">
+                                            @{
+                                                Html.RenderPartial("SignJutaratPdf");
+                                            }
+                                        </div>
+                                    </div>
+                                    <div style="height:40px;width:300px;border-bottom:1px #000 double;margin-top:-50px;"></div>
+                                    <div style="font-weight:bold;">Prepared by</div>
+                                    <div style="font-weight:bold;">Jutarat Vittayarat</div>
+
+                                
+                                    <div style="margin-top:30px!important;">
+                                        <div style="display:inline-block;border-bottom:1px solid #000;width:250px;"></div>
+                                        <div style="font-weight:bold;">ผู้รับวางบิล</div>
+                                    </div>
+                                    <div style="margin-top:5px;">ว/ด/ป.........../............../...............</div>
+                                </div>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <div style="font-weight:bold;">AVA GLOBAL LOGISTICS CO., LTD</div>
+                                    <div class="sign">
+                                        <div class="sign-img">
+                                            @{
+                                                Html.RenderPartial("SignJutaratPdf");
+                                            }
+                                        </div>
+                                    </div>
+                                    <div style="height:40px;width:300px;border-bottom:1px #000 double;margin-top:-50px"></div>
+                                    <div style="font-weight:bold;">Authorized Signature</div>
+                                    <div style="font-weight:bold;">Jutarat Vittayarat</div>
+                                    <br />
+                                    <div style="font-weight:bold;">** รบกวนเซ็นต์และขอเอกสารฉบับนี้กลับคืนค่ะ **</div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="width:100%;text-align:center;margin-top:-240px;">
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <div style="font-weight:bold;">AVA GLOBAL LOGISTICS CO., LTD</div>
+                                    <div class="sign">
+                                        <div class="sign-img">
+                                            @{
+                                                Html.RenderPartial("SignJutaratPdf");
+                                            }
+                                        </div>
+                                    </div>
+                                    <div style="height:40px;width:300px;border-bottom:1px #000 double;margin-top:-50px;"></div>
+                                    <div style="font-weight:bold;">Prepared by</div>
+                                    <div style="font-weight:bold;">Jutarat Vittayarat</div>
+
+                                
+                                    <div style="margin-top:30px!important;">
+                                        <div style="display:inline-block;border-bottom:1px solid #000;width:250px;"></div>
+                                        <div style="font-weight:bold;">ผู้รับวางบิล</div>
+                                    </div>
+                                    <div style="margin-top:10px;">ว/ด/ป.........../............../...............</div>
+                                </div>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <div style="display:inline-block;vertical-align:top;">
+                                    <div style="font-weight:bold;">AVA GLOBAL LOGISTICS CO., LTD</div>
+                                    <div class="sign">
+                                        <div class="sign-img">
+                                            @{
+                                                Html.RenderPartial("SignJutaratPdf");
+                                            }
+                                        </div>
+                                    </div>
+                                    <div style="height:40px;width:300px;border-bottom:1px #000 double;margin-top:-50px"></div>
+                                    <div style="font-weight:bold;">Authorized Signature</div>
+                                    <div style="font-weight:bold;">Jutarat Vittayarat</div>
+                                    <br />
+                                    <div style="font-weight:bold;">** รบกวนเซ็นต์และขอเอกสารฉบับนี้กลับคืนค่ะ **</div>
+                                </div>
+                            </div>
+                        }
+                        <div class="footer-doc">
+                            โปรดสั่งจ่ายเช็คขีดคร่อมในนาม "AVA GLOBAL LOGISTICS CO., LTD" เท่านั้น และเรียกเก็บใบเสร็จรับเงินหลังจากการชำระเงินทุกครั้ง
+                            <br />
+                            หนี้ตามใบเก็บเงินฉบับนี้จะต้องชำระเงินภายในกำหนดชำระ หากพ้นกำหนดชำระ บริษัทฯมีสิทธิ์เรียกร้องดอกเบี้ย 15% จากวันที่เกินกำหนด
+                        </div>
+                    }
+                </div>
+            </div>
+            @if (pindex != pg)
+            {
+                <div class="page-break"></div>
+            }
+        </div>
+    }
+    if (y == 0)
+    {
+        <div class="page-break"></div>
+    }
+}
+@functions {
+    private string ChangeCurrencyToText(decimal val)
+    {
+        string bahtTxt, n, bahtTH = "";
+        double amount;
+        try { amount = Convert.ToDouble(val); }
+        catch { amount = 0; }
+        bahtTxt = amount.ToString("####.00");
+        string[] num = { "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ" };
+        string[] rank = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        string[] temp = bahtTxt.Split('.');
+        string intVal = temp[0];
+        string decVal = temp[1];
+        if (Convert.ToDouble(bahtTxt) == 0)
+            bahtTH = "ศูนย์บาทถ้วน";
+        else
+        {
+            for (int i = 0; i < intVal.Length; i++)
+            {
+                n = intVal.Substring(i, 1);
+                if (n != "0")
+                {
+                    if ((i == (intVal.Length - 1)) && (n == "1"))
+                        bahtTH += "เอ็ด";
+                    else if ((i == (intVal.Length - 2)) && (n == "2"))
+                        bahtTH += "ยี่";
+                    else if ((i == (intVal.Length - 2)) && (n == "1"))
+                        bahtTH += "";
+                    else
+                        bahtTH += num[Convert.ToInt32(n)];
+                    bahtTH += rank[(intVal.Length - i) - 1];
+                }
+            }
+            bahtTH += "บาท";
+            if (decVal == "00")
+                bahtTH += "ถ้วน";
+            else
+            {
+                for (int i = 0; i < decVal.Length; i++)
+                {
+                    n = decVal.Substring(i, 1);
+                    if (n != "0")
+                    {
+                        if ((i == decVal.Length - 1) && (n == "1"))
+                            bahtTH += "เอ็ด";
+                        else if ((i == (decVal.Length - 2)) && (n == "2"))
+                            bahtTH += "ยี่";
+                        else if ((i == (decVal.Length - 2)) && (n == "1"))
+                            bahtTH += "";
+                        else
+                            bahtTH += num[Convert.ToInt32(n)];
+                        bahtTH += rank[(decVal.Length - i) - 1];
+                    }
+                }
+                bahtTH += "สตางค์";
+            }
+        }
+        return bahtTH;
+    }
+
+}

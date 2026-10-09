@@ -1,0 +1,356 @@
+@model TMSWeb.Models.Entities.LOG.TblReceiptOther
+@{
+    ViewBag.TopActive = "File";
+    ViewBag.MidActive = "receipthandling";
+    ViewBag.Title = "ข้อมูลเอกสารใบเสร็จรับเงิน (Container Handling)";
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ข้อมูลเอกสารอื่น ๆ</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/OtherReceipt/ReceiptHandling">ใบเสร็จรับเงิน (Container Handling)</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/OtherReceipt/AddReceiptHandling">เพิ่ม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-plus-circle"></i>
+                    <span class="caption-subject bold uppercase"> เพิ่มข้อมูลใบเสร็จรับเงิน (Container Handling)</span>
+                </div>
+            </div>
+            @using (Html.BeginForm("AddReceiptHandling", "OtherReceipt", FormMethod.Post, new { id = "frmAdd", onsubmit = "return OnValidate()" }))
+            {
+                <div class="portlet-body form">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label>เลขที่เอกสาร</label>
+                                            @Html.TextBoxFor(m => m.ReceiptOtherCode, null, new { id = "txtReceiptOtherCode", @Class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label>
+                                                ค้นหาลูกค้า
+                                            </label>
+                                            <div class="input-group input-group-sm">
+                                                @Html.TextBox("txtCustomer", null, new { @Class = "form-control", id = "txtCustomer", autocomplete = "off" })
+                                                <span class="input-group-btn">
+                                                    <button class="btn red" type="button" onclick="searchCustomerFunc()">ค้นหา</button>
+                                                </span>
+                                            </div>
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>
+                                                เลขประจำตัวผู้เสียภาษี
+                                                <span class="required"> * </span>
+                                            </label>
+                                            @Html.TextBoxFor(m => m.CustomerTax, new { @Class = "form-control input-sm", id = "txtCustomerTax" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label>ชื่อลูกค้า</label>
+                                            @Html.TextBoxFor(m => m.CustomerName, null, new { id = "txtCustomerName", @Class = "form-control input-sm", Readonly = "Readonly" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>
+                                                ที่อยู่ออกใบเสร็จ
+                                                <span class="required"> * </span>
+                                            </label>
+                                            @Html.TextAreaFor(m => m.CustomerAddress, new { @Class = "form-control", id = "txtCustomerAddress" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label font-sm">
+                                                ชำระโดย
+                                                <span class="required"> * </span>
+                                            </label>
+                                            @Html.DropDownList("PaymentType", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "payment_type" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label font-sm">วันที่</label>
+                                            @Html.TextBoxFor(m => m.ReceiptDate, new { @Class = "form-control input-sm receiptdatepicker", autocomplete = "Off" })
+                                            <span class="help-block"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="margin-top:-2px">
+                                            <label class="control-label font-sm">ธนาคาร</label>
+                                            @Html.DropDownList("BankName", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "bank_name", disabled = "disabled" })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="margin-top:-2px">
+                                            <label class="control-label font-sm">สาขา</label>
+                                            @Html.TextBoxFor(m => m.BankBranchName, new
+                                            {
+                                                @Class = "form-control input-sm",
+                                                id = "branch_name",
+                                                disabled = "disabled"
+                                            })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="margin-top:-2px">
+                                            <label class="control-label font-sm">เช็คเลขที่</label>
+                                            @Html.TextBoxFor(m => m.ChequeNo, new
+                                            {
+                                                @Class = "form-control input-sm",
+                                                id = "cheque_no",
+                                                disabled = "disabled"
+                                            })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group" style="margin-top:-2px">
+                                            <label class="control-label font-sm">เช็ควันที่</label>
+                                            @Html.TextBoxFor(m => m.ChequeDate, new
+                                            {
+                                                @Class = "form-control input-sm datepicker",
+                                                id = "cheque_date",
+                                                disabled = "disabled"
+                                            })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label font-sm">เบอร์ตู้</label>
+                                    @Html.TextBox("ReceiptOtherName", null, new
+                                    {
+                                        @Class = "form-control input-sm",
+                                        autocomplete = "Off"
+                                    })
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>
+                                        ขนาดตู้
+                                        <span class="required"> * </span>
+                                    </label>
+                                    @Html.DropDownList("ContainerSize", null, "-----เลือก-----", new { @Class = "form-control input-sm", id = "container_kind" })
+                                    <span class="help-block help-filter"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label font-sm">ราคา</label>
+                                    @Html.TextBox("Price", null, new { @Class = "form-control input-sm", autocomplete = "Off" })
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label font-sm">จำนวน</label>
+                                    @Html.TextBox("Quantity", 1, new { @Class = "form-control input-sm", autocomplete = "Off" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div class="row pull-right">
+                            <div class="col-md-12">
+                                <div class="tools-action">
+                                    <a href="/otherreceipt/receipthandling/">กลับหน้าหลัก</a> |
+                                    <button type="submit" class="btn green">บันทึกข้อมูล</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/js/autocomplete/bootstrap3-typeahead.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function($) {
+            var d = new Date();
+            var currDate = d.getDate();
+            var currMonth = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
+            var currYear = d.getFullYear();
+            var startDate = currYear + '-' + currMonth + '-' + currDate;
+
+            $('.receiptdatepicker').datetimepicker({
+                datepicker: true,
+                timepicker: false,
+                lang: 'th',
+                format: 'Y-m-d',
+                inline: false,
+                value: startDate,
+            });
+
+            $('#txtCustomer').typeahead({
+                minLength: 1,
+                source: function(query, process) {
+                    var list = [];
+                    map = {};
+                    return $.post('/AutoComplete/Place', {
+                        term: query
+                    }, function(data) {
+                        $.each(data, function(i, item) {
+                            map[item.title] = item;
+                            list.push(item.title);
+                        });
+                        process(list);
+                    });
+                },
+                updater: function(item) {
+                    var code = map[item].value;
+                    var name = map[item].name;
+                    setPlaceBox(code);
+                    return item;
+                }
+            });
+
+            $('#check-excharge').change(function() {
+                var item_val = $(this).is(':checked')
+                if (item_val) {
+                    $('#excharge-topic').prop('disabled', false);
+                }
+                else {
+                    $('#excharge-topic').val('');
+                    $('#excharge-topic').prop('disabled', true);
+                }
+            });
+
+        
+            $('#payment_type').change(function() {
+                var x = $(this).val();
+                if (x == '03') {
+                    $('#bank_name').prop('disabled', false);
+                    $('#cheque_no').prop('disabled', false);
+                    $('#cheque_date').prop('disabled', false);
+                    $('#branch_name').prop('disabled', false);
+                } else {
+                    $('#bank_name').prop('disabled', true);
+                    $('#cheque_no').prop('disabled', true);
+                    $('#cheque_date').prop('disabled', true);
+                    $('#branch_name').prop('disabled', true);
+                }
+            });
+
+            $("#frmAdd").ajaxForm(function(data) {
+                killOverlayForm();
+                if (data.result == true) {
+                    $.alert.open('info', data.resultMessage, function(r) {
+                        window.location.reload();
+                    });
+                } else {
+                    $.alert.open('error', data.resultMessage);
+                }
+            });
+        }(jQuery));
+
+        function searchCustomerFunc(e) {
+            var url = '../search/place?ev=' + e;
+            var setting = 'width=900,height=550';
+            window.open(url, 'search customer', setting);
+        }
+
+        function setPlaceBox(code) {
+            $.post("/Place/GetPlaceDataByCode", {
+                code: code
+            }, function(result) {
+                var code = result.data.place_code;
+                var name = result.data.place_name;
+                var address = result.data.place_address;
+                var tax = result.data.place_tax;
+
+                $('#txtCustomer').val(code);
+                $('#txtCustomerName').val(name);
+                $('#txtCustomerAddress').val(address);
+                $('#txtCustomerTax').val(tax);
+            });
+        }
+
+        function OnValidate() {
+            var fn = $('#frmAdd').myfunction({
+                rules: {
+                    txtCustomerTax: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขประจำตัวผู้เสียภาษีของลูกค้า"
+                        }
+                    },
+                    txtCustomerAddress: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์เลขประจำตัวผู้เสียภาษีของลูกค้า"
+                        }
+                    },
+                    payment_type: {
+                        selected: {
+                            message: "กรุณาเลือกข้อมูล"
+                        }
+                    },
+                    ReceiptDate: {
+                        require: {
+                            value: true,
+                            message: "กรุณาพิมพ์วันที่ออกใบเสร็จรับเงิน"
+                        }
+                    }
+                }
+            })
+            if (fn)
+                overLayForm();
+            return fn;
+        }
+    </script>
+}

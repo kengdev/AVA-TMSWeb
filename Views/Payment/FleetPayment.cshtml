@@ -1,0 +1,382 @@
+﻿@{
+    ViewBag.TopActive = "Allowance";
+    ViewBag.MidActive = "supplyerpayment";
+    ViewBag.SubActive = "avatrip";
+    ViewBag.Title = "ข้อมูลการจ่ายเงิน";
+}
+
+@section Styles {
+    <style>
+        table.dataTable td,
+        table.dataTable th {
+            font-size: 13px !important;
+        }
+
+        #modal-supplyer-payment {
+            width: 600px !important;
+            height: 430px !important;
+            background-color: #fff;
+            ;
+        }
+
+        #form-content {
+            padding: 20px !important;
+        }
+
+        #form-title {
+            width: 100%;
+            background-color: #a37f48;
+            padding: 7px 5px 7px 5px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            height: 30px !important;
+            padding: 5px;
+            font-size: 13px !important;
+            font-weight: normal;
+        }
+
+        h4 {
+            font-size: 14px;
+        }
+
+        #form-action {
+            border-top: 1px solid #edeadf;
+            width: 100%;
+            padding: 15px 20px 13px 20px;
+            text-align: right;
+        }
+
+        .license-td {
+            width: 110px !important;
+        }
+    </style>
+}
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="javascript:;">ทำจ่าย</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="javascript:;">ค่าเที่ยวรถร่วม</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <a href="/่job/">ข้อมูลค่าเที่ยวรถร่วม</a>
+        </li>
+    </ul>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12 col-lg-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fad fa-list"></i>
+                    <span class="caption-subject bold uppercase"> รายการจ่ายเงินรถร่วม [AVA]</span>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-sm blue btn-circle btn-outline" onclick="getPdf()">
+                        <i class="fad fa-download"></i> ดาวน์โหลด
+                    </button>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-inline pull-right" role="form">
+                            <div class="form-group">
+                                @Html.DropDownList("month", null, new { @Class = "form-control dlListForm" })
+                            </div>
+                            <div class="form-group">
+                                @Html.DropDownList("year", null, new { @Class = "form-control dlListForm", Style = "width:90px;" })
+                            </div>
+                            |
+                            <button type="button" class="btn btn-sm red" onclick="setAddAVA()">ทำรายการ</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover" id="table-payment">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center!important;"></th>
+                            <th style="text-align:center!important;"></th>
+                            <th> วันที่จัดทำ</th>
+                            <th> รหัส</th>
+                            <th> ทะเบียน</th>
+                            <th> ชื่อบริษัท</th>
+                            <th> จำนวนรายการ</th>
+                            <th> ยอดเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr role="row" class="heading">
+                            <th class="filter" colspan="2" style="text-align:left!important;padding-top:10px!important;"></th>
+                            <th class="filter"></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterCode" /></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterLicense" /></th>
+                            <th class="filter"><input type="text" class="form-control filterText" id="filterName" /></th>
+                            <th class="filter"></th>
+                            <th class="filter"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var oTableBilling = $('#table-payment').DataTable({
+                "processing": true,
+                "searching": false,
+                "serverSide": true,
+                "iDisplayLength": 20,
+                "scrollCollapse": false,
+                "order": [
+                    [2, "asc"]
+                ],
+                "sAjaxSource": "/Payment/GetFleetList",
+                "fnRowCallback": function(row, aData, index) {
+                    $('td', row).eq(7).html(number_format(aData.supplierpayment_net));
+                },
+                "fnServerParams": function(aoData) {
+                    aoData.push({
+                        "name": "month",
+                        "value": $("#month").val()
+                    });
+                    aoData.push({
+                        "name": "year",
+                        "value": $("#year").val()
+                    });
+                    aoData.push({
+                        "name": "filterLicense",
+                        "value": $("#filterLicense").val()
+                    });
+                    aoData.push({
+                        "name": "filterCode",
+                        "value": $("#filterCode").val()
+                    });
+                    aoData.push({
+                        "name": "filterNameEn",
+                        "value": $("#filterName").val()
+                    });
+                },
+                "oLanguage": {
+                    "sInfoFiltered": " ",
+                    "sInfo": "แสดงจำนวน _START_ to _END_ รายการ (ทั้งหมด _TOTAL_ รายการ)",
+                    "sSearch": "ค้นหา : ",
+                    "sLengthMenu": 'แสดงจำนวน <select class="form-control">' +
+                        '<option value="10">10</option>' +
+                        '<option value="20" selected>20</option>' +
+                        '<option value="30">30</option>' +
+                        '<option value="40">40</option>' +
+                        '<option value="50">50</option>' +
+                        '<option value="100">100</option>' +
+                        '</select> รายการ'
+                },
+                "columnDefs": [{
+                    className: "action-3-td text-center",
+                    targets: 0
+                },
+                {
+                    className: "dropdown-td",
+                    targets: 1
+                },
+                {
+                    className: "date-td",
+                    targets: 2
+                },
+                {
+                    className: "code-td",
+                    targets: 3
+                },
+                {
+                    className: "license-td",
+                    targets: 4
+                },
+                {
+                    className: "name-td",
+                    targets: 5
+                },
+                {
+                    className: "amount-td",
+                    targets: 6
+                },
+                {
+                    className: "currency-td",
+                    targets: 7
+                }
+                ],
+                "columns": [{
+                    "data": "supplierpayment_code",
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        var modify =
+                            '<a class="btn btn-xs yellow" href="javascript:;" data-title="แก้ไขข้อมูล" data-toggle="tooltip" data-trigger="hover" onclick=setEdit("' +
+                            data + '")><i class="fad fa-pencil"></i></a>';
+                        var remove =
+                            '<a class="btn btn-xs red" href="javascript:;" data-title="ลบข้อมูล" data-toggle="tooltip" data-trigger="hover" onclick=setDisabled("' +
+                            data + '")><i class="fad fa-trash"></i></a>';
+                        var detail =
+                            '<a href="javascript:;" class="btn btn-xs blue" data-title="รายละเอียด" data-toggle="tooltip" data-trigger="hover" onclick=setDetail("' +
+                            data + '")><i class="fad fa-clipboard-list"></i></a>';
+
+                        return remove + modify + detail;
+                    }
+                },
+                {
+                    "data": "supplierpayment_code",
+                    "orderable": false,
+                    "render": function(data, type, row) {
+                        var action = '<div class="btn-group dropup" style="padding-left:10px;">';
+                        action += '<button class="btn btn-xs blue dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> เอกสาร ';
+                        action += '<i class="fa fa-angle-down"></i>';
+                        action += '</button>';
+                        action += '<ul class="dropdown-menu pull-left" role="menu">';
+
+                        action += '<li><a href="javascript:;" onclick=setPrintPayment("' + data + '")><i class="fad fa-copy"></i> ใบสำคัญรับจ่ายเงิน </a></li>';
+                        action += '</ul></div>';
+                        return action
+                    }
+                },
+                {
+                    "data": "supplierpayment_date"
+                },
+                {
+                    "data": "supplierpayment_code"
+                },
+                {
+                    "data": "truck_license"
+                },
+                {
+                    "data": "supplier_name"
+                },
+                {
+                    "data": "supplierpayment_amount"
+                },
+                {
+                    "data": "supplierpayment_net"
+                }
+                ],
+                "createdRow": function(row, data, dataIndex) {
+                    $(row).find('[data-toggle="tooltip"]').tooltip();
+                }
+            });
+
+            $('#table-payment tfoot tr').appendTo('#table-payment thead');
+
+            $('.filterText').keyup(function() {
+                $('#table-payment').dataTable()._fnAjaxUpdate();
+            });
+
+            $('.dlListForm').change(function() {
+                reloadRow();
+            });
+        });
+        var intervalId;
+
+        function setAddAVA() {
+            var url = '/payment/addfleetpayment';
+            var setting = 'width=1350,height=785';
+
+            window.open(url, 'add payment', setting);
+        }
+
+        function setDetail(code) {
+            var url = '/payment/fleetpaymentdetail?code=' + code;
+            var setting = 'width=1250,height=740';
+
+            window.open(url, 'detail payment', setting);
+        }
+
+        function setEdit(code) {
+            var url = '/payment/editfleetpayment?code=' + code;
+            var setting = 'width=1350,height=785';
+
+            window.open(url, 'edit payment', setting);
+        }
+
+        function setDisabled(code) {
+            $.alert.open('confirm', 'คุณต้องการยกเลิกข้อมูลดังกล่าวนี้ ใช่หรือไม่ ?', function(r) {
+                if (r) {
+                    overLayPage();
+                    $.post("/Payment/RemoveFleetPayment", {
+                        code: code,
+                    }, function(data) {
+                        killOverlayPage();
+                        if (data.result == true) {
+                            $.alert.open('info', "ยกเลิกข้อมูลเรียบร้อยแล้ว", function(r) {
+                                $('#table-payment').dataTable()._fnAjaxUpdate();
+                            });
+                        } else {
+                            $.alert.open('error',
+                                "<div>เกิดข้อผิดลพลาดระหว่างการทำงาน</div><div style='margin-top:-30px'> กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</div>"
+                            );
+                        }
+                    });
+                }
+            });
+        }
+
+        function reloadRow() {
+            $("#table-payment").DataTable().ajax.reload();
+        }
+
+        function setPrintPayment(code) {
+            url = '/form/fleetpayment?code=' + code;
+            window.open(url, 'Print Station');
+        }
+
+        function setPrintPND50(code) {
+            url = '/form/PND50?code=' + code;
+
+            window.open(url, 'Print Station');
+        }
+
+        function getPdf() {
+            var month = $('#month').val();
+            var year = $('#year').val();
+
+            var url = '/Form/FleetPaymentList?month=' + month + '&year=' + year;
+            window.open(url, 'form list');
+        }
+
+        function number_format(number) {
+            var decimals = 2;
+            var dec_point = '.';
+            var thousands_sep = ',';
+            number = number.toFixed(decimals);
+            var nstr = number.toString();
+            nstr += '';
+            x = nstr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? dec_point + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+
+            while (rgx.test(x1))
+                x1 = x1.replace(rgx, '$1' + thousands_sep + '$2');
+
+            return x1 + x2;
+        }
+    </script>
+}
